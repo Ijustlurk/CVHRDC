@@ -1,0 +1,35 @@
+PROCEDURE:
+-> CONTROLLER
+-> ROUTE
+-> BLADE
+
+
+CREATE CONTROLLER:
+-> php artisan make:controller Admin/CTRLinventory -r
+
+DISPLAY ROUTE LIST:
+
+-> php artisan directory:list
+
+
+MIGRATION = php artisan migrate
+ MODEL
+ MIGRATION FILE = TABLE SCHEMA > RUN MIGRATION 
+
+ create model and migration
+= php artisan make:model modelname -m
+
+
+DISPLAY FROM DB
+Ctrl -> get model/query
+		$bldgrec = building::all();
+
+	-> send to blade  
+
+		return view('admin.bldg')
+        	->with('bldgrec',$bldgrec);
+	
+
+
+
+
