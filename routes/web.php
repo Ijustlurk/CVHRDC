@@ -4,6 +4,12 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\ProjectController;
+use App\Http\Controllers\Admin\ResearcherController;
+use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\PublicationController;
+use App\Http\Controllers\Admin\PartnerController;
 
 
 
@@ -23,8 +29,8 @@ use Illuminate\Support\Facades\DB;
 
 // route for the landing page
 Route::get('/', function () {
-    return view('auth.login');
-    //return view('welcome');
+   // return view('auth.login');
+    return view('welcome');
 });
 
 
@@ -34,26 +40,18 @@ Route::get('/', function () {
 
 // redirects to specific dashboard based on the role of the user
 Route::get('/dashboard', function () {
-    if(Auth::user()->roles[0]->name == "admin")
+    if(Auth::user()->roles[0]->name == "superadmin")
     {
 
 
 
-
-
-            // get all records per campus
-            $allcampuses = DB::table('buildings')
-            ->select('campus', DB::raw('count(*) as total'),  DB::raw('SUM(bldgfloorarea) as totalfloorareas'))
-            ->groupBy('campus')
-            ->get();
-
        // return Auth::user()->roles[0]->name;
-        return view('admin.dashboard',compact(['allcampuses']));
+        return view('superadmin.dashboard');
     }
-    else if(Auth::user()->roles[0]->name == "campus")
+    else if(Auth::user()->roles[0]->name == "admin")
     {
        // return Auth::user()->roles[0]->name;
-        return view('campus.dashboard');
+        return view('admin.dashboard');
     }
     else
     {
@@ -72,41 +70,8 @@ Route::middleware('auth')->group(function () {
 
 
 
-
-// admin routes here
-Route::namespace('App\Http\Controllers\Admin')->prefix('admin')->name('admin.')->middleware('can:admin-access')->group(function(){
-
-    // add routes here for admin
-    Route::resource('/users','UserController',['except' => ['create','store','destroy']]);
-    Route::get('/userfeedbacks','UserController@userfeedback')->name('userfeedback');
-
-    Route::resource('/logs','CTRLlogs');
-
-    Route::resource('/bldg','CTRLbldgprofile'); // route for function index will return the blade
-
-    Route::get('/listbldg', 'CTRLbldgprofile@listbldg')->name('admin.building.listbldg'); // will load the data from the function listbldg
-
-
-    Route::post('/bldgupdate1','CTRLbldgprofile@bldgupdate1')->name('bldgupdate1');
-
-
-    Route::resource('/inventory','CTRLinventory');
-    Route::resource('/rooms','CTRLrooms');
-
-    Route::get('/about', function () {
-        return view('admin.about');
-    })->name('about');
-
-
-    // delete, upload,
-    Route::get('viewbldg/{id}','CTRLbldgprofile@ViewBldg')->name('ViewBldg');
-    Route::get('ulbldgcert/{id}','CTRLbldgprofile@Uploadfile')->name('Uploadfile');
-
-    Route::get('dsplyselcam/{id}','CTRLbldgprofile@dsplyselcam')->name('dsplyselcam');
-
-
-    //  for the map of selected campus
-    Route::get('dsplyselcampusmap/{id}','CTRLbldgprofile@dsplyselcampusmap')->name('dsplyselcampusmap');
+// superadmin routes here
+Route::namespace('App\Http\Controllers\SuperAdmin')->prefix('superadmin')->name('superadmin.')->middleware('can:superadmin-access')->group(function(){
 
 
 
@@ -118,23 +83,24 @@ Route::namespace('App\Http\Controllers\Admin')->prefix('admin')->name('admin.')-
 
 
 
-
-// campus routes here
-Route::namespace('App\Http\Controllers\Campus')->prefix('campus')->name('campus.')->middleware('can:campus-access')->group(function(){
-
-    // add routes here for admin
-
-    Route::resource('/bldg','CTRLbldgprofile');
+// admin routes here
+Route::prefix('admin')->name('admin.')->middleware('can:admin-access')->group(function(){
 
 
-    Route::resource('/inventory','CTRLinventory');
-    Route::resource('/rooms','CTRLrooms');
-    Route::post('/bldgupdate1','CTRLbldgprofile@bldgupdate1')->name('bldgupdate1');
+
+    Route::resource('news', NewsController::class);
+    Route::resource('projects', ProjectController::class);
+    Route::resource('researchers', ResearcherController::class);
+    Route::resource('events', EventController::class);
+    Route::resource('publications', PublicationController::class);
+    Route::resource('partners', PartnerController::class);
 
 
-    Route::get('ulbldgLGUpermit/{id}','CTRLbldgprofile@LGUbldgpermitUploadfile')->name('LGUbldgpermitUploadfile');
-    Route::get('ulbldgFIREpermit/{id}','CTRLbldgprofile@FireldgpermitUploadfile')->name('FireldgpermitUploadfile');
-    Route::get('ulbldgOccupancy/{id}','CTRLbldgprofile@OccupancyUploadfile')->name('OccupancyUploadfile');
+    Route::resource('cms', App\Http\Controllers\Admin\CMSController::class);
+
+    Route::get('tabs/{tab?}', [App\Http\Controllers\Admin\AdminTabsController::class, 'index'])->name('tabs.index');
+
+
 
 });
 
@@ -146,13 +112,8 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
 
     // add routes here for users
     Route::resource('/feedback','CTRLFeedbacks',['except' => ['update','edit','destroy']]);
-
     Route::get('/myfeedbacks','CTRLFeedbacks@myfeedback')->name('myfeedback');
 
-    Route::resource('/products','CTRLproducts');
-
-    // eto route ng search products
-    Route::get('/searchproducts','CTRLproducts@searchproducts')->name('searchproducts');
 
 });
 

@@ -2,7 +2,7 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
-    <h1 class="text-xl text-center mb-4">Login to CSU-Building Information Management System</h1>
+    <h1 class="text-xl text-center mb-4">Login</h1>
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
