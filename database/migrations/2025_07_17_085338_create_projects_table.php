@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('status')->nullable();
             $table->decimal('budget', 15, 2)->nullable();
             $table->string('lead_researcher')->nullable();
+            $table->string('leader')->nullable();
+            $table->string('funding_agency')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_visible')->default(true); // for show/hide view settings
             $table->timestamps();
