@@ -85,6 +85,8 @@ Route::namespace('App\Http\Controllers\SuperAdmin')->prefix('superadmin')->name(
 
 // admin routes here
 Route::prefix('admin')->name('admin.')->middleware('can:admin-access')->group(function(){
+    Route::post('news/{id}/visibility', [NewsController::class, 'updateVisibility'])->name('news.visibility');
+    Route::post('projects/{id}/visibility', [ProjectController::class, 'updateVisibility'])->name('projects.visibility');
 
 
 
@@ -99,7 +101,7 @@ Route::prefix('admin')->name('admin.')->middleware('can:admin-access')->group(fu
     Route::resource('cms', App\Http\Controllers\Admin\CMSController::class);
 
     Route::get('tabs/{tab?}', [App\Http\Controllers\Admin\AdminTabsController::class, 'index'])->name('tabs.index');
-
+    Route::post('/admin/news/{id}/visibility', [NewsController::class, 'updateVisibility']);
 
 
 });

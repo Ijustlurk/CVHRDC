@@ -9,16 +9,38 @@ use Illuminate\Http\Request;
 class NewsController extends Controller
 {
     /**
+     * Update the visibility of a news item.
+     */
+    public function updateVisibility(Request $request, $id)
+    {
+        $request->validate([
+            'is_visible' => 'required|boolean',
+        ]);
+
+        $news = News::findOrFail($id);
+        $news->is_visible = $request->input('is_visible') ? 1 : 0;
+        $news->save();
+        return response()->json(['success' => true, 'is_visible' => $news->is_visible]);
+    }
+    /**
      * Display a listing of the resource.
      */
 
 
-    public function index()
+
+    public function index(Request $request)
     {
-        if (request()->expectsJson()) {
-            return response()->json(News::all());
+        if ($request->expectsJson()) {
+            if ($request->has('all') && $request->input('all')) {
+                $allNews = News::orderBy('created_at', 'desc')->get();
+                return response()->json($allNews);
+            }
+            // Otherwise, return 3 recent
+            $recentNews = News::orderBy('created_at', 'desc')->take(3)->get();
+            return response()->json($recentNews);
         }
-        return view('admin.tabs.partials.news');
+        // ...existing code...
+
     }
     /**
      * Show the form for creating a new resource.

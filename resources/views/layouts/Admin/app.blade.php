@@ -3,6 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
         <title>{{ config('app.name', 'CVHRDC') }}</title>
 
@@ -12,6 +14,10 @@
 
         <!-- Bootstrap CSS CDN -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Bootstrap Bundle with Popper (required for modal, dropdown, etc.) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-VkW1ibzE0sm7iV8YwnTZb8SnHqGpB1gQnNHH2jl+vOpNv4QYAGbhvX7MCi6e/hfB" crossorigin="anonymous"></script>
+
 
         @vite(['resources/css/app.css','resources/scss/app.scss', 'resources/js/app.js'])
 
