@@ -24,6 +24,11 @@ use App\Http\Controllers\Admin\PartnerController;
 |
 */
 
+Route::get('/sample', function () {
+   // return view('auth.login');
+    return view('sample');
+});
+
 
 
 

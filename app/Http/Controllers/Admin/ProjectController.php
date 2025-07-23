@@ -35,11 +35,12 @@ class ProjectController extends Controller
     {
         if ($request->expectsJson()) {
             if ($request->has('all') && $request->input('all')) {
-                $allProjects = Project::orderBy('created_at', 'desc')->get();
+                // Return all projects in descending order by id
+                $allProjects = Project::orderBy('id', 'desc')->get();
                 return response()->json($allProjects);
             }
-            // Otherwise, return 3 recent
-            $recentProjects = Project::orderBy('created_at', 'desc')->take(3)->get();
+            // Otherwise, return 4 recent projects for blade view
+            $recentProjects = Project::orderBy('id', 'desc')->take(4)->get();
             return response()->json($recentProjects);
         }
         return view('admin.tabs.partials.projects');

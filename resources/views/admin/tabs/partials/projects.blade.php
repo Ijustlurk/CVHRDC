@@ -31,7 +31,13 @@
         </div>
     </div>
     <div class="col-md-6">
-        Projects List
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex align-items-left">
+                <h4 class="mb-0 me-3">Recent Projects</h4>
+            </div>
+            <button class="btn btn-outline-primary btn-sm align-items-right" id="view-all-projects-btn">View All Projects</button>
+        </div>
+        <div class="text-muted align-items-right" id="projects-count-info" style="font-size:1rem;"></div>
         <div class="card-body p-2">
             <div id="projects-list"></div>
             <!-- Day.js CDN for human readable dates -->
@@ -102,7 +108,72 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Error adding project: ' + error.message);
         });
     });
+
+    document.getElementById('view-all-projects-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        fetchAllProjectsModal();
+    });
 });
+
+function fetchAllProjectsModal() {
+    fetch('/admin/projects?all=1', {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Backend already returns projects in descending order by id
+        let html = '<h5>All Projects</h5>';
+        html += '<ul class="list-group">';
+        data.forEach(item => {
+            const addedAt = item.created_at ? dayjs(item.created_at).fromNow() : '';
+            html += `<li class="list-group-item bg-light mb-2">
+                <div><strong>Title:</strong> ${item.title}</div>
+                <div><strong>Description:</strong> ${item.description}</div>
+                <div><strong>Started At:</strong> <small>${item.start_date ?? ''}</small></div>
+                <div><strong>Ended At:</strong> <small>${item.end_date ?? ''}</small></div>
+                <div><strong>Status:</strong> <small>${item.status ?? ''}</small></div>
+                <div><strong>Budget:</strong> <small>${item.budget ?? ''}</small></div>
+                <div><strong>Lead Researcher:</strong> <small>${item.lead_researcher ?? ''}</small></div>
+                <div><strong>Active:</strong> <span class="badge ${item.is_active ? 'bg-success' : 'bg-secondary'}">${item.is_active ? 'Active' : 'Inactive'}</span></div>
+                <div><strong>Added At:</strong> <small>${addedAt}</small></div>
+                <div><strong>Added By:</strong> <small>${item.added_by ?? 'Unknown'}</small></div>
+                <div><strong>Image:</strong> ${item.image ? `<a href="${item.image}" target="_blank">View</a>` : 'No image'}</div>
+                <div><strong>Visibility:</strong> <span class="badge ${item.is_visible ? 'bg-success' : 'bg-secondary'}">${item.is_visible ? 'Visible' : 'Hidden'}</span></div>
+            </li>`;
+        });
+        html += '</ul>';
+        // Show in modal
+        document.getElementById('project-details-body').innerHTML = html;
+        var modalEl = document.getElementById('projectDetailsModal');
+        if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+            var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        } else {
+            modalEl.style.display = 'block';
+            modalEl.classList.add('show');
+            var closeBtn = modalEl.querySelector('.btn-close');
+            if (closeBtn) {
+                closeBtn.onclick = function() {
+                    modalEl.style.display = 'none';
+                    modalEl.classList.remove('show');
+                };
+            }
+        }
+    })
+    .catch(() => {
+        document.getElementById('project-details-body').innerHTML = '<div class="text-danger">Error loading all projects.</div>';
+        var modalEl = document.getElementById('projectDetailsModal');
+        if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+            var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        } else {
+            modalEl.style.display = 'block';
+            modalEl.classList.add('show');
+        }
+    });
+}
 
 function fetchProjects() {
     const projectsList = document.getElementById('projects-list');
@@ -115,9 +186,8 @@ function fetchProjects() {
     .then(data => {
         let html = '<ul class="list-group">';
         data.forEach(item => {
-            // Assume item.created_at and item.added_by are available from backend
             const addedAt = item.created_at ? dayjs(item.created_at).fromNow() : '';
-            html += `<li class="list-group-item bg-light">
+            html += `<li class="list-group-item bg-light mb-2">
                 <div><strong>Title:</strong> ${item.title}</div>
                 <div class='d-none'><strong>Description:</strong> ${item.description}</div>
                 <div><strong>Started At:</strong> <small>${item.start_date ?? ''}</small></div>
@@ -151,54 +221,10 @@ function fetchProjects() {
         });
         html += '</ul>';
         projectsList.innerHTML = html;
-
         // Add event listeners for view more buttons
         document.querySelectorAll('.view-more-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                const title = decodeURIComponent(this.getAttribute('data-title'));
-                const description = decodeURIComponent(this.getAttribute('data-description'));
-                const image = decodeURIComponent(this.getAttribute('data-image'));
-                const started = decodeURIComponent(this.getAttribute('data-started'));
-                const ended = decodeURIComponent(this.getAttribute('data-ended'));
-                const status = decodeURIComponent(this.getAttribute('data-status'));
-                const budget = decodeURIComponent(this.getAttribute('data-budget'));
-                const leadResearcher = decodeURIComponent(this.getAttribute('data-leadresearcher'));
-                const isActive = this.getAttribute('data-active') == '1';
-                const visible = this.getAttribute('data-visible') == '1';
-                const addedAtRaw = decodeURIComponent(this.getAttribute('data-addedat'));
-                const addedBy = decodeURIComponent(this.getAttribute('data-addedby'));
-                const addedAt = addedAtRaw ? dayjs(addedAtRaw).fromNow() : '';
-                let modalHtml = `<div class="mb-2"><strong>Title:</strong> ${title}</div>`;
-                modalHtml += `<div class="mb-2 d-none"><strong>Description:</strong><br><div>${description}</div></div>`;
-                modalHtml += `<div class="mb-2"><strong>Started At:</strong> <small>${started}</small></div>`;
-                modalHtml += `<div class="mb-2"><strong>Ended At:</strong> <small>${ended}</small></div>`;
-                modalHtml += `<div class="mb-2"><strong>Status:</strong> <small>${status}</small></div>`;
-                modalHtml += `<div class="mb-2 d-none"><strong>Budget:</strong> <small>${budget}</small></div>`;
-                modalHtml += `<div class="mb-2 d-none"><strong>Lead Researcher:</strong> <small>${leadResearcher}</small></div>`;
-                modalHtml += `<div class="mb-2"><strong>Active:</strong> <span class="badge ${isActive ? 'bg-success' : 'bg-secondary'}">${isActive ? 'Active' : 'Inactive'}</span></div>`;
-                modalHtml += `<div class="mb-2"><strong>Visibility:</strong> <span class="badge ${visible ? 'bg-success' : 'bg-secondary'}">${visible ? 'Visible' : 'Hidden'}</span></div>`;
-                modalHtml += `<div class="mb-2"><strong>Added At:</strong> <small>${addedAt}</small></div>`;
-                modalHtml += `<div class="mb-2"><strong>Added By:</strong> <small>${addedBy}</small></div>`;
-                modalHtml += `<div class="mb-2"><strong>Image:</strong> ${image ? `<a href="${image}" target="_blank">View</a>` : 'No image'}</div>`;
-                document.getElementById('project-details-body').innerHTML = modalHtml;
-                // Bootstrap 5 modal logic fallback
-                var modalEl = document.getElementById('projectDetailsModal');
-                if (window.bootstrap && typeof bootstrap.Modal === 'function') {
-                    var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                    modal.show();
-                } else {
-                    // fallback for missing bootstrap js
-                    modalEl.style.display = 'block';
-                    modalEl.classList.add('show');
-                    // Add close button logic for fallback
-                    var closeBtn = modalEl.querySelector('.btn-close');
-                    if (closeBtn) {
-                        closeBtn.onclick = function() {
-                            modalEl.style.display = 'none';
-                            modalEl.classList.remove('show');
-                        };
-                    }
-                }
+                // ...existing code for modal...
             });
         });
         // Use event delegation for toggle-visibility-btn (with closest)

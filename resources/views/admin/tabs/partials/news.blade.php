@@ -7,7 +7,10 @@
             <div class="card-body">
 
 
-                <form id="news-form">
+                <form id="news-form" >
+                    @csrf
+
+
                     <div class="mb-3">
                         <label for="news-title" class="form-label">Title</label>
                         <textarea class="form-control" id="news-title" name="title" rows="6" required></textarea>
@@ -17,19 +20,24 @@
                         <textarea class="form-control" id="news-content" name="content" rows="6" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="news-image" class="form-label">Image URL(google drive link)</label>
+                        <label for="news-image" class="form-label">Image URL (Google Drive link)</label>
                         <input type="text" class="form-control" id="news-image" name="image">
+                        <div id="image-url-error" class="text-danger small d-none">Please enter a valid URL.</div>
                     </div>
                     <div class="mb-3">
                         <label for="news-published-at" class="form-label">Published At</label>
                         <input type="datetime-local" class="form-control" id="news-published-at" name="published_at">
                     </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="news-visible" name="is_visible" checked>
-                        <label class="form-check-label" for="news-visible">Visible</label>
+                    <div class="mb-3">
+                        <label for="news-visible" class="form-label">Visibility</label>
+                        <select class="form-select" id="news-visible" name="is_visible">
+                            <option value="1" selected>Visible</option>
+                            <option value="0">Hidden</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Add News</button>
                 </form>
+
             </div>
         </div>
     </div>
@@ -90,6 +98,8 @@ tinymce.init({
     toolbar: 'undo redo | bold italic underline | bullist numlist | link image | fontsizeselect',
     height: 250
 });
+
+
 document.addEventListener('DOMContentLoaded', function() {
     fetchNews();
     setInterval(fetchNews, 5000);
@@ -135,10 +145,7 @@ function fetchAllNewsModal() {
     })
     .then(response => response.json())
     .then(data => {
-        // If the backend returns an array, sort by created_at desc
-        if (Array.isArray(data)) {
-            data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        }
+        // Backend already returns news in descending order by id
         let html = '<h5>All News</h5>';
         html += '<ul class="list-group">';
         data.forEach(item => {
@@ -257,6 +264,8 @@ function fetchNews() {
                 }
             });
         });
+
+
 
         // Use event delegation for toggle-visibility-btn (with closest)
         newsList.addEventListener('click', function(e) {
