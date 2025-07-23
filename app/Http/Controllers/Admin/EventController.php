@@ -10,11 +10,33 @@ use Illuminate\Http\Request;
 class EventController extends Controller
 {
     /**
+     * Update the visibility of an event item.
+     */
+    public function updateVisibility(Request $request, $id)
+    {
+        $request->validate([
+            'is_visible' => 'required|boolean',
+        ]);
+        $event = Event::where('id', $id)->firstOrFail();
+        $event->is_visible = $request->input('is_visible') ? 1 : 0;
+        $event->save();
+        return response()->json(['success' => true, 'is_visible' => $event->is_visible]);
+    }
+    /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $request = request();
+        if ($request->expectsJson()) {
+            if ($request->has('all') && $request->input('all')) {
+                $allEvents = Event::orderBy('id', 'desc')->get();
+                return response()->json($allEvents);
+            }
+            $recentEvents = Event::orderBy('id', 'desc')->take(4)->get();
+            return response()->json($recentEvents);
+        }
+        return view('admin.tabs.partials.events');
     }
 
     // /**

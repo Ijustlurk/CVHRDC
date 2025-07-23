@@ -32,11 +32,13 @@ class NewsController extends Controller
     {
         if ($request->expectsJson()) {
             if ($request->has('all') && $request->input('all')) {
-                $allNews = News::orderBy('created_at', 'desc')->get();
+
+                // Return all news in descending order by id
+                $allNews = News::orderBy('id', 'desc')->get();
                 return response()->json($allNews);
             }
-            // Otherwise, return 3 recent
-            $recentNews = News::orderBy('created_at', 'desc')->take(3)->get();
+            // Otherwise, return 4 recent news for blade view
+            $recentNews = News::orderBy('id', 'desc')->take(4)->get();
             return response()->json($recentNews);
         }
         // ...existing code...
@@ -56,14 +58,15 @@ class NewsController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string',
             'content' => 'required|string',
             'image' => 'nullable|string',
             'published_at' => 'nullable|date',
-            'is_visible' => 'nullable|boolean',
+            'is_visible' => 'required|boolean',
         ]);
 
         $news = News::create($validated);
+
         return response()->json($news, 201);
     }
 
