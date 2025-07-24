@@ -40,20 +40,75 @@
                 </form>
             </div>
         </div>
+
     <div class="col-md-6">
-        <div class="card bg-light mb-3">
-            <div class="card-header">Publications List</div>
-            <div class="card-body p-2">
-                <div id="publications-list"></div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex align-items-left">
+                <h4 class="mb-0 me-3">Recent Publications</h4>
+            </div>
+            <button class="btn btn-outline-primary btn-sm align-items-right" id="view-all-publications-btn">View All Publications</button>
+        </div>
+        <div class="text-muted align-items-right" id="publications-count-info" style="font-size:1rem;"></div>
+        <div class="card-body p-2">
+            <div id="publications-list"></div>
+            <!-- Day.js CDN for human readable dates -->
+            <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
+            <script>dayjs.extend(dayjs_plugin_relativeTime);</script>
+            <!-- Publications Details Modal -->
+            <div class="modal fade" id="publicationsDetailsModal" tabindex="-1" aria-labelledby="publicationsDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="publicationsDetailsModalLabel">Publication Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="publications-details-body">
+                            <!-- Details will be loaded here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetchPublications();
+    setInterval(fetchPublications, 5000);
+    document.getElementById('publications-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        fetch('/admin/publications', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                title: document.getElementById('publication-title').value,
+                description: document.getElementById('publication-description').value,
+                author: document.getElementById('publication-author').value,
+                published_at: document.getElementById('publication-published-at').value,
+                type: document.getElementById('publication-type').value,
+                file_url: document.getElementById('publication-file-url').value,
+                tags: document.getElementById('publication-tags').value,
+                is_visible: document.getElementById('publication-visible').checked ? 1 : 0
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
             document.getElementById('publications-form').reset();
             fetchPublications();
+        })
+        .catch(error => {
+            alert('Error adding publication: ' + error.message);
         });
     });
 });
+
 function fetchPublications() {
     const publicationsList = document.getElementById('publications-list');
     fetch('/admin/publications', {

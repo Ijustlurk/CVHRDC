@@ -1,8 +1,11 @@
 <div class="row">
     <div class="col-md-6">
+
+
         <div class="card mb-3">
             <div class="card-header">Add Event</div>
             <div class="card-body">
+
                 <form id="events-form">
                     <div class="mb-3">
                         <label for="event-title" class="form-label">Title</label>
@@ -40,24 +43,64 @@
                 </form>
             </div>
         </div>
+    </div>
     <div class="col-md-6">
-        <div class="card bg-light mb-3">
-            <div class="card-header">Events List</div>
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-left">
+                    <h4 class="mb-0 me-3">Recent Events</h4>
+                </div>
+            <button class="btn btn-outline-primary btn-sm align-items-right" id="view-all-events-btn">View All Events</button>
+
+            </div>
+            <div class="text-muted align-items-right" id="news-count-info" style="font-size:1rem;"></div>
+
             <div class="card-body p-2">
                 <div id="events-list"></div>
-            </div>
-        </div>
-    </div>
-</div>
 
-@php
-    
-@endphp
-            document.getElementById('events-form').reset();
-            fetchEvents();
-        });
+                <!-- Day.js CDN for human readable dates -->
+                <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/relativeTime.js"></script>
+                <script>dayjs.extend(dayjs_plugin_relativeTime);</script>
+                <!-- News Details Modal -->
+                <div class="modal fade" id="newsDetailsModal" tabindex="-1" aria-labelledby="newsDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="newsDetailsModalLabel">News Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="news-details-body">
+                        <!-- Details will be loaded here -->
+                    </div>
+                    </div>
+                </div>
+                </div>
+                                    </div>
+
+                    </div>
+                </div>
+
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchEvents();
+        setInterval(fetchEvents, 5000);
+
+            document.getElementById('view-all-events-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                fetchAllEventsModal();
+            });
     });
-});
+
+
+
+
+
+
+
 function fetchEvents() {
     const eventsList = document.getElementById('events-list');
     fetch('/admin/events', {
