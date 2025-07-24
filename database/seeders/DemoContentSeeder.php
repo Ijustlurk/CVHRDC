@@ -11,12 +11,12 @@ class DemoContentSeeder extends Seeder
     {
 
         // Remove existing records before seeding
-        DB::table('news')->truncate();
-        DB::table('projects')->truncate();
-        DB::table('researchers')->truncate();
-        DB::table('events')->truncate();
-        DB::table('publications')->truncate();
-        DB::table('partners')->truncate();
+        // DB::table('news')->truncate();
+        // DB::table('projects')->truncate();
+        // DB::table('researchers')->truncate();
+        // DB::table('events')->truncate();
+        // DB::table('publications')->truncate();
+        // DB::table('partners')->truncate();
 
         DB::table('news')->insert([
             [

@@ -10,7 +10,8 @@ use App\Http\Controllers\Admin\ResearcherController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\PublicationController;
 use App\Http\Controllers\Admin\PartnerController;
-
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Users\DashboardController as UserDashboardController;
 
 
 /*
@@ -30,8 +31,6 @@ Route::get('/sample', function () {
 });
 
 
-
-
 // route for the landing page
 Route::get('/', function () {
    // return view('auth.login');
@@ -45,24 +44,16 @@ Route::get('/', function () {
 
 // redirects to specific dashboard based on the role of the user
 Route::get('/dashboard', function () {
-    if(Auth::user()->roles[0]->name == "superadmin")
-    {
-
-
-
-       // return Auth::user()->roles[0]->name;
-        return view('superadmin.dashboard');
+    $user = Auth::user();
+    if ($user && $user->roles && count($user->roles) > 0) {
+        $role = strtolower($user->roles[0]->name);
+        if ($role === 'admin' || $role === 'superadmin') {
+            return app(AdminDashboardController::class)->index();
+        } else {
+            return app(UserDashboardController::class)->index();
+        }
     }
-    else if(Auth::user()->roles[0]->name == "admin")
-    {
-       // return Auth::user()->roles[0]->name;
-        return view('admin.dashboard');
-    }
-    else
-    {
-        // return Auth::user()->roles[0]->name;
-        return view('users.dashboard');
-    }
+    abort(403, 'Unauthorized Access');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
@@ -109,19 +100,26 @@ Route::prefix('admin')->name('admin.')->middleware('can:admin-access')->group(fu
     Route::post('/admin/news/{id}/visibility', [NewsController::class, 'updateVisibility']);
 
 
+    // Admin Footer Management
+    Route::get('/footer/edit', [App\Http\Controllers\Admin\FooterController::class, 'edit'])->name('admin.footer.edit');
+    Route::post('/footer/update', [App\Http\Controllers\Admin\FooterController::class, 'update'])->name('admin.footer.update');
+
+    // Admin Settings Management
+    Route::get('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings/{section}', [App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+
 });
 
 
 
 
 // users routes here
-Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')->middleware('can:user-access')->group(function(){
 
+Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')->middleware('can:user-access')->group(function(){
     // add routes here for users
     Route::resource('/feedback','CTRLFeedbacks',['except' => ['update','edit','destroy']]);
     Route::get('/myfeedbacks','CTRLFeedbacks@myfeedback')->name('myfeedback');
-
-
+    Route::resource('/products', 'ProductsController')->only(['index']);
 });
 
 

@@ -25,17 +25,19 @@
 
     </head>
     <body class="antialiased">
+        <!-- renders here the navigation -->
+        @include('layouts.Admin.navigation')
 
-            <!-- renders here the navigation -->
-            @include('layouts.Admin.navigation')
+        <!-- Page Content -->
+        <main>
+            <!-- starts to render the blade content -->
+            @yield('content')
+        </main>
 
-            <!-- Page Content -->
-            <main>
-                <!-- starts to render the blade content -->
-                @yield('content')
-            </main>
-        </div>
-
+        @php
+            $footer = \App\Models\Footer::first();
+        @endphp
+        @include('layouts.Admin.footer', ['footer' => $footer])
     </body>
 </html>
 

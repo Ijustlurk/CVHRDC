@@ -7,8 +7,8 @@ use Illuminate\Database\Seeder;
 use Illuminate\support\facades\Hash;
 use Illuminate\support\facades\DB;
 
-	use App\Models\Role;
-	use App\Models\User;
+    use App\Models\Role;
+    use App\Models\User;
 
 
 
@@ -20,9 +20,18 @@ class UsersTableSeeder extends Seeder
     public function run(): void
     {
 
-        // this will remove the record from the table when performing seeder
+        // Disable foreign key checks to allow truncating tables with foreign key constraints
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;'); // MySQL only
+
+        // Truncate child tables first (those that reference users)
+        DB::table('publications')->truncate(); // publications.user_id -> users.id
+        DB::table('role_user')->truncate();    // pivot table for user roles
+
+        // Now truncate the users table
         User::truncate();
-        DB::table('role_user')->truncate();
+
+        // Re-enable foreign key checks after truncation
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); // Always re-enable after
 
         // ths will get the roles from the role table
         $superadminRole = Role::Where('name', 'superadmin')->first();
