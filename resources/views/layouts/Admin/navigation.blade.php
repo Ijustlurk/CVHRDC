@@ -57,8 +57,13 @@
                     </x-slot>
 
                     <x-slot name="content">
+
                         <x-dropdown-link :href="route('profile.edit')" class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150">
                             {{ __('Profile') }}
+                        </x-dropdown-link>
+
+                        <x-dropdown-link :href="route('admin.settings.index')" class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150">
+                            <i class="bi bi-gear"></i> Settings
                         </x-dropdown-link>
 
                         <!-- Authentication -->
