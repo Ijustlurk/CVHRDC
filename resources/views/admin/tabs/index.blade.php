@@ -1,5 +1,4 @@
-@extends('layouts.Admin.app')
-
+@extends('layouts.admin.app')
 @section('content')
 <div class="container py-4">
     <div class="d-flex align-items-center mb-4 gap-3">
@@ -27,6 +26,9 @@
         <li class="nav-item">
             <a class="nav-link{{ $tab == 'partners' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'partners']) }}">Partners</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link{{ $tab == 'announcements' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'announcements']) }}">Announcements</a>
+        </li>
     </ul>
     <div>
         @if($tab == 'news')
@@ -41,6 +43,8 @@
             @include('admin.tabs.partials.researchers')
         @elseif($tab == 'partners')
             @include('admin.tabs.partials.partners')
+        @elseif($tab == 'announcements')
+            @include('admin.tabs.partials.announcement')
         @endif
     </div>
 </div>

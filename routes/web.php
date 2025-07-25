@@ -81,11 +81,10 @@ Route::namespace('App\Http\Controllers\SuperAdmin')->prefix('superadmin')->name(
 
 // admin routes here
 Route::prefix('admin')->name('admin.')->middleware('can:admin-access')->group(function(){
+    
+
     Route::post('news/{id}/visibility', [NewsController::class, 'updateVisibility'])->name('news.visibility');
     Route::post('projects/{id}/visibility', [ProjectController::class, 'updateVisibility'])->name('projects.visibility');
-
-
-
     Route::resource('news', NewsController::class);
     Route::resource('projects', ProjectController::class);
     Route::resource('researchers', ResearcherController::class);
@@ -107,6 +106,19 @@ Route::prefix('admin')->name('admin.')->middleware('can:admin-access')->group(fu
     // Admin Settings Management
     Route::get('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings/{section}', [App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+
+    // Admin Database Backup Settings Management
+    Route::get('/settings/database-backup/download/{file}', [App\Http\Controllers\Admin\DatabaseBackupController::class, 'download'])->name('settings.database_backup.download');
+    Route::get('/settings/database-backup', [App\Http\Controllers\Admin\DatabaseBackupController::class, 'show'])->name('settings.database_backup');
+    Route::post('/settings/database-backup', [App\Http\Controllers\Admin\DatabaseBackupController::class, 'update'])->name('settings.database_backup.update');
+    Route::post('/settings/database-backup/perform', [App\Http\Controllers\Admin\DatabaseBackupController::class, 'performBackup'])->name('settings.database_backup.perform');
+    
+    // Admin Banner Management
+    Route::post('/banner/update', [App\Http\Controllers\Admin\BannerController::class, 'update'])->name('admin.banner.update');
+    Route::post('/announcement/update', [App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('admin.announcement.update');
+    Route::post('/header/update', [App\Http\Controllers\Admin\HeaderController::class, 'update'])->name('admin.header.update');
+    
+    
 
 });
 

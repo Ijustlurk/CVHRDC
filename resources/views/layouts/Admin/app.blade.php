@@ -30,8 +30,28 @@
 
         <!-- Page Content -->
         <main>
-            <!-- starts to render the blade content -->
-            @yield('content')
+            <!-- Maintenance mode note for admins -->
+            {{-- @php
+                $maintenance = \App\Models\Maintenance::where('active', true)->first();
+                $maintenanceMessage = \App\Models\Maintenance::where('active', true)->first();
+            @endphp --}}
+
+        @php
+    $maintenanceMode = \App\Models\Maintenance::where('key', 'maintenance_mode')->value('value') ?? 'off';
+    $maintenanceMessage = \App\Models\Maintenance::where('key', 'maintenance_message')->value('value') ?? '';
+        @endphp
+
+        @if($maintenanceMode === 'on')
+            <div class="alert alert-warning text-center mb-3">
+                <strong>Note:</strong> The system is currently in <span class="text-danger">maintenance mode</span>.<br>
+                Only the user-side is affected. The admin dashboard remains fully accessible.<br>
+                <span class="text-muted">{{ $maintenanceMessage }}</span>
+            </div>
+        @endif
+
+        <!-- starts to render the blade content -->
+        @yield('content')
+
         </main>
 
         @php

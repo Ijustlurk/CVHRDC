@@ -63,7 +63,7 @@
                         </x-dropdown-link>
 
                         <x-dropdown-link :href="route('admin.settings.index')" class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150">
-                            <i class="bi bi-gear"></i> Settings
+                            <i class="bi bi-gear"></i> System Settings
                         </x-dropdown-link>
 
                         <!-- Authentication -->
