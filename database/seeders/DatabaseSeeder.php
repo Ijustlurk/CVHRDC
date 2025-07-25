@@ -22,6 +22,10 @@ class DatabaseSeeder extends Seeder
 
         $this->call(RolesTableSeeder::class);
         $this->call(UsersTableSeeder::class);
+
+        $this->call(SettingsSeeder::class); 
+        $this->call(DemoContentSeeder::class); // Ensure MaintenanceSeeder is called after SettingsSeeder
+      
         
     }
 }
