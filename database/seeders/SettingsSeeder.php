@@ -43,7 +43,6 @@ class SettingsSeeder extends Seeder
                 'subtitle' => 'Advancing Health Research in Cagayan Valley',
                 'image' => '/images/banner-default.jpg',
                 'link' => 'https://cvhrdc.org.ph',
-                'active' => true
             ]
         );
 

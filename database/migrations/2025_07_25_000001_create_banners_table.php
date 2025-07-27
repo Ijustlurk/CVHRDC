@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->string('subtitle')->nullable();
             $table->string('image')->nullable();
             $table->string('link')->nullable();
-            // removed 'active' column
+
             $table->timestamps();
         });
     }
