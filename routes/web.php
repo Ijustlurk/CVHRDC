@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\PublicationController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Users\DashboardController as UserDashboardController;
+use App\Http\Controllers\Admin\SettingsController;
 
 
 /*
@@ -118,7 +119,10 @@ Route::prefix('admin')->name('admin.')->middleware('can:admin-access')->group(fu
     Route::post('/announcement/update', [App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('admin.announcement.update');
     Route::post('/header/update', [App\Http\Controllers\Admin\HeaderController::class, 'update'])->name('admin.header.update');
     
-    
+    // Admin Settings Update Maintenance
+    Route::prefix('settings')->group(function () {
+        Route::post('/update-maintenance', [SettingsController::class, 'updateMaintenance'])->name('settings.updateMaintenance');
+    });
 
 });
 

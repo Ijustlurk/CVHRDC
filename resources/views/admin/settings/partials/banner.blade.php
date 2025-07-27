@@ -13,27 +13,21 @@
                     @csrf
                     <div class="mb-3">
                         <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="title" name="title" value="{{ old('title', $banner->title ?? '') }}" required>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ old('title', $settings->title ?? '') }}" required>
                     </div>
                     <div class="mb-3">
                         <label for="subtitle" class="form-label">Subtitle</label>
-                        <input type="text" class="form-control" id="subtitle" name="subtitle" value="{{ old('subtitle', $banner->subtitle ?? '') }}">
+                        <input type="text" class="form-control" id="subtitle" name="subtitle" value="{{ old('subtitle', $settings->subtitle ?? '') }}">
                     </div>
                     <div class="mb-3">
                         <label for="image" class="form-label">Image URL</label>
-                        <input type="text" class="form-control" id="image" name="image" value="{{ old('image', $banner->image ?? '') }}">
+                        <input type="text" class="form-control" id="image" name="image" value="{{ old('image', $settings->image ?? '') }}">
                     </div>
                     <div class="mb-3">
                         <label for="link" class="form-label">Link</label>
-                        <input type="text" class="form-control" id="link" name="link" value="{{ old('link', $banner->link ?? '') }}">
+                        <input type="text" class="form-control" id="link" name="link" value="{{ old('link', $settings->link ?? '') }}">
                     </div>
-                    <div class="mb-3">
-                        <label for="active" class="form-label">Active</label>
-                        <select class="form-select" id="active" name="active" required>
-                            <option value="1" {{ old('active', $banner->active ?? true) == 1 ? 'selected' : '' }}>Active</option>
-                            <option value="0" {{ old('active', $banner->active ?? true) == 0 ? 'selected' : '' }}>Inactive</option>
-                        </select>
-                    </div>
+
                     <button type="submit" class="btn btn-primary">Save Banner</button>
                 </form>
             </div>
@@ -57,20 +51,18 @@
         </style>
         <ul class="list-group">
             <li class="list-group-item bg-light mb-2">
-                <p><strong>Title:</strong> {{ $banner->title ?? '' }}</p>
+                <p><strong>Title:</strong> {{ $settings->title ?? '' }}</p>
             </li>
             <li class="list-group-item bg-light mb-2">
-                <p><strong>Subtitle:</strong> {{ $banner->subtitle ?? '' }}</p>
+                <p><strong>Subtitle:</strong> {{ $settings->subtitle ?? '' }}</p>
             </li>
             <li class="list-group-item bg-light mb-2">
-                <p><strong>Image URL:</strong> {{ $banner->image ?? '' }}</p>
+                <p><strong>Image URL:</strong> {{ $settings->image ?? '' }}</p>
             </li>
             <li class="list-group-item bg-light mb-2">
-                <p><strong>Link:</strong> {{ $banner->link ?? '' }}</p>
+                <p><strong>Link:</strong> {{ $settings->link ?? '' }}</p>
             </li>
-            <li class="list-group-item bg-light mb-2">
-                <p><strong>Status:</strong> {{ ($banner->active ?? true) ? 'Active' : 'Inactive' }}</p>
-            </li>
+
         </ul>
        
     </div>

@@ -5,10 +5,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up() {
-            Schema::create('maintenance', function (Blueprint $table) {
+        Schema::create('maintenance', function (Blueprint $table) {
             $table->id();
-            $table->string('key')->unique();      // ex: maintenance_mode
-            $table->string('value');              // ex: on/off or message string
+            $table->boolean('active')->default(false); // true = maintenance on
+            $table->string('message')->nullable();
+            $table->string('active')->nullable();
+            $table->string('message')->nullable();
             $table->timestamps();
         });
     }

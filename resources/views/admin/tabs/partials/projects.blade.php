@@ -29,10 +29,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="project-status" class="form-label">Status</label>
-                        <select class="form-select" id="project-status" name="status">
-                            <option value="On-going">On-going</option>
-                            <option value="Completed">Completed</option>
-                        </select>
+                        <input type="text" class="form-control" id="project-status" name="status">
                     </div>
                     <div class="mb-3">
                         <label for="project-budget" class="form-label">Budget</label>

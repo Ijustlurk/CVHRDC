@@ -47,7 +47,11 @@
         @foreach($sections as $section)
             @if(!in_array($section, ['announcement', 'general_announcement']))
                 <div class="tab-pane fade{{ $activeTab == $section ? ' show active' : '' }}" id="{{ $section }}">
-                    @include('admin.settings.partials.' . $section, ['settings' => $settings[$section] ?? collect()])
+                    @if($section === 'maintenance')
+                        @include('admin.settings.partials.maintenance', ['maintenance' => $maintenance])
+                    @else
+                        @include('admin.settings.partials.' . $section, ['settings' => $settings[$section] ?? collect()])
+                    @endif
                 </div>
             @endif
         @endforeach

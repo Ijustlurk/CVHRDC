@@ -7,15 +7,15 @@
                     @csrf
                     <div class="mb-3">
                         <label for="title" class="form-label">Website Title</label>
-                        <input type="text" class="form-control" id="title" name="title" value="{{ old('title', $header->title ?? '') }}" required>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ old('title', $settings->title ?? '') }}" required>
                     </div>
                     <div class="mb-3">
                         <label for="subtitle" class="form-label">Website Subtitle</label>
-                        <input type="text" class="form-control" id="subtitle" name="subtitle" value="{{ old('subtitle', $header->subtitle ?? '') }}">
+                        <input type="text" class="form-control" id="subtitle" name="subtitle" value="{{ old('subtitle', $settings->subtitle ?? '') }}">
                     </div>
                     <div class="mb-3">
                         <label for="logo" class="form-label">Logo URL</label>
-                        <input type="text" class="form-control" id="logo" name="logo" value="{{ old('logo', $header->logo ?? '') }}">
+                        <input type="text" class="form-control" id="logo" name="logo" value="{{ old('logo', $settings->logo ?? '') }}">
                     </div>
                     <button type="submit" class="btn btn-primary">Save Header</button>
                 </form>
@@ -40,13 +40,13 @@
         </style>
         <ul class="list-group">
             <li class="list-group-item bg-light mb-2">
-                <p><strong>Title:</strong> {{ $header->title ?? '' }}</p>
+                <p><strong>Title:</strong> {{ $settings->title ?? '' }}</p>
             </li>
             <li class="list-group-item bg-light mb-2">
-                <p><strong>Subtitle:</strong> {{ $header->subtitle ?? '' }}</p>
+                <p><strong>Subtitle:</strong> {{ $settings->subtitle ?? '' }}</p>
             </li>
             <li class="list-group-item bg-light mb-2">
-                <p><strong>Logo URL:</strong> {{ $header->logo ?? '' }}</p>
+                <p><strong>Logo URL:</strong> {{ $settings->logo ?? '' }}</p>
             </li>
         </ul>
        

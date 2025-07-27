@@ -31,21 +31,16 @@
         <!-- Page Content -->
         <main>
             <!-- Maintenance mode note for admins -->
-            {{-- @php
-                $maintenance = \App\Models\Maintenance::where('active', true)->first();
-                $maintenanceMessage = \App\Models\Maintenance::where('active', true)->first();
-            @endphp --}}
+
 
         @php
-    $maintenanceMode = \App\Models\Maintenance::where('key', 'maintenance_mode')->value('value') ?? 'off';
-    $maintenanceMessage = \App\Models\Maintenance::where('key', 'maintenance_message')->value('value') ?? '';
+            $maintenance = \App\Models\Maintenance::where('active', true)->first();
         @endphp
-
-        @if($maintenanceMode === 'on')
+        @if($maintenance)
             <div class="alert alert-warning text-center mb-3">
                 <strong>Note:</strong> The system is currently in <span class="text-danger">maintenance mode</span>.<br>
                 Only the user-side is affected. The admin dashboard remains fully accessible.<br>
-                <span class="text-muted">{{ $maintenanceMessage }}</span>
+                <span class="text-muted">{{ $maintenance->message }}</span>
             </div>
         @endif
 

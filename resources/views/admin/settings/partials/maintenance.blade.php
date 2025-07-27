@@ -8,12 +8,11 @@
                 <div class="card-body">
                         <form method="POST" action="{{ route('admin.settings.update', 'maintenance') }}">
                             @csrf
-                        
                             <div class="mb-3">
                                 <label for="maintenance_mode" class="form-label">System Maintenance Mode</label>
                                 <select class="form-select" id="maintenance_mode" name="maintenance_mode">
-                                    <option value="off" {{ ($settings->where('key','maintenance_mode')->first()->value ?? '') == 'off' ? 'selected' : '' }}>Off</option>
-                                    <option value="on" {{ ($settings->where('key','maintenance_mode')->first()->value ?? '') == 'on' ? 'selected' : '' }}>On</option>
+                                    <option value="off" {{ (isset($maintenance) && !$maintenance->active) ? 'selected' : '' }}>Off</option>
+                                    <option value="on" {{ (isset($maintenance) && $maintenance->active) ? 'selected' : '' }}>On</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -27,7 +26,7 @@
                                             'Temporary downtime for improvements. We appreciate your understanding.',
                                             'We are currently resolving technical issues. Service will resume shortly.'
                                         ];
-                                        $currentMessage = $settings->where('key','maintenance_message')->first()->value ?? '';
+                                        $currentMessage = $maintenance->message ?? '';
                                     @endphp
                                     @foreach($messages as $msg)
                                         <option value="{{ $msg }}" {{ $currentMessage == $msg ? 'selected' : '' }}>{{ $msg }}</option>
@@ -61,7 +60,7 @@
                     <ul class="list-group">
                         <li class="list-group-item bg-light mb-2">
                             <p><strong>Status:</strong> 
-                                @if(($settings->where('key','maintenance_mode')->first()->value ?? '') == 'on')
+                                @if(isset($maintenance) && $maintenance->active)
                                     <span class="badge bg-danger">ON</span>
                                 @else
                                     <span class="badge bg-success">OFF</span>
@@ -69,10 +68,10 @@
                             </p>
                         </li>
                         <li class="list-group-item bg-light mb-2">
-                            <p><strong>Message:</strong> {{ $settings->where('key','maintenance_message')->first()->value ?? 'No message set.' }}</p>
+                            <p><strong>Message:</strong> {{ $maintenance->message ?? 'No message set.' }}</p>
                         </li>
                         <li class="list-group-item bg-light mb-2">
-                            <p><strong>Last Updated:</strong> {{ $settings->where('key','maintenance_mode')->first()->updated_at ?? 'N/A' }}</p>
+                            <p><strong>Last Updated:</strong> {{ $maintenance->updated_at ?? 'N/A' }}</p>
                         </li>
                     </ul>
                    

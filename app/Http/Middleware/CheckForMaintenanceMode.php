@@ -13,7 +13,7 @@ class CheckForMaintenanceMode
         // Only apply to user-side routes, not admin or superadmin
         $isAdminRoute = $request->is('admin/*') || $request->is('superadmin/*');
         if (!$isAdminRoute) {
-            $maintenance = \App\Models\Maintenance::find(1);
+            $maintenance = \App\Models\Maintenance::first();
             if ($maintenance && $maintenance->active) {
                 return response()->view('maintenance', [
                     'message' => $maintenance->message ?? 'Site is under maintenance.'
