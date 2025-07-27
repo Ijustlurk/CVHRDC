@@ -21,13 +21,12 @@ class BannerController extends Controller
             'subtitle' => 'nullable|string',
             'image' => 'nullable|string',
             'link' => 'nullable|string',
-            'active' => 'required|boolean',
         ]);
         $banner = Banner::first();
         if (!$banner) {
             $banner = new Banner();
         }
-        $banner->fill($request->all());
+    $banner->fill($request->except('active'));
         $banner->save();
         return redirect()->back()->with('success', 'Banner updated successfully.');
     }

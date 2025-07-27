@@ -10,6 +10,5 @@ class Banner extends Model
         'subtitle',
         'image',
         'link',
-        'active',
     ];
 }
