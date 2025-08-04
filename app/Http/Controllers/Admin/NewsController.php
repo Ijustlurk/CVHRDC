@@ -57,17 +57,51 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string',
-            'content' => 'required|string',
-            'image' => 'nullable|string',
-            'published_at' => 'nullable|date',
-            'is_visible' => 'required|boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|min:3|max:255',
+                'content' => 'required|string|min:10',
+                'image' => 'required|url',
+                'published_at' => 'required|date',
+                'is_visible' => 'required|boolean',
+            ]);
 
-        $news = News::create($validated);
+            // Add the authenticated user's name
+            $validated['added_by'] = auth()->user() ? auth()->user()->name : 'Unknown';
 
-        return response()->json($news, 201);
+            $news = News::create($validated);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'News added successfully!',
+                    'data' => $news
+                ], 201);
+            }
+
+            return redirect()->back()->with('success', 'News added successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
+
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while adding the news: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'An error occurred while adding the news: ' . $e->getMessage());
+        }
     }
 
     /**

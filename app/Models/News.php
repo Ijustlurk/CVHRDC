@@ -15,5 +15,11 @@ class News extends Model
         'image',
         'published_at',
         'is_visible',
+        'added_by',
+    ];
+
+    protected $casts = [
+        'published_at' => 'datetime',
+        'is_visible' => 'boolean',
     ];
 }
