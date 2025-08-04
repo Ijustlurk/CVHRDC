@@ -22,5 +22,14 @@ class Project extends Model
         'is_active',
         'is_visible',
         'image',
+        'added_by',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_active' => 'boolean',
+        'is_visible' => 'boolean',
+        'budget' => 'decimal:2',
     ];
 }

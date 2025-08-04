@@ -332,15 +332,58 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        fetchNews();
-        setInterval(fetchNews, 5000);
-        
-        // Set default date/time on page load
-        setDefaultDateTime();
+            document.addEventListener('DOMContentLoaded', function() {
+            fetchNews();
+            setInterval(fetchNews, 5000);
+            
+            // Set default date/time on page load
+            setDefaultDateTime();
 
-        // Handle form submission
-        document.getElementById('news-form').addEventListener('submit', function(e) {
+            // Handle hide/show visibility buttons for news (event delegation)
+            document.getElementById('news-list').addEventListener('click', function(e) {
+                let btn = e.target;
+                if (!btn.classList.contains('toggle-visibility-btn')) {
+                    btn = btn.closest('.toggle-visibility-btn');
+                }
+                if (btn && btn.classList.contains('toggle-visibility-btn')) {
+                    const id = btn.getAttribute('data-id');
+                    if (!id) return;
+                    const currentVisible = btn.getAttribute('data-visible') == '1';
+                    const newVisible = currentVisible ? 0 : 1;
+                    btn.disabled = true;
+                    fetch(`/admin/news/${id}/visibility`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ is_visible: newVisible })
+                    })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Network response was not ok');
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Update button and badge immediately
+                        const badge = document.getElementById('visibility-label-' + id);
+                        if (badge) {
+                            badge.textContent = newVisible ? 'Visible' : 'Hidden';
+                            badge.className = 'badge ' + (newVisible ? 'bg-success' : 'bg-secondary');
+                        }
+                        btn.textContent = newVisible ? 'Hide' : 'Show';
+                        btn.className = 'btn btn-sm btn-outline-' + (newVisible ? 'secondary' : 'success') + ' ms-2 toggle-visibility-btn';
+                        btn.setAttribute('data-visible', newVisible);
+                        btn.disabled = false;
+                    })
+                    .catch(error => {
+                        alert('Error updating visibility: ' + error.message);
+                        btn.disabled = false;
+                    });
+                }
+            });
+
+            // Handle form submission
+            document.getElementById('news-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const submitBtn = document.getElementById('submit-news-btn');
@@ -550,12 +593,12 @@
                     const addedAtRaw = decodeURIComponent(this.getAttribute('data-addedat'));
                     const addedBy = decodeURIComponent(this.getAttribute('data-addedby'));
                     const addedAt = addedAtRaw ? dayjs(addedAtRaw).fromNow() : '';
-                    let modalHtml = `<div class="mb-2"><strong>Title:</strong> ${title}</div>`;
-                    modalHtml += `<div class="mb-2"><strong>Content:</strong><br><div>${content}</div></div>`;
-                    modalHtml += `<div class="mb-2"><strong>Published At:</strong> <small>${published}</small></div>`;
-                    modalHtml += `<div class="mb-2"><strong>Added At:</strong> <small>${addedAt}</small></div>`;
-                    modalHtml += `<div class="mb-2"><strong>Added By:</strong> <small>${addedBy}</small></div>`;
-                    modalHtml += `<div class="mb-2"><strong>Image:</strong> ${image ? `<a href="${image}" target="_blank"><img src="${convertGoogleDriveUrl(image)}" style="max-width: 200px; max-height: 200px;" onerror="this.style.display='none'; this.nextSibling.style.display='inline';" /> <span style="display:none;">View Link</span></a>` : 'No image'}</div>`;
+                    let modalHtml = `<div class="mb-3"><strong>Title:</strong> ${title}</div>`;
+                    modalHtml += `<div class="mb-3"><strong>Content:</strong><br><div class="p-2 bg-light rounded">${content}</div></div>`;
+                    modalHtml += `<div class="mb-3"><strong>Published At:</strong> <span class="badge bg-primary">${published || 'Not set'}</span></div>`;
+                    modalHtml += `<div class="mb-3"><strong>Added At:</strong> <small class="text-muted">${addedAt}</small></div>`;
+                    modalHtml += `<div class="mb-3"><strong>Added By:</strong> <small class="text-muted">${addedBy}</small></div>`;
+                    modalHtml += `<div class="mb-3"><strong>Image:</strong> ${image ? `<br><div class="mt-2"><a href="${image}" target="_blank"><img src="${convertGoogleDriveUrl(image)}" style="max-width: 300px; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" onerror="this.style.display='none'; this.nextSibling.style.display='inline';" /> <span style="display:none;" class="btn btn-outline-primary btn-sm">🔗 View Original Link</span></a></div>` : '<span class="text-muted">No image</span>'}</div>`;
                     modalHtml += `<div class="mb-2"><strong>Visibility:</strong> <span class="badge ${visible ? 'bg-success' : 'bg-secondary'}">${visible ? 'Visible' : 'Hidden'}</span></div>`;
                     document.getElementById('news-details-body').innerHTML = modalHtml;
                     // Bootstrap 5 modal logic fallback
@@ -581,48 +624,7 @@
 
 
 
-            // Use event delegation for toggle-visibility-btn (with closest)
-            newsList.addEventListener('click', function(e) {
-                let btn = e.target;
-                if (!btn.classList.contains('toggle-visibility-btn')) {
-                    btn = btn.closest('.toggle-visibility-btn');
-                }
-                if (btn && btn.classList.contains('toggle-visibility-btn')) {
-                    const id = btn.getAttribute('data-id');
-                    if (!id) return;
-                    const currentVisible = btn.getAttribute('data-visible') == '1';
-                    const newVisible = currentVisible ? 0 : 1;
-                    btn.disabled = true;
-                    fetch(`/admin/news/${id}/visibility`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                        },
-                        body: JSON.stringify({ is_visible: newVisible })
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Update button and badge immediately
-                        const badge = document.getElementById('visibility-label-' + id);
-                        if (badge) {
-                            badge.textContent = newVisible ? 'Visible' : 'Hidden';
-                            badge.className = 'badge ' + (newVisible ? 'bg-success' : 'bg-secondary');
-                        }
-                        btn.textContent = newVisible ? 'Hide' : 'Show';
-                        btn.className = 'btn btn-sm btn-outline-' + (newVisible ? 'secondary' : 'success') + ' ms-2 toggle-visibility-btn';
-                        btn.setAttribute('data-visible', newVisible);
-                        btn.disabled = false;
-                    })
-                    .catch(error => {
-                        alert('Error updating visibility: ' + error.message);
-                        btn.disabled = false;
-                    });
-                }
-            });
+            // Event delegation is now handled outside fetchNews function
         })
         .catch(() => {
             newsList.innerHTML = '<div class="text-danger">Error loading news.</div>';

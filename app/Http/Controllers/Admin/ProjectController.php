@@ -51,16 +51,58 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'image' => 'nullable|string',
-            'started_at' => 'nullable|date',
-            'is_visible' => 'nullable|boolean',
-        ]);
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|min:3|max:255',
+                'description' => 'required|string|min:10',
+                'image' => 'required|url',
+                'start_date' => 'required|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'status' => 'required|string|max:100',
+                'budget' => 'nullable|numeric|min:0',
+                'lead_researcher' => 'required|string|max:255',
+                'leader' => 'required|string|max:255',
+                'funding_agency' => 'nullable|string|max:255',
+                'is_active' => 'required|boolean',
+                'is_visible' => 'required|boolean',
+            ]);
 
-        $project = Project::create($validated);
-        return response()->json($project, 201);
+            // Add the authenticated user's name
+            $validated['added_by'] = auth()->user() ? auth()->user()->name : 'Unknown';
+
+            $project = Project::create($validated);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Project added successfully!',
+                    'data' => $project
+                ], 201);
+            }
+
+            return redirect()->back()->with('success', 'Project added successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
+
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while adding the project: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'An error occurred while adding the project: ' . $e->getMessage());
+        }
     }
 
     /**
