@@ -14,13 +14,34 @@ class EventController extends Controller
      */
     public function updateVisibility(Request $request, $id)
     {
-        $request->validate([
-            'is_visible' => 'required|boolean',
-        ]);
-        $event = Event::where('id', $id)->firstOrFail();
-        $event->is_visible = $request->input('is_visible') ? 1 : 0;
-        $event->save();
-        return response()->json(['success' => true, 'is_visible' => $event->is_visible]);
+        try {
+            $request->validate([
+                'is_visible' => 'required|boolean',
+            ]);
+
+            $event = Event::where('id', $id)->firstOrFail();
+            $event->is_visible = $request->input('is_visible') ? 1 : 0;
+            $event->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Event visibility updated successfully!',
+                'is_visible' => $event->is_visible
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating visibility: ' . $e->getMessage()
+            ], 500);
+        }
     }
     /**
      * Display a listing of the resource.
@@ -55,7 +76,54 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|min:3|max:255',
+                'description' => 'required|string|min:10',
+                'location' => 'required|string|max:255',
+                'start_date' => 'required|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'organizer' => 'required|string|max:255',
+                'image_url' => 'required|url',
+                'is_visible' => 'required|boolean',
+            ]);
+
+            // Add the authenticated user's name
+            $validated['added_by'] = auth()->user() ? auth()->user()->name : 'Unknown';
+
+            $event = Event::create($validated);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Event added successfully!',
+                    'data' => $event
+                ], 201);
+            }
+
+            return redirect()->back()->with('success', 'Event added successfully!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            return redirect()->back()->withErrors($e->errors())->withInput();
+
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while adding the event: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'An error occurred while adding the event: ' . $e->getMessage());
+        }
     }
 
     /**

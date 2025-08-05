@@ -8,4 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class Event extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'title',
+        'description',
+        'location',
+        'start_date',
+        'end_date',
+        'organizer',
+        'image_url',
+        'is_visible',
+        'added_by',
+    ];
+
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'is_visible' => 'boolean',
+    ];
 }

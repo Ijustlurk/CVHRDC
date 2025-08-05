@@ -409,29 +409,32 @@
         showProjectAlert('Testing project alerts - this should work!', 'success');
     }
 
-            document.addEventListener('DOMContentLoaded', function() {
-            fetchProjects();
-            setInterval(fetchProjects, 5000);
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchProjects();
+        setInterval(fetchProjects, 5000);
 
-            // Handle hide/show visibility buttons for projects (event delegation)
-            document.getElementById('projects-list').addEventListener('click', function(e) {
-                let btn = e.target;
-                if (!btn.classList.contains('toggle-visibility-btn')) {
-                    btn = btn.closest('.toggle-visibility-btn');
-                }
-                if (btn && btn.classList.contains('toggle-visibility-btn')) {
-                    const id = btn.getAttribute('data-id');
-                    if (!id) return;
-                    const currentVisible = btn.getAttribute('data-visible') == '1';
-                    const newVisible = currentVisible ? 0 : 1;
-                    btn.disabled = true;
-                    fetch(`/admin/projects/${id}/visibility`, {
+        // Handle hide/show visibility buttons for projects (event delegation)
+        document.getElementById('projects-list').addEventListener('click', function(e) {
+            let btn = e.target;
+            if (!btn.classList.contains('toggle-visibility-btn')) {
+                btn = btn.closest('.toggle-visibility-btn');
+            }
+            if (btn && btn.classList.contains('toggle-visibility-btn')) {
+                const id = btn.getAttribute('data-id');
+                if (!id) return;
+                const currentVisible = btn.getAttribute('data-visible') == '1';
+                const newVisible = currentVisible ? 0 : 1;
+                btn.disabled = true;
+                fetch(`/admin/projects/${id}/visibility`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
                         },
-                        body: JSON.stringify({ is_visible: newVisible })
+                        body: JSON.stringify({
+                            is_visible: newVisible
+                        })
                     })
                     .then(response => {
                         if (!response.ok) throw new Error('Network response was not ok');
@@ -442,10 +445,12 @@
                         const badge = document.getElementById('visibility-label-' + id);
                         if (badge) {
                             badge.textContent = newVisible ? 'Visible' : 'Hidden';
-                            badge.className = 'badge ' + (newVisible ? 'bg-success' : 'bg-secondary');
+                            badge.className = 'badge ' + (newVisible ? 'bg-success' :
+                                'bg-secondary');
                         }
                         btn.textContent = newVisible ? 'Hide' : 'Show';
-                        btn.className = 'btn btn-sm btn-outline-' + (newVisible ? 'secondary' : 'success') + ' ms-2 toggle-visibility-btn';
+                        btn.className = 'btn btn-sm btn-outline-' + (newVisible ? 'secondary' :
+                            'success') + ' ms-2 toggle-visibility-btn';
                         btn.setAttribute('data-visible', newVisible);
                         btn.disabled = false;
                     })
@@ -453,11 +458,11 @@
                         alert('Error updating visibility: ' + error.message);
                         btn.disabled = false;
                     });
-                }
-            });
+            }
+        });
 
-            // Handle form submission
-            document.getElementById('project-form').addEventListener('submit', function(e) {
+        // Handle form submission
+        document.getElementById('project-form').addEventListener('submit', function(e) {
             e.preventDefault();
 
             const submitBtn = document.getElementById('submit-project-btn');
