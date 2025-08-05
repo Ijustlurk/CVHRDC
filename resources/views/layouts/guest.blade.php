@@ -11,8 +11,34 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        
+        <!-- Custom Styles -->
+        <style>
+            .btn-primary {
+                color: #fff !important;
+                background-color: #0d6efd !important;
+                border-color: #0d6efd !important;
+            }
+            .btn-primary:hover {
+                color: #fff !important;
+                background-color: #0b5ed7 !important;
+                border-color: #0a58ca !important;
+            }
+            .btn-primary:disabled {
+                color: #fff !important;
+                background-color: #0d6efd !important;
+                border-color: #0d6efd !important;
+                opacity: 0.65;
+            }
+        </style>
+
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/js/app.js'])
+        
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </head>
     <body class="font-sans text-gray-900 antialiased">
     <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
