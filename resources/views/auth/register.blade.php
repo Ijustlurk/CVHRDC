@@ -1,100 +1,190 @@
 <x-guest-layout>
-    {{-- <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-400 via-white to-indigo-00 py-12 px-4"> --}}
-        <div class="w-full max-w-4xl bg-white rounded-xl shadow-lg flex overflow-hidden">
-            <!-- Left Side: Logo/Image -->
-            <div class="hidden md:flex flex-col justify-center items-center bg-indigo-100 w-1/2 p-8">
-                <img src="{{ asset('assets/Image/logo.jpg') }}" alt="Logo" class="h-32 w-32 rounded-full shadow-md bg-gray-100 object-contain mb-4" />
-                <h2 class="text-2xl font-bold text-indigo-700 mt-4">Join Us!</h2>
-                <p class="text-gray-500 mt-2 text-center">Create your account to get started.</p>
-            </div>
-            <!-- Right Side: Register Form -->
-            <div class="w-full md:w-1/2 p-8 flex flex-col justify-center">
-                <h1 class="text-2xl font-bold text-center text-indigo-700 mb-6">Register Your Account</h1>
-                <form method="POST" action="{{ route('register') }}">
-    @csrf
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Name -->
-    <div>
-        <x-input-label for="name" :value="__('Name')" class="text-indigo-700" />
-        <x-text-input id="name" class="block mt-1 w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-        <x-input-error :messages="$errors->get('name')" class="mt-2" />
-    </div>
+    <div class="d-flex align-items-center justify-content-center min-vh-100"
+        style="background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%);">
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-lg border-0 rounded-4"
+                        style="background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);">
+                        <div class="row g-0">
+                            <!-- Left Side: Logo/Image -->
+                            <div class="col-md-5 d-none d-md-flex align-items-center justify-content-center p-5"
+                                style="background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%); border-top-left-radius:1.5rem; border-bottom-left-radius:1.5rem;">
+                                <div class="text-center w-100">
+                                    <img src="{{ asset('assets/Image/logo.jpg') }}" alt="Logo"
+                                        class="rounded-circle shadow mb-4"
+                                        style="width: 150px; height: 150px; object-fit: contain; background: #fff;" />
+                                    <h2 class="text-white fw-bold mb-2">Join Us!</h2>
+                                    <p class="text-white-50 mb-0">Create your account to get started.</p>
+                                    <p class="text-white mt-4 fs-5">Welcome to <br> Cagayan Valley Health Research and
+                                        Development Consortium</p>
+                                </div>
+                            </div>
+                            <!-- Right Side: Register Form -->
+                            <div class="col-md-7">
+                                <div class="card-body p-4">
+                                    <h2 class="text-center text-primary fw-bold mb-4">Register Your Account</h2>
+                                    <form method="POST" action="{{ route('register') }}">
+                                        @csrf
 
-    <!-- Email Address -->
-    <div class="mt-4">
-        <x-input-label for="email" :value="__('Email')" class="text-indigo-700" />
-        <x-text-input id="email" class="block mt-1 w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" type="email" name="email" :value="old('email')" required autocomplete="username" />
-        <x-input-error :messages="$errors->get('email')" class="mt-2" />
-    </div>
+                                        <!-- Name -->
+                                        <div class="mb-3">
+                                            <label for="name" class="form-label text-primary">{{ __('Name') }}</label>
+                                            <input id="name" type="text"
+                                                class="form-control @error('name') is-invalid @enderror" name="name"
+                                                value="{{ old('name') }}" required autofocus autocomplete="name"
+                                                placeholder="Enter your name">
+                                            @error('name')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-    <!-- Password -->
-    <div class="mt-4">
-        <x-input-label for="password" :value="__('Password')" class="text-indigo-700" />
-        <x-text-input id="password" class="block mt-1 w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            type="password"
-            name="password"
-            required autocomplete="new-password" />
-        <x-input-error :messages="$errors->get('password')" class="mt-2" />
-    </div>
+                                        <!-- Email Address -->
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label text-primary">{{ __('Email') }}</label>
+                                            <input id="email" type="email"
+                                                class="form-control @error('email') is-invalid @enderror" name="email"
+                                                value="{{ old('email') }}" required autocomplete="username"
+                                                placeholder="Enter your email">
+                                            @error('email')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-    <!-- Confirm Password -->
-    <div class="mt-4">
-        <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="text-indigo-700" />
-        <x-text-input id="password_confirmation" class="block mt-1 w-full border-gray-300 rounded-lg focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-            type="password"
-            name="password_confirmation" required autocomplete="new-password" />
-        <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-    </div>
+                                        <!-- Password -->
+                                        <div class="mb-3">
+                                            <label for="password"
+                                                class="form-label text-primary">{{ __('Password') }}</label>
+                                            <input id="password" type="password"
+                                                class="form-control @error('password') is-invalid @enderror"
+                                                name="password" required autocomplete="new-password"
+                                                placeholder="Enter your password">
+                                            @error('password')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-    <!-- Terms and Conditions -->
-    <div class="flex items-center mt-2">
-        <input id="terms" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="terms">
-        <label for="terms" class="ms-2 text-sm text-gray-600">
-    {!! __('I agree to the <a href="/terms" class="text-indigo-600 hover:text-indigo-900" target="_blank">Terms and Conditions</a>') !!}
-</label>
-    </div>
-    <div id="terms-alert" class="hidden mt-2 text-sm text-red-600">
-        {{ __('You must agree to the Terms and Conditions before registering.') }}
-    </div>
+                                        <!-- Confirm Password -->
+                                        <div class="mb-3">
+                                            <label for="password_confirmation"
+                                                class="form-label text-primary">{{ __('Confirm Password') }}</label>
+                                            <input id="password_confirmation" type="password"
+                                                class="form-control @error('password_confirmation') is-invalid @enderror"
+                                                name="password_confirmation" required autocomplete="new-password"
+                                                placeholder="Confirm your password">
+                                            @error('password_confirmation')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
-    <div class="flex items-center justify-between mt-6">
-    <a class="text-sm text-indigo-600 hover:text-indigo-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition" href="{{ route('login') }}">
-        {{ __('Already registered?') }}
-    </a>
-    <button id="register-btn" type="submit" class="ms-3 bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 transition px-4 py-2 rounded text-white" disabled>
-        {{ __('Register') }}
-    </button>
-</div>
-</form>
+                                        <!-- Terms and Conditions -->
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input id="terms" type="checkbox" class="form-check-input" name="terms"
+                                                    disabled>
+                                                <label class="form-check-label" for="terms">
+                                                    {!! __('I agree to the <a href="#" class="text-primary"
+                                                        id="open-terms-modal">Terms and Conditions</a>') !!}
+                                                </label>
+                                            </div>
+                                            <div id="terms-alert" class="d-none mt-2 text-danger small">
+                                                {{ __('You must agree to the Terms and Conditions before registering.') }}
+                                            </div>
+                                        </div>
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const termsCheckbox = document.getElementById('terms');
-    const registerBtn = document.getElementById('register-btn');
-    const termsAlert = document.getElementById('terms-alert');
-    const form = registerBtn.closest('form');
-
-    function toggleRegisterBtn() {
-        registerBtn.disabled = !termsCheckbox.checked;
-        if (termsCheckbox.checked) {
-            termsAlert.classList.add('hidden');
-        }
-    }
-
-    termsCheckbox.addEventListener('change', toggleRegisterBtn);
-    toggleRegisterBtn();
-
-    form.addEventListener('submit', function(e) {
-        if (!termsCheckbox.checked) {
-            e.preventDefault();
-            termsAlert.classList.remove('hidden');
-        }
-    });
-});
-</script>
-@endpush
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <a class="text-decoration-none text-primary" href="{{ route('login') }}">
+                                                {{ __('Already registered?') }}
+                                            </a>
+                                            <button id="register-btn" type="submit"
+                                                class="btn btn-primary px-4 shadow-sm" disabled>
+                                                {{ __('Register') }}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Terms and Conditions Modal -->
+    <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <p>
+                            <!-- Replace this with your actual terms and conditions -->
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam euismod, urna eu tincidunt
+                            consectetur, nisi nisl aliquam nunc, eget aliquam massa nisi eu velit. Suspendisse potenti.
+                        </p>
+                    </div>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" value="" id="modal-terms-checkbox">
+                        <label class="form-check-label" for="modal-terms-checkbox">
+                            I have read and agree to the Terms and Conditions
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="accept-terms-btn" class="btn btn-primary" disabled>Accept</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const termsCheckbox = document.getElementById('terms');
+            const registerBtn = document.getElementById('register-btn');
+            const termsAlert = document.getElementById('terms-alert');
+            const form = registerBtn.closest('form');
+            const openTermsModal = document.getElementById('open-terms-modal');
+            const modalTermsCheckbox = document.getElementById('modal-terms-checkbox');
+            const acceptTermsBtn = document.getElementById('accept-terms-btn');
+            const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
+
+            // Open modal on link click
+            openTermsModal.addEventListener('click', function (e) {
+                e.preventDefault();
+                modalTermsCheckbox.checked = false;
+                acceptTermsBtn.disabled = true;
+                termsModal.show();
+            });
+
+            // Enable Accept button only if modal checkbox is checked
+            modalTermsCheckbox.addEventListener('change', function () {
+                acceptTermsBtn.disabled = !modalTermsCheckbox.checked;
+            });
+
+            // When Accept is clicked, check the main checkbox and enable register
+            acceptTermsBtn.addEventListener('click', function () {
+                termsCheckbox.checked = true;
+                termsCheckbox.disabled = false;
+                registerBtn.disabled = false;
+                termsAlert.classList.add('d-none');
+                termsModal.hide();
+            });
+
+            // Prevent form submission if terms not checked
+            form.addEventListener('submit', function (e) {
+                if (!termsCheckbox.checked) {
+                    e.preventDefault();
+                    termsAlert.classList.remove('d-none');
+                }
+            });
+        });
+
+    </script>
 </x-guest-layout>
