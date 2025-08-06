@@ -19,11 +19,25 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Outfit:wght@100..900&display=swap"
         rel="stylesheet">
+
     <style>
         .body {
             font-family: 'Nunito';
+        }
+
+        .text {
+            color: #112245;
+        }
+
+        .font {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .text-2 {
+            color: #175DDC;
         }
 
         .hero-section {
@@ -35,7 +49,7 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
         }
 
         .text-gradient {
-            background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+            background: linear-gradient(90deg, #666AF2 0%, #06b6d4 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -86,6 +100,15 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
             padding: 2px 10px;
         }
 
+        .card-hover {
+            transition: background-color 0.3s ease;
+        }
+
+        .card-hover:hover {
+            background-color: #cbe7ff;
+            /* Light blue, change this to whatever color you want */
+        }
+
     </style>
 </head>
 
@@ -95,12 +118,12 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
         <strong>Maintenance Mode:</strong> {{ $maintenance->message ?? 'The site is under maintenance.' }}
     </div>
     @endif
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow rounded-pill py-3 px-4 mb-4 animate__animated animate__fadeInDown"
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow rounded-pill py-2 px-4 mb-4 animate__animated animate__fadeInDown"
         style="margin-top: 20px;">
         <div class="container">
-            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4 text-primary" href="#">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4 text-2" href="#">
                 @if($header && $header->logo)
-                <img src="{{ asset('assets/Image/Llogo.jpg') }}" alt="Logo" height="44"
+                <img src="{{ asset('assets/Image/logo.jpg') }}" alt="Logo" height="44"
                     class="me-2 rounded-circle shadow-sm" style="background:#f3f6fa;">
                 @endif
                 {{ $header->title ?? 'CVHRDC' }}
@@ -112,7 +135,8 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav gap-2 align-items-center">
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold px-3 rounded-pill transition-nav active" href="#">Home</a>
+                        <a class="nav-link fw-semibold px-3 rounded-pill transition-nav active text-primary"
+                            href="#">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link fw-semibold px-3 rounded-pill transition-nav" href="#news">News</a>
@@ -147,44 +171,83 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
             </div>
         </div>
     </nav>
-    <section class="hero-section text-center animate__animated animate__fadeIn position-relative overflow-hidden">
+    <section class=" text-center animate__animated animate__fadeIn position-relative overflow-hidden">
         <div class="container py-5">
             <div class="row align-items-center justify-content-center">
                 <div class="col-lg-6 mb-4 mb-lg-0 text-lg-start text-center">
-                    <h1 class="display-4 fw-bold mb-3 text-gradient">{{ $header->title ?? 'CVHRDC' }}</h1>
-                    <h4 class="mb-4 text-primary fw-semibold">
+                    <h1 class="display-4 fw-bold mb-3 text font">{{ $header->title ?? 'CVHRDC' }}</h1>
+                    <h4 class="mb-4 fw-semibold text">
                         {{ $header->subtitle ?? 'Cagayan Valley Health Research and Development Consortium' }}</h4>
-                    <p class="lead mb-4 text-secondary">
+                    <p class="lead mb-4 text-black">
                         CVHRDC is dedicated to advancing health research and development in the Cagayan Valley region.
                         We foster collaboration among institutions, promote innovation, and support the dissemination of
                         research findings for the betterment of public health.
                     </p>
                     @if($banner && $banner->link)
-                    <a href="{{ $banner->link }}"
-                        class="btn btn-primary btn-sm px-5 shadow animate__animated animate__pulse animate__infinite">Learn
-                        More</a>
+                    <a href="{{ route('login') }}"
+                        class="btn btn-primary btn-md px-5 shadow animate__animated animate__pulse animate__infinite">Get
+                        Started</a>
                     @endif
                 </div>
                 <div class="col-lg-6 text-center">
                     @if($banner && $banner->image)
-                    <div
-                        class="hero-img-wrapper d-inline-block p-3 bg-white rounded-4 shadow-lg animate__animated animate__zoomIn">
-                        <img src="{{ asset('assets/Image/Llogo.jpg') }}" alt="Banner" class="banner-img rounded-4"
-                            style="max-width: 350px; width: 100%; height: auto;">
+                    <div class="hero-img-wrapper position-relative d-inline-block animate__animated animate__zoomIn"
+                        style="padding:0; background:none; border:none; box-shadow:none;">
+                        <img src="{{ asset('assets/Image/bg.jpg') }}" alt="Banner" class="banner-img"
+                            style="max-width: 400px; width: 100%; border-radius: 50% 20% / 10% 40%; display: block; transition: transform 0.3s;">
+                        <!-- Curved SVG overlay for modern effect -->
                     </div>
+                    <style>
+                        .hero-img-wrapper:hover .banner-img {
+                            transform: scale(1.04) rotate(-1deg);
+                            box-shadow: 0 12px 36px rgba(99, 102, 241, 0.13);
+                        }
+
+                    </style>
                     @endif
                 </div>
             </div>
         </div>
-        <!-- Decorative shapes -->
+        <!-- Decorative shapes (more colorful) -->
         <div class="position-absolute top-0 start-0 translate-middle-x"
-            style="width:180px; height:180px; background:rgba(99,102,241,0.08); border-radius:50%; z-index:0;"></div>
+            style="width:180px; height:180px; background:rgba(99,102,241,0.25); border-radius:50%; z-index:0;"></div>
         <div class="position-absolute bottom-0 end-0 translate-middle-x"
-            style="width:120px; height:120px; background:rgba(16,185,129,0.08); border-radius:50%; z-index:0;"></div>
+            style="width:120px; height:120px; background:rgba(16,185,129,0.25); border-radius:50%; z-index:0;"></div>
+
+        <!-- Additional decorative shapes -->
+        <div class="position-absolute top-50 start-0 translate-middle-y"
+            style="width:80px; height:80px; background:rgba(255,193,7,0.3); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute bottom-25 start-50 translate-middle-x"
+            style="width:60px; height:60px; background:rgba(220,38,38,0.3); border-radius:50%; z-index:0;"></div>
+        <!-- <div class="position-absolute top-25 end-0 translate-middle-y"
+            style="width:100px; height:100px; background:rgba(34,197,94,0.3); border-radius:50%; z-index:0;"></div> -->
+
+        <!-- More spread decorative shapes -->
+        <div class="position-absolute top-10 start-50"
+            style="width:70px; height:70px; background:rgba(59,130,246,0.3); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute bottom-10 end-25"
+            style="width:50px; height:50px; background:rgba(236,72,153,0.3); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute top-75 start-25"
+            style="width:90px; height:90px; background:rgba(132,204,22,0.3); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute bottom-50 end-50"
+            style="width:40px; height:40px; background:rgba(20,184,166,0.3); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute top-40 start-75"
+            style="width:60px; height:60px; background:rgba(168,85,247,0.3); border-radius:50%; z-index:0;"></div>
+
     </section>
-    <section id="announcements" class="py-5 bg-white">
+    <section id="announcements" class="position-relative py-5 bg-white overflow-hidden">
+        <!-- New Decorative Shapes (unique positions) -->
+        <div class="position-absolute top-100 start-25"
+            style="width:90px; height:90px; background:rgba(255,99,132,0.25); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute bottom-100 end-10"
+            style="width:80px; height:80px; background:rgba(75,192,192,0.25); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute top-10 end-100"
+            style="width:60px; height:60px; background:rgba(255,206,86,0.3); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute bottom-0 start-100 translate-middle"
+            style="width:100px; height:100px; background:rgba(153,102,255,0.3); border-radius:50%; z-index:0;"></div>
+
         <div class="container">
-            <div class="section-title text-center mb-4">Latest Announcements</div>
+            <div class="section-title text-center mb-4 font text">Latest Announcements</div>
             <div class="row g-4">
                 @forelse($announcements as $announcement)
                 <div class="col-md-4">
@@ -195,7 +258,6 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                             </span>
                             <h5 class="card-title">{{ $announcement->title }}</h5>
                             <p class="card-text">{{ Str::limit($announcement->content, 100) }}
-                                <!-- See More Button -->
                                 <a href="#" class="text-decoration-none" data-bs-toggle="modal"
                                     data-bs-target="#announcementModal{{ $announcement->id }}">
                                     See More
@@ -216,7 +278,7 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                     <div class="modal-dialog modal-lg modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="announcementModalLabel{{ $announcement->id }}">
+                                <h5 class="modal-title text-2" id="announcementModalLabel{{ $announcement->id }}">
                                     {{ $announcement->title }}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
@@ -225,9 +287,6 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                                 <p>{!! nl2br(e($announcement->content)) !!}</p>
                             </div>
                             <div class="modal-footer">
-                                <!-- <small class="text-muted">
-                                {{ $announcement->start_date ? \Carbon\Carbon::parse($announcement->start_date)->diffForHumans() : '' }}
-                            </small> -->
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -240,9 +299,20 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
         </div>
     </section>
 
-    <section id="news" class="py-5">
+
+    <section id="news" class="position-relative py-5 overflow-hidden bg-white">
+        <!-- Decorative Shapes (Unique to News Section) -->
+        <div class="position-absolute top-0 end-25"
+            style="width:100px; height:100px; background:rgba(0, 123, 255, 0.25); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute top-75 start-0"
+            style="width:80px; height:80px; background:rgba(255, 193, 7, 0.25); border-radius:50%; z-index:0;"></div>
+        <!-- <div class="position-absolute bottom-10 start-100 "
+            style="width:60px; height:60px; background:rgba(40, 167, 69, 0.25); border-radius:50%; z-index:0;"></div> -->
+        <div class="position-absolute top-50 end-0 translate-middle-y"
+            style="width:90px; height:90px; background:rgba(220, 53, 69, 0.25); border-radius:50%; z-index:0;"></div>
+
         <div class="container">
-            <div class="section-title text-center mb-4">Latest News</div>
+            <div class="section-title text-center mb-4 font text">Latest News</div>
             <div class="row g-4">
                 @forelse($news as $item)
                 <div class="col-md-4">
@@ -251,7 +321,7 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                         <img src="{{ $item->image }}" class="card-img-top" alt="News Image">
                         @endif
                         <div class="card-body">
-                            <h5 class="card-title">{{ $item->title }}</h5>
+                            <h5 class="card-title text">{{ $item->title }}</h5>
 
                             <p class="card-text d-inline">
                                 {{ Str::limit($item->content, 100) }}
@@ -277,7 +347,7 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                     <div class="modal-dialog modal-lg modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="newsModalLabel{{ $item->id }}">{{ $item->title }}</h5>
+                                <h5 class="modal-title text" id="newsModalLabel{{ $item->id }}">{{ $item->title }}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
@@ -288,10 +358,6 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                                 <p>{!! nl2br(e($item->content)) !!}</p>
                             </div>
                             <div class="modal-footer">
-                                <!-- <small class="text-muted">
-                                    {{ $item->published_at ? \Carbon\Carbon::parse($item->published_at)->diffForHumans() : '' }}
-                                </small> -->
-
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -303,9 +369,20 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
             </div>
         </div>
     </section>
-    <section id="projects" class="py-5 bg-white">
+
+    <section id="projects" class="position-relative py-5 bg-white overflow-hidden">
+        <!-- Unique Decorative Shapes for Projects Section -->
+        <div class="position-absolute top-20 start-10"
+            style="width:100px; height:100px; background:rgba(255, 87, 34, 0.25); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute bottom-0 end-75"
+            style="width:70px; height:70px; background:rgba(0, 188, 212, 0.25); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute top-75 end-10"
+            style="width:90px; height:90px; background:rgba(156, 39, 176, 0.25); border-radius:50%; z-index:0;"></div>
+        <div class="position-absolute bottom-20 start-50 translate-middle-x"
+            style="width:60px; height:60px; background:rgba(255, 235, 59, 0.25); border-radius:50%; z-index:0;"></div>
+
         <div class="container">
-            <div class="section-title text-center mb-4">Featured Projects</div>
+            <div class="section-title text-center mb-4 font text">Featured Projects</div>
             <div class="row g-4">
                 @forelse($projects as $project)
                 <div class="col-md-4">
@@ -314,9 +391,8 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                         <img src="{{ $project->image }}" class="card-img-top" alt="Project Image">
                         @endif
                         <div class="card-body">
-                            <h5 class="card-title">{{ $project->title }}</h5>
+                            <h5 class="card-title text">{{ $project->title }}</h5>
                             <p class="card-text">{{ Str::limit($project->description, 100) }}
-                                <!-- See More Button -->
                                 <a href="#" class="text-decoration-none" data-bs-toggle="modal"
                                     data-bs-target="#projectModal{{ $project->id }}">
                                     See More
@@ -328,7 +404,6 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                                 {{ $project->start_date ? \Carbon\Carbon::parse($project->start_date)->diffForHumans() : '' }}
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -338,7 +413,8 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                     <div class="modal-dialog modal-lg modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="projectModalLabel{{ $project->id }}">{{ $project->title }}
+                                <h5 class="modal-title text" id="projectModalLabel{{ $project->id }}">
+                                    {{ $project->title }}
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
@@ -350,9 +426,6 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
                                 <p>{!! nl2br(e($project->description)) !!}</p>
                             </div>
                             <div class="modal-footer">
-                                <!-- <small class="text-muted">
-                                    {{ $project->start_date ? \Carbon\Carbon::parse($project->start_date)->diffForHumans() : '' }}
-                                </small> -->
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -364,6 +437,7 @@ $announcements = \App\Models\Announcement::where('active', true)->orderByDesc('s
             </div>
         </div>
     </section>
+
 
     @include('layouts.Admin.footer', ['footer' => $footer])
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
