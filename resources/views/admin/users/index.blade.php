@@ -164,8 +164,8 @@
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <label for="password" class="form-label">Password<span class="text-danger"> *</span> <span><small class="text-muted">(must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number)</small></span></label>
+                        <input type="password" class="form-control" id="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
@@ -227,8 +227,8 @@
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
-                        <label for="edit_password" class="form-label">New Password</label>
-                        <input type="password" class="form-control" id="edit_password" name="password">
+                        <label for="edit_password" class="form-label">New Password <span><small class="text-muted">(must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number)</small></span></label>
+                        <input type="password" class="form-control" id="edit_password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}">
                         <small class="text-muted">Leave blank to keep current password</small>
                         <div class="invalid-feedback"></div>
                     </div>
