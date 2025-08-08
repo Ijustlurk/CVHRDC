@@ -125,15 +125,15 @@
                         <div class="invalid-feedback" id="is_active-error"></div>
                     </div>
 
-                    <div class="mb-3">
+                     <div class="mb-3">
                         <label for="project-visible" class="form-label">
                             Visibility <span class="text-danger">*</span>
                         </label>
                         <select class="form-select" id="project-visible" name="is_visible" required>
                             <option value="">-- Select Visibility --</option>
                             <option value="1">Visible</option>
-                            <option value="0">Hidden</option>
-                        </select>
+                                    <option value="0">Hidden</option>
+                                </select>
                         <div class="invalid-feedback" id="is_visible-error"></div>
                     </div>
 
@@ -174,18 +174,18 @@
             <!-- Project Details Modal -->
             <div class="modal fade" id="projectDetailsModal" tabindex="-1"
                 aria-labelledby="projectDetailsModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="projectDetailsModalLabel">Project Details</h5>
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="projectDetailsModalLabel">Project Details</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body" id="project-details-body">
-                            <!-- Details will be loaded here -->
-                        </div>
-                    </div>
+                  </div>
+                  <div class="modal-body" id="project-details-body">
+                    <!-- Details will be loaded here -->
+                  </div>
                 </div>
+              </div>
             </div>
         </div>
     </div>
@@ -574,18 +574,18 @@
 
     function fetchAllProjectsModal() {
         fetch('/admin/projects?all=1', {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Backend already returns projects in descending order by id
-                let html = '<h5>All Projects</h5>';
-                html += '<ul class="list-group">';
-                data.forEach(item => {
-                    const addedAt = item.created_at ? dayjs(item.created_at).fromNow() : '';
-                    html += `<li class="list-group-item bg-light mb-2">
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Backend already returns projects in descending order by id
+            let html = '<h5>All Projects</h5>';
+            html += '<ul class="list-group">';
+            data.forEach(item => {
+                const addedAt = item.created_at ? dayjs(item.created_at).fromNow() : '';
+                html += `<li class="list-group-item bg-light mb-2">
                     <div><strong>Title:</strong> ${item.title}</div>
                     <div><strong>Description:</strong> ${item.description}</div>
                     <div><strong>Started At:</strong> <small>${item.start_date ?? ''}</small></div>
@@ -599,53 +599,53 @@
                     <div><strong>Image:</strong> ${item.image ? `<a href="${item.image}" target="_blank"><img src="${convertGoogleDriveUrl(item.image)}" style="max-width: 50px; max-height: 50px;" onerror="this.style.display='none'; this.nextSibling.style.display='inline';" /> <span style="display:none;">View Link</span></a>` : 'No image'}</div>
                     <div><strong>Visibility:</strong> <span class="badge ${item.is_visible ? 'bg-success' : 'bg-secondary'}">${item.is_visible ? 'Visible' : 'Hidden'}</span></div>
                 </li>`;
-                });
-                html += '</ul>';
-                // Show in modal
-                document.getElementById('project-details-body').innerHTML = html;
-                var modalEl = document.getElementById('projectDetailsModal');
-                if (window.bootstrap && typeof bootstrap.Modal === 'function') {
-                    var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                    modal.show();
-                } else {
-                    modalEl.style.display = 'block';
-                    modalEl.classList.add('show');
-                    var closeBtn = modalEl.querySelector('.btn-close');
-                    if (closeBtn) {
-                        closeBtn.onclick = function() {
-                            modalEl.style.display = 'none';
-                            modalEl.classList.remove('show');
-                        };
-                    }
+            });
+            html += '</ul>';
+            // Show in modal
+            document.getElementById('project-details-body').innerHTML = html;
+            var modalEl = document.getElementById('projectDetailsModal');
+            if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+                var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            } else {
+                modalEl.style.display = 'block';
+                modalEl.classList.add('show');
+                var closeBtn = modalEl.querySelector('.btn-close');
+                if (closeBtn) {
+                    closeBtn.onclick = function() {
+                        modalEl.style.display = 'none';
+                        modalEl.classList.remove('show');
+                    };
                 }
-            })
-            .catch(() => {
+            }
+        })
+        .catch(() => {
                 document.getElementById('project-details-body').innerHTML =
                     '<div class="text-danger">Error loading all projects.</div>';
-                var modalEl = document.getElementById('projectDetailsModal');
-                if (window.bootstrap && typeof bootstrap.Modal === 'function') {
-                    var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                    modal.show();
-                } else {
-                    modalEl.style.display = 'block';
-                    modalEl.classList.add('show');
-                }
-            });
+            var modalEl = document.getElementById('projectDetailsModal');
+            if (window.bootstrap && typeof bootstrap.Modal === 'function') {
+                var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            } else {
+                modalEl.style.display = 'block';
+                modalEl.classList.add('show');
+            }
+        });
     }
 
     function fetchProjects() {
         const projectsList = document.getElementById('projects-list');
         fetch('/admin/projects', {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                let html = '<ul class="list-group">';
-                data.forEach(item => {
-                    const addedAt = item.created_at ? dayjs(item.created_at).fromNow() : '';
-                    html += `<li class="list-group-item bg-light mb-2">
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            let html = '<ul class="list-group">';
+            data.forEach(item => {
+                const addedAt = item.created_at ? dayjs(item.created_at).fromNow() : '';
+                html += `<li class="list-group-item bg-light mb-2">
                     <div><strong>Title:</strong> ${item.title}</div>
                     <div class='d-none'><strong>Description:</strong> ${item.description}</div>
                     <div><strong>Started At:</strong> <small>${item.start_date ?? ''}</small></div>
@@ -678,9 +678,9 @@
                         >View More</button>
                     </div>
                 </li>`;
-                });
-                html += '</ul>';
-                projectsList.innerHTML = html;
+            });
+            html += '</ul>';
+            projectsList.innerHTML = html;
 
                 // Update count info
                 const countInfo = document.getElementById('projects-count-info');
@@ -688,9 +688,9 @@
                     countInfo.textContent = `Total: ${data.length}, Displayed: ${data.length}`;
                 }
 
-                // Add event listeners for view more buttons
-                document.querySelectorAll('.view-more-btn').forEach(function(btn) {
-                    btn.addEventListener('click', function() {
+            // Add event listeners for view more buttons
+            document.querySelectorAll('.view-more-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
                         const title = decodeURIComponent(this.getAttribute('data-title'));
                         const description = decodeURIComponent(this.getAttribute(
                             'data-description'));
@@ -763,9 +763,9 @@
                     });
                 });
                 // Event delegation is now handled outside fetchProjects function
-            })
-            .catch(() => {
-                projectsList.innerHTML = '<div class="text-danger">Error loading projects.</div>';
-            });
+        })
+        .catch(() => {
+            projectsList.innerHTML = '<div class="text-danger">Error loading projects.</div>';
+        });
     }
 </script>

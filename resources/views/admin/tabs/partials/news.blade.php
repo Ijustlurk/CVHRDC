@@ -4,7 +4,7 @@
                 <div class="card mb-3">
                     <div class="card-header">Add News</div>
                     <div class="card-body">
-                        
+
                         <!-- Alert container -->
                         <div id="news-alert-container"></div>
 
@@ -332,9 +332,9 @@
         });
     }
 
-            document.addEventListener('DOMContentLoaded', function() {
-            fetchNews();
-            setInterval(fetchNews, 5000);
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchNews();
+        setInterval(fetchNews, 5000);
             
             // Set default date/time on page load
             setDefaultDateTime();
@@ -479,10 +479,10 @@
             });
         });
 
-        document.getElementById('view-all-news-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            fetchAllNewsModal();
-        });
+            document.getElementById('view-all-news-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                fetchAllNewsModal();
+            });
     });
 
 

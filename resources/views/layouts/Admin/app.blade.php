@@ -53,6 +53,8 @@
             $footer = \App\Models\Footer::first();
         @endphp
         @include('layouts.Admin.footer', ['footer' => $footer])
+        
+        @stack('scripts')
     </body>
 </html>
 

@@ -81,7 +81,7 @@ Route::namespace('App\Http\Controllers\SuperAdmin')->prefix('superadmin')->name(
 
 
 // admin routes here
-Route::prefix('admin')->name('admin.')->middleware('can:admin-access')->group(function(){
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function(){
     
 
     Route::post('news/{id}/visibility', [NewsController::class, 'updateVisibility'])->name('news.visibility');
@@ -96,6 +96,11 @@ Route::prefix('admin')->name('admin.')->middleware('can:admin-access')->group(fu
 
 
     Route::resource('cms', App\Http\Controllers\Admin\CMSController::class);
+    
+    // User Management Routes
+    Route::resource('users', App\Http\Controllers\Admin\UserManagementController::class);
+    Route::post('users/{id}/restore', [App\Http\Controllers\Admin\UserManagementController::class, 'restore'])->name('users.restore');
+    Route::resource('roles', App\Http\Controllers\Admin\RoleManagementController::class);
 
     Route::get('tabs/{tab?}', [App\Http\Controllers\Admin\AdminTabsController::class, 'index'])->name('tabs.index');
     Route::post('/admin/news/{id}/visibility', [NewsController::class, 'updateVisibility']);
