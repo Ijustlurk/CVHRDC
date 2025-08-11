@@ -370,19 +370,20 @@ true)->orderByDesc('start_date')->take(3)->get(); @endphp
                     aria-labelledby="announcementModalLabel{{ $announcement->id }}" aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-scrollable">
                         <div class="modal-content">
-                            <div class="modal-header">
+                            <!-- <div class="modal-header">
                                 <h5 class="modal-title text-2" id="announcementModalLabel{{ $announcement->id }}">
                                     {{ $announcement->title }}
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
-                            </div>
+                            </div> -->
                             <div class="modal-body">
+                                <h4>{{ $announcement->title }}</h4>
                                 <p>
                                     {!! nl2br(e($announcement->content)) !!}
                                 </p>
                             </div>
-                            <div class="modal-footer">
+                            <div class="d-flex justify-content-end p-3 ">
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                                     Close
                                 </button>
@@ -472,7 +473,7 @@ true)->orderByDesc('start_date')->take(3)->get(); @endphp
                                 @endif
                                 <p>{!! nl2br(e($item->content)) !!}</p>
                             </div>
-                            <div class="modal-footer">
+                            <div class="d-flex justify-content-end p-3 ">
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                                     Close
                                 </button>
@@ -558,14 +559,15 @@ true)->orderByDesc('start_date')->take(3)->get(); @endphp
                     aria-labelledby="projectModalLabel{{ $project->id }}" aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-scrollable">
                         <div class="modal-content">
-                            <div class="modal-header">
+                            <!-- <div class="modal-header">
                                 <h5 class="modal-title text" id="projectModalLabel{{ $project->id }}">
                                     {{ $project->title }}
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
-                            </div>
+                            </div> -->
                             <div class="modal-body">
+                                <h4>{{ $project->title }}</h4>
                                 @if($project->image)
                                 <img src="{{ $project->image }}" class="img-fluid mb-3" alt="Project Image" />
                                 @endif
@@ -573,7 +575,7 @@ true)->orderByDesc('start_date')->take(3)->get(); @endphp
                                     {!! nl2br(e($project->description)) !!}
                                 </p>
                             </div>
-                            <div class="modal-footer">
+                            <div class="d-flex justify-content-end p-3 ">
                                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                                     Close
                                 </button>
