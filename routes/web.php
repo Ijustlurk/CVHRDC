@@ -87,6 +87,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('news/{id}/visibility', [NewsController::class, 'updateVisibility'])->name('news.visibility');
     Route::post('projects/{id}/visibility', [ProjectController::class, 'updateVisibility'])->name('projects.visibility');
     Route::post('events/{id}/visibility', [EventController::class, 'updateVisibility'])->name('events.visibility');
+    Route::post('publications/{id}/visibility', [PublicationController::class, 'updateVisibility'])->name('publications.visibility');
     Route::resource('news', NewsController::class);
     Route::resource('projects', ProjectController::class);
     Route::resource('researchers', ResearcherController::class);
