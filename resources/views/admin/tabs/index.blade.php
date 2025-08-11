@@ -10,7 +10,11 @@
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
             <a class="nav-link{{ $tab == 'news' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'news']) }}">
-                <i class="fas fa-news me-2"></i>News</a>
+
+                <i class="fa fa-newspaper"></i>   
+            News</a>
+
+
         </li>
         <li class="nav-item">
             <a class="nav-link{{ $tab == 'projects' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'projects']) }}">Projects</a>
