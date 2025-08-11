@@ -9,10 +9,35 @@ class AdminTabsController extends Controller
 {
     public function index($tab = 'news')
     {
-        $validTabs = ['news', 'projects', 'events', 'publications', 'researchers', 'partners'];
+        $validTabs = ['news', 'projects', 'events', 'publications', 'researchers', 'partners', 'announcements'];
         if (!in_array($tab, $validTabs)) {
             $tab = 'news';
         }
-        return view('admin.tabs.index', compact('tab'));
+
+        $data = ['tab' => $tab];
+        switch ($tab) {
+            case 'news':
+                $data['news'] = \App\Models\News::orderBy('id', 'desc')->paginate(8);
+                break;
+            case 'projects':
+                $data['projects'] = \App\Models\Project::orderBy('id', 'desc')->paginate(8);
+                break;
+            case 'events':
+                $data['events'] = \App\Models\Event::orderBy('id', 'desc')->paginate(8);
+                break;
+            case 'publications':
+                $data['publications'] = \App\Models\Publication::orderBy('id', 'desc')->paginate(8);
+                break;
+            case 'researchers':
+                $data['researchers'] = \App\Models\Researcher::orderBy('id', 'desc')->paginate(8);
+                break;
+            case 'partners':
+                $data['partners'] = \App\Models\Partner::orderBy('id', 'desc')->paginate(8);
+                break;
+            case 'announcements':
+                $data['announcements'] = \App\Models\Announcement::orderBy('id', 'desc')->paginate(8);
+                break;
+        }
+        return view('admin.tabs.index', $data);
     }
 }

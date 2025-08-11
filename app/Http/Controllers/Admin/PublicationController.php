@@ -14,7 +14,8 @@ class PublicationController extends Controller
      */
     public function index()
     {
-        //
+        $publications = \App\Models\Publication::orderBy('id', 'desc')->paginate(8);
+        return view('admin.tabs.partials.publications', compact('publications'));
     }
 
     /**
@@ -30,7 +31,13 @@ class PublicationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string|min:3|max:255',
+            'description' => 'required|string|min:10',
+            'file_url' => 'required|url',
+        ]);
+        $publication = \App\Models\Publication::create($validated);
+        return redirect()->back()->with('success', 'Publication added successfully!');
     }
 
     /**

@@ -18,10 +18,8 @@ class PartnerController extends Controller
      */
     public function index()
     {
-        if (request()->expectsJson()) {
-            return response()->json(\App\Models\Partner::all());
-        }
-        return view('admin.tabs.partials.partners');
+        $partners = \App\Models\Partner::orderBy('id', 'desc')->paginate(8);
+        return view('admin.tabs.partials.partners', compact('partners'));
     }
 
     /**
@@ -29,7 +27,13 @@ class PartnerController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|min:3|max:255',
+            'type' => 'required|string|min:3|max:255',
+            'contact' => 'nullable|string|max:255',
+        ]);
+        $partner = \App\Models\Partner::create($validated);
+        return redirect()->back()->with('success', 'Partner added successfully!');
     }
 
     /**
