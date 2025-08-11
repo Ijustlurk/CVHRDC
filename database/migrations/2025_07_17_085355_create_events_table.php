@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('organizer')->nullable();
             $table->string('image_url')->nullable();
             $table->boolean('is_visible')->default(true); // for show/hide view settings
+             $table->string('added_by')->nullable(); // to track who added the news
             $table->timestamps();
         });
     }

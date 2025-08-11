@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('funding_agency')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('is_visible')->default(true); // for show/hide view settings
+             $table->string('added_by')->nullable(); // to track who added the news
             $table->timestamps();
         });
     }

@@ -18,7 +18,8 @@ return new class extends Migration
                 $table->string('image')->nullable();
                 $table->timestamp('published_at')->nullable();
                     $table->boolean('is_visible')->default(true); // for show/hide view settings
-                $table->timestamps();
+                $table->string('added_by')->nullable(); // to track who added the news
+                    $table->timestamps();
             });
     }
 

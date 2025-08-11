@@ -9,6 +9,12 @@ class Publication extends Model
 {
     use HasFactory;
 
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+
     protected $fillable = [
         'user_id',
         'title',
@@ -25,4 +31,5 @@ class Publication extends Model
         'is_visible' => 'boolean',
         'published_at' => 'datetime',
     ];
+
 }

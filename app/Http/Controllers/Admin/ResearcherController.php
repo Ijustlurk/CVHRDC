@@ -13,16 +13,8 @@ class ResearcherController extends Controller
      */
     public function index()
     {
-            /**
-     * Show the form for creating a new resource.
-     */
-        if (request()->expectsJson()) {
-            return response()->json(\App\Models\Researcher::all());
-        }
-        return view('admin.tabs.partials.researchers');
-        {
-            //
-        }
+        $researchers = \App\Models\Researcher::orderBy('id', 'desc')->paginate(8);
+        return view('admin.tabs.partials.researchers', compact('researchers'));
     }
 
 
@@ -32,7 +24,13 @@ class ResearcherController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|min:3|max:255',
+            'expertise' => 'required|string|min:3|max:255',
+            'email' => 'required|email',
+        ]);
+        $researcher = \App\Models\Researcher::create($validated);
+        return redirect()->back()->with('success', 'Researcher added successfully!');
     }
 
     /**

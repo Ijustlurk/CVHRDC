@@ -122,9 +122,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/settings/database-backup/perform', [App\Http\Controllers\Admin\DatabaseBackupController::class, 'performBackup'])->name('settings.database_backup.perform');
     
     // Admin Banner Management
-    Route::post('/banner/update', [App\Http\Controllers\Admin\BannerController::class, 'update'])->name('admin.banner.update');
-    Route::post('/announcement/update', [App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('admin.announcement.update');
-    Route::post('/header/update', [App\Http\Controllers\Admin\HeaderController::class, 'update'])->name('admin.header.update');
+    Route::post('/banner/update', [App\Http\Controllers\Admin\BannerController::class, 'update'])->name('banner.update');
+    Route::post('/announcement/update', [App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('announcement.update');
+    Route::post('/header/update', [App\Http\Controllers\Admin\HeaderController::class, 'update'])->name('header.update');
     
     // Admin Settings Update Maintenance
     Route::prefix('settings')->group(function () {
@@ -148,6 +148,26 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
 
 
 
+
+
+// // Content Editor routes
+// Route::namespace('App\Http\Controllers\ContentEditor')->prefix('contenteditor')->name('contenteditor.')->middleware('can:contenteditor-access')->group(function(){
+   
+//     Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
+//     // CMS Management
+//     Route::resource('cms', 'CMSController');
+//     // Header, Banner, Footer Settings
+//     Route::get('/header/edit', 'HeaderController@edit')->name('header.edit');
+//     Route::post('/header/update', 'HeaderController@update')->name('header.update');
+//     Route::get('/banner/edit', 'BannerController@edit')->name('banner.edit');
+//     Route::post('/banner/update', 'BannerController@update')->name('banner.update');
+//     Route::get('/footer/edit', 'FooterController@edit')->name('footer.edit');
+//     Route::post('/footer/update', 'FooterController@update')->name('footer.update');
+//     // Database Backup (no download)
+//     Route::get('/database-backup', 'DatabaseBackupController@show')->name('database_backup');
+//     Route::post('/database-backup', 'DatabaseBackupController@update')->name('database_backup.update');
+//     Route::post('/database-backup/perform', 'DatabaseBackupController@performBackup')->name('database_backup.perform');
+// });
 
 
 
