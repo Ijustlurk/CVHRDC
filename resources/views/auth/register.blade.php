@@ -1,8 +1,8 @@
 <x-guest-layout>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <div class="d-flex align-items-center justify-content-center min-vh-100"
-        style="background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%);">
+    <div class="d-flex align-items-center justify-content-center min-vh-100">
+        <!-- style="background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%);" -->
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-10">
