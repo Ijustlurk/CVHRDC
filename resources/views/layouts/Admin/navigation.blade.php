@@ -24,7 +24,7 @@
                     </x-nav-link>
 
                     <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
-                        :href="route('admin.cms.index')" :active="request()->routeIs('admin.cms.*')">
+                        :href="route('admin.tabs.index', ['tab' => 'news'])" :active="request()->routeIs('admin.cms.*')">
                         CMS
                     </x-nav-link>
                     <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
