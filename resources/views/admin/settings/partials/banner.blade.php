@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header fw-bold">Banner Settings</div>
+            <div class="card-header fw-bold bg-primary text-white">Banner Settings</div>
             <div class="card-body">
                 @if(session('success'))
                     <div class="alert alert-success">{{ session('success') }}</div>

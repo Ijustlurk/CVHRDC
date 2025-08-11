@@ -17,12 +17,7 @@
         <li class="nav-item">
             <a class="nav-link{{ $tab == 'events' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'events']) }}">Events</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link{{ $tab == 'publications' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'publications']) }}">Publications</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link{{ $tab == 'researchers' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'researchers']) }}">Researchers</a>
-        </li>
+    <!-- Publications and Researchers tabs removed as requested -->
         <li class="nav-item">
             <a class="nav-link{{ $tab == 'partners' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'partners']) }}">Partners</a>
         </li>
