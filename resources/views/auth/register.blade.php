@@ -94,6 +94,15 @@
                                             </div>
                                         </div>
 
+                                        <!-- reCAPTCHA widget -->
+                                        <div class="mb-3">
+                                            {!! NoCaptcha::renderJs() !!}
+                                            {!! NoCaptcha::display() !!}
+                                            @error('g-recaptcha-response')
+                                            <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <a class="text-decoration-none text-primary" href="{{ route('login') }}">
                                                 {{ __('Already registered?') }}
