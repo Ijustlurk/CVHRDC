@@ -10,8 +10,11 @@
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
             <a class="nav-link{{ $tab == 'news' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'news']) }}">
+
                 <i class="fa fa-newspaper"></i>   
             News</a>
+
+
         </li>
         <li class="nav-item">
             <a class="nav-link{{ $tab == 'projects' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'projects']) }}">Projects</a>
@@ -52,3 +55,16 @@
 
 
 @endsection
+
+
+@push('scripts')
+<!-- DataTables CSS -->
+<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- DataTables -->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+@endpush

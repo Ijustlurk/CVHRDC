@@ -165,12 +165,18 @@
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password<span class="text-danger"> *</span> <span><small class="text-muted">(must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number)</small></span></label>
-                        <input type="password" class="form-control" id="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" required>
+                            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password" aria-label="Show password"><i class="fas fa-eye"></i></button>
+                        </div>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
                         <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password_confirmation" aria-label="Show password"><i class="fas fa-eye"></i></button>
+                        </div>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
@@ -228,13 +234,19 @@
                     </div>
                     <div class="mb-3">
                         <label for="edit_password" class="form-label">New Password <span><small class="text-muted">(must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number)</small></span></label>
-                        <input type="password" class="form-control" id="edit_password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}">
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="edit_password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}">
+                            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="edit_password" aria-label="Show password"><i class="fas fa-eye"></i></button>
+                        </div>
                         <small class="text-muted">Leave blank to keep current password</small>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
                         <label for="edit_password_confirmation" class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control" id="edit_password_confirmation" name="password_confirmation">
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="edit_password_confirmation" name="password_confirmation">
+                            <button type="button" class="btn btn-outline-secondary toggle-password" data-target="edit_password_confirmation" aria-label="Show password"><i class="fas fa-eye"></i></button>
+                        </div>
                         <div class="invalid-feedback"></div>
                     </div>
                     <div class="mb-3">
@@ -393,6 +405,24 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.error('Create form not found');
     }
+
+    // Toggle password visibility buttons (works for all password fields above)
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (!input) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                this.setAttribute('aria-label', 'Hide password');
+            } else {
+                input.type = 'password';
+                this.innerHTML = '<i class="fas fa-eye"></i>';
+                this.setAttribute('aria-label', 'Show password');
+            }
+        });
+    });
 
     // Edit User Button Click
     const editButtons = document.querySelectorAll('.edit-user-btn');
