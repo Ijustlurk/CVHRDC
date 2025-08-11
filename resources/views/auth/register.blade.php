@@ -1,5 +1,6 @@
 <x-guest-layout>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 
     <div class="d-flex align-items-center justify-content-center min-vh-100">
         <!-- style="background: linear-gradient(135deg, #6366f1 0%, #a5b4fc 100%);" -->
@@ -57,12 +58,17 @@
                                         <div class="mb-3">
                                             <label for="password"
                                                 class="form-label text-primary">{{ __('Password') }}</label>
-                                            <input id="password" type="password"
-                                                class="form-control @error('password') is-invalid @enderror"
-                                                name="password" required autocomplete="new-password"
-                                                placeholder="Enter your password">
+                                            <div class="input-group">
+                                                <input id="password" type="password"
+                                                    class="form-control @error('password') is-invalid @enderror"
+                                                    name="password" required autocomplete="new-password"
+                                                    placeholder="Enter your password">
+                                                <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password" aria-label="Show password">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
                                             @error('password')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
                                         </div>
 
@@ -70,12 +76,17 @@
                                         <div class="mb-3">
                                             <label for="password_confirmation"
                                                 class="form-label text-primary">{{ __('Confirm Password') }}</label>
-                                            <input id="password_confirmation" type="password"
-                                                class="form-control @error('password_confirmation') is-invalid @enderror"
-                                                name="password_confirmation" required autocomplete="new-password"
-                                                placeholder="Confirm your password">
+                                            <div class="input-group">
+                                                <input id="password_confirmation" type="password"
+                                                    class="form-control @error('password_confirmation') is-invalid @enderror"
+                                                    name="password_confirmation" required autocomplete="new-password"
+                                                    placeholder="Confirm your password">
+                                                <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password_confirmation" aria-label="Show password">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
                                             @error('password_confirmation')
-                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
                                             @enderror
                                         </div>
 
@@ -192,6 +203,24 @@
                     e.preventDefault();
                     termsAlert.classList.remove('d-none');
                 }
+            });
+
+            // Toggle password visibility buttons (works for both password fields)
+            document.querySelectorAll('.toggle-password').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const input = document.getElementById(targetId);
+                    if (!input) return;
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                        this.setAttribute('aria-label', 'Hide password');
+                    } else {
+                        input.type = 'password';
+                        this.innerHTML = '<i class="fas fa-eye"></i>';
+                        this.setAttribute('aria-label', 'Show password');
+                    }
+                });
             });
         });
 
