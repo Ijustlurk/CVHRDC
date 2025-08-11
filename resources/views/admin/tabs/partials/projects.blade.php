@@ -16,7 +16,7 @@
 <div class="row mb-4 g-4">
 	<div class="col-12 col-lg-5">
 		<div class="card shadow-sm h-100">
-			<div class="card-header bg-primary text-white">Add Project</div>
+			<div class="card-header bg-primary fw-bold text-white">Add Project</div>
 			<div class="card-body">
 				@if ($errors->any())
 					<div class="alert alert-danger">

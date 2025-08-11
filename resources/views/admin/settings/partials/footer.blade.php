@@ -4,7 +4,7 @@
 
 
         <div class="card">
-            <div class="card-header fw-bold">Footer Settings</div>
+            <div class="card-header fw-bold bg-primary text-white">Footer Settings</div>
             <div class="card-body">
 
                 <form method="POST" action="/admin/footer/update">

@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header">Announcement Settings</div>
+            <div class="card-header fw-bold bg-primary white" >Announcement Settings</div>
             <div class="card-body">
                 <form method="POST" action="/admin/announcement/update">
                     @csrf

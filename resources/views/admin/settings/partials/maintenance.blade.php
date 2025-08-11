@@ -4,7 +4,7 @@
 
 
             <div class="card">
-                <div class="card-header fw-bold">System Maintenance Settings</div>
+                <div class="card-header fw-bold bg-primary text-white">System Maintenance Settings</div>
                 <div class="card-body">
                         <form method="POST" action="{{ route('admin.settings.update', 'maintenance') }}">
                             @csrf

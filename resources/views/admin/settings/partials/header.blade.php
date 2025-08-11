@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header">Header Settings</div>
+            <div class="card-header fw-bold bg-primary text-white">Header Settings</div>
             <div class="card-body">
                 <form method="POST" action="/admin/header/update">
                     @csrf
