@@ -31,6 +31,7 @@
                         :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')">
                         User Management
                     </x-nav-link>
+                   
                 </div>
             </div>
 

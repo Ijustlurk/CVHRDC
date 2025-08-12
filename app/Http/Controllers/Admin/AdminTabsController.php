@@ -9,7 +9,7 @@ class AdminTabsController extends Controller
 {
     public function index($tab = 'news')
     {
-        $validTabs = ['news', 'projects', 'events', 'publications', 'researchers', 'partners', 'announcements'];
+        $validTabs = ['news', 'research', 'projects', 'events', 'publications', 'researchers', 'partners', 'announcements'];
         if (!in_array($tab, $validTabs)) {
             $tab = 'news';
         }
@@ -18,6 +18,15 @@ class AdminTabsController extends Controller
         switch ($tab) {
             case 'news':
                 $data['news'] = \App\Models\News::orderBy('id', 'desc')->paginate(8);
+                break;
+            case 'research':
+                // If Research model exists, load; otherwise provide empty collection
+                $researchClass = 'App\\Models\\Research';
+                if (class_exists($researchClass)) {
+                    $data['research'] = $researchClass::orderBy('id', 'desc')->paginate(8);
+                } else {
+                    $data['research'] = collect([]);
+                }
                 break;
             case 'projects':
                 $data['projects'] = \App\Models\Project::orderBy('id', 'desc')->paginate(8);

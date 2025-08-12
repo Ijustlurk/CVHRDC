@@ -17,6 +17,9 @@
 
         </li>
         <li class="nav-item">
+            <a class="nav-link{{ $tab == 'research' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'research']) }}">Research</a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link{{ $tab == 'projects' ? ' active' : '' }}" href="{{ route('admin.tabs.index', ['tab' => 'projects']) }}">Projects</a>
         </li>
         <li class="nav-item">
@@ -33,6 +36,8 @@
     <div>
         @if($tab == 'news')
             @include('admin.tabs.partials.news')
+        @elseif($tab == 'research')
+            @include('admin.tabs.partials.research')
         @elseif($tab == 'projects')
             @include('admin.tabs.partials.projects')
         @elseif($tab == 'events')

@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ResearcherController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\PublicationController;
+use App\Http\Controllers\Admin\ResearchController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Users\DashboardController as UserDashboardController;
@@ -93,6 +94,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('researchers', ResearcherController::class);
     Route::resource('events', EventController::class);
     Route::resource('publications', PublicationController::class);
+    // Research Management
+    Route::post('research/{research}/visibility', [ResearchController::class, 'updateVisibility'])->name('research.visibility');
+    Route::resource('research', ResearchController::class)->except(['create', 'show']);
     Route::resource('partners', PartnerController::class);
 
 
