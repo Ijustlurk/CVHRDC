@@ -96,6 +96,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('publications', PublicationController::class);
     // Research Management
     Route::post('research/{research}/visibility', [ResearchController::class, 'updateVisibility'])->name('research.visibility');
+    Route::post('research/{id}/restore', [ResearchController::class, 'restore'])->name('research.restore');
     Route::resource('research', ResearchController::class)->except(['create', 'show']);
     Route::resource('partners', PartnerController::class);
 

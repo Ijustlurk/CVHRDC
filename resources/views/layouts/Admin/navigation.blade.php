@@ -31,7 +31,10 @@
                         :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')">
                         User Management
                     </x-nav-link>
-                   
+                    <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
+                        :href="route('admin.research.index')" :active="request()->routeIs('admin.research.*')">
+                        Research Management
+                    </x-nav-link>
                 </div>
             </div>
 

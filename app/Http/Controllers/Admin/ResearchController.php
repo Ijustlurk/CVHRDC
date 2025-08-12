@@ -13,7 +13,8 @@ class ResearchController extends Controller
     public function index()
     {
         $research = Research::orderByDesc('id')->paginate(12);
-        return view('admin.tabs.index', ['tab' => 'research', 'research' => $research]);
+        $deletedResearch = Research::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        return view('admin.research.index', compact('research', 'deletedResearch'));
     }
 
     public function store(Request $request)
@@ -100,6 +101,13 @@ class ResearchController extends Controller
         $request->validate(['is_public' => ['required', 'boolean']]);
         $research->update(['is_public' => (bool)$request->boolean('is_public')]);
         return back()->with('success', 'Visibility updated.');
+    }
+
+    public function restore($id)
+    {
+        $research = Research::onlyTrashed()->findOrFail($id);
+        $research->restore();
+        return back()->with('success', 'Research restored successfully.');
     }
 }
 

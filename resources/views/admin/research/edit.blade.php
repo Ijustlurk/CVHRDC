@@ -4,7 +4,7 @@
 <div class="container py-4">
   <div class="d-flex align-items-center mb-4 gap-3">
     <h4 class="mb-0">Edit Research</h4>
-    <a href="{{ route('admin.tabs.index', ['tab' => 'research']) }}" class="btn btn-light">&larr; Back to Research</a>
+    <a href="{{ route('admin.research.index') }}" class="btn btn-light">&larr; Back to Research</a>
   </div>
 
   @if(session('success'))
