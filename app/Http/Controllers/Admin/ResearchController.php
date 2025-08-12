@@ -110,5 +110,3 @@ class ResearchController extends Controller
         return back()->with('success', 'Research restored successfully.');
     }
 }
-
-
