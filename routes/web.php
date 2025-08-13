@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ResearcherController;
 use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\PublicationController;
 use App\Http\Controllers\Admin\ResearchController;
+use App\Http\Controllers\Admin\ConferencePaperController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Users\DashboardController as UserDashboardController;
@@ -98,6 +99,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('research/{research}/visibility', [ResearchController::class, 'updateVisibility'])->name('research.visibility');
     Route::post('research/{id}/restore', [ResearchController::class, 'restore'])->name('research.restore');
     Route::resource('research', ResearchController::class)->except(['create', 'show']);
+
+    // Conference Papers Management
+    Route::post('conference-papers/{conference_paper}/visibility', [ConferencePaperController::class, 'updateVisibility'])->name('conference-papers.visibility');
+    Route::post('conference-papers/{id}/restore', [ConferencePaperController::class, 'restore'])->name('conference-papers.restore');
+    Route::resource('conference-papers', ConferencePaperController::class)->except(['create', 'show']);
     Route::resource('partners', PartnerController::class);
 
 
@@ -111,6 +117,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('tabs/{tab?}', [App\Http\Controllers\Admin\AdminTabsController::class, 'index'])->name('tabs.index');
     Route::post('/admin/news/{id}/visibility', [NewsController::class, 'updateVisibility']);
 
+    
 
     // Admin Footer Management
     Route::get('/footer/edit', [App\Http\Controllers\Admin\FooterController::class, 'edit'])->name('admin.footer.edit');

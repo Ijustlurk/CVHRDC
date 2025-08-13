@@ -1,10 +1,10 @@
-@extends('layouts.admin.app')
+@extends('layouts.Admin.app')
 
 @section('content')
 <div class="container py-4">
   <div class="d-flex align-items-center mb-4 gap-3">
     <h4 class="mb-0">Edit Research</h4>
-    <a href="{{ route('admin.research.index') }}" class="btn btn-light">&larr; Back to Research</a>
+    <a href="{{ route('admin.research.index', ['type' => 'research']) }}" class="btn btn-light">&larr; Back to Research</a>
   </div>
 
   @if(session('success'))
@@ -110,7 +110,7 @@
         </div>
 
         <div class="d-flex justify-content-end mt-4 gap-2">
-          <a href="{{ route('admin.tabs.index', ['tab' => 'research']) }}" class="btn btn-secondary">Cancel</a>
+          <a href="{{ route('admin.research.index', ['type' => 'research']) }}" class="btn btn-secondary">Cancel</a>
           <button type="submit" class="btn btn-primary">Save Changes</button>
         </div>
       </form>
@@ -121,7 +121,6 @@
 
 @push('scripts')
 <script>
-// Bootstrap validation
 (() => {
   'use strict';
   const forms = document.querySelectorAll('.needs-validation');
@@ -137,60 +136,28 @@
   });
 })();
 
-// Chips helpers
 function createChip(label, container, hiddenName, badgeClass) {
   const chip = document.createElement('span');
   chip.className = `badge ${badgeClass} d-inline-flex align-items-center`;
   chip.style.gap = '6px';
   chip.textContent = label;
-
   const remove = document.createElement('button');
-  remove.type = 'button';
-  remove.className = 'btn-close btn-close-white btn-sm ms-2';
-  remove.ariaLabel = 'Remove';
+  remove.type = 'button'; remove.className = 'btn-close btn-close-white btn-sm ms-2';
   remove.addEventListener('click', () => chip.remove());
-
-  const hidden = document.createElement('input');
-  hidden.type = 'hidden';
-  hidden.name = hiddenName;
-  hidden.value = label;
-
-  chip.appendChild(remove);
-  chip.appendChild(hidden);
-  container.appendChild(chip);
+  const hidden = document.createElement('input'); hidden.type = 'hidden'; hidden.name = hiddenName; hidden.value = label;
+  chip.appendChild(remove); chip.appendChild(hidden); container.appendChild(chip);
 }
-
 function addChipFromInput(input, container, hiddenName, badgeClass) {
-  const value = input.value.trim();
-  if (!value) return;
-  createChip(value, container, hiddenName, badgeClass);
-  input.value = '';
+  const value = input.value.trim(); if (!value) return; createChip(value, container, hiddenName, badgeClass); input.value='';
 }
-
 const authorsChips = document.getElementById('authors-chips');
 const authorsInput = document.getElementById('authors-input');
 const authorsError = document.getElementById('authors-error');
-authorsInput?.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ',') {
-    e.preventDefault();
-    addChipFromInput(authorsInput, authorsChips, 'authors[]', 'bg-secondary');
-  }
-});
-
+authorsInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addChipFromInput(authorsInput, authorsChips, 'authors[]', 'bg-secondary'); }});
 const keywordsChips = document.getElementById('keywords-chips');
 const keywordsInput = document.getElementById('keywords-input');
-keywordsInput?.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ',') {
-    e.preventDefault();
-    addChipFromInput(keywordsInput, keywordsChips, 'keywords[]', 'bg-info');
-  }
-});
-
-function ensureAuthorsHiddenInputs() {
-  const hasAuthors = authorsChips.querySelectorAll('input[name="authors[]"]').length > 0;
-  authorsError.style.display = hasAuthors ? 'none' : 'block';
-  return hasAuthors;
-}
+keywordsInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addChipFromInput(keywordsInput, keywordsChips, 'keywords[]', 'bg-info'); }});
+function ensureAuthorsHiddenInputs() { const hasAuthors = authorsChips.querySelectorAll('input[name="authors[]"]').length > 0; authorsError.style.display = hasAuthors ? 'none' : 'block'; return hasAuthors; }
 </script>
 @endpush
 

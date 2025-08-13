@@ -10,133 +10,27 @@
         </div>
 
         <div id="alertContainer" class="mb-4"></div>
-        <!-- User Management Tabs -->
+        <!-- Research Management Tabs -->
         <ul class="nav nav-tabs mb-4">
             <li class="nav-item">
-                <a class="nav-link{{ !request()->routeIs('admin.roles.*') ? ' active' : '' }}"
-                    href="{{ route('admin.research.index') }}">
+                <a class="nav-link{{ request('type', 'research') !== 'conference' ? ' active' : '' }}"
+                    href="{{ route('admin.research.index', ['type' => 'research']) }}">
                     <i class="fas fa-book me-2"></i>Research
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link{{ request('type') === 'conference' ? ' active' : '' }}"
+                    href="{{ route('admin.research.index', ['type' => 'conference']) }}">
+                    <i class="fas fa-file-alt me-2"></i>Conference Paper
+                </a>
+            </li>
         </ul>
-        <div class="card shadow">
-            <div class="card-header bg-primary bg-gradient text-white py-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold"><i class="fas fa-flask me-2"></i>Manage Research</h6>
-                    <button type="button" class="btn btn-light" data-bs-toggle="modal"
-                        data-bs-target="#createResearchModal">
-                        <i class="fas fa-plus"></i> Create New Research
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <ul class="nav nav-tabs mb-4" id="researchTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="published-tab" data-bs-toggle="tab" data-bs-target="#published"
-                            type="button" role="tab" aria-selected="true">
-                            <i class="fas fa-eye me-2"></i>Published Research
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="deleted-tab" data-bs-toggle="tab" data-bs-target="#deleted"
-                            type="button" role="tab" aria-selected="false">
-                            <i class="fas fa-trash me-2"></i>Deleted Research
-                        </button>
-                    </li>
-                </ul>
 
-                <div class="tab-content" id="researchTabContent">
-                    <div class="tab-pane fade show active" id="published" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover" id="publishedTable">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Authors</th>
-                                        <th>Category</th>
-                                        <th>Published At</th>
-                                        <th>Visibility</th>
-                                        <th width="160">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($research as $item)
-                                        <tr>
-                                            <td>{{ $item->title }}</td>
-                                            <td>{{ implode(', ', $item->authors ?? []) }}</td>
-                                            <td>{{ $item->category }}</td>
-                                            <td>{{ optional($item->published_at)->format('M d, Y') }}</td>
-                                            <td>
-                                                <span
-                                                    class="badge bg-{{ $item->is_public ? 'success' : 'secondary' }}">{{ $item->is_public ? 'Public' : 'Private' }}</span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="{{ route('admin.research.edit', $item->id) }}"
-                                                        class="btn btn-sm btn-primary">Edit</a>
-                                                    <form method="POST"
-                                                        action="{{ route('admin.research.visibility', $item->id) }}"
-                                                        class="ms-1">
-                                                        @csrf
-                                                        <input type="hidden" name="is_public"
-                                                            value="{{ $item->is_public ? 0 : 1 }}">
-                                                        <button type="submit"
-                                                            class="btn btn-sm btn-outline-{{ $item->is_public ? 'secondary' : 'success' }}">
-                                                            <i class="fa fa-eye{{ $item->is_public ? '-slash' : '' }}"></i>
-                                                        </button>
-                                                    </form>
-                                                    <form method="POST"
-                                                        action="{{ route('admin.research.destroy', $item->id) }}"
-                                                        onsubmit="return confirm('Delete this research entry?');"
-                                                        class="ms-1">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-2">{{ $research->links() }}</div>
-                    </div>
-
-                    <div class="tab-pane fade" id="deleted" role="tabpanel">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover" id="deletedTable">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Title</th>
-                                        <th>Deleted At</th>
-                                        <th width="120">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($deletedResearch as $item)
-                                        <tr>
-                                            <td>{{ $item->title }}</td>
-                                            <td>{{ optional($item->deleted_at)->format('M d, Y H:i') }}</td>
-                                            <td>
-                                                <form method="POST"
-                                                    action="{{ route('admin.research.restore', $item->id) }}">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success">
-                                                        <i class="fas fa-undo-alt"></i> Restore
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="mt-2">{{ $deletedResearch->links() }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @if (request('type', 'research') !== 'conference')
+            @include('admin.research.partials.research.research')
+        @else
+            @include('admin.research.partials.conference.conference')
+        @endif
     </div>
 
     <!-- Create Research Modal -->
@@ -233,6 +127,109 @@
             </div>
         </div>
 
+        <!-- Create Conference Paper Modal -->
+        <div class="modal fade" id="createConferenceModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Create New Conference Paper</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form id="createConferenceForm" enctype="multipart/form-data"
+                        action="{{ \Illuminate\Support\Facades\Route::has('admin.conference-papers.store') ? route('admin.conference-papers.store') : '#' }}">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="conf-file" class="form-label">File (PDF) <span
+                                        class="text-danger">*</span></label>
+                                <input type="file" class="form-control" id="conf-file" name="file"
+                                    accept="application/pdf" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="conf-title" class="form-label">Title <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="conf-title" name="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Authors <span class="text-danger">*</span></label>
+                                <div class="border rounded p-2" id="conf-authors-container">
+                                    <div class="d-flex flex-wrap gap-2 mb-2" id="conf-authors-chips"></div>
+                                    <input type="text" id="conf-authors-input" class="form-control"
+                                        placeholder="Type a name and press Enter">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="conf-published_at" class="form-label">Publication Date <span
+                                        class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="conf-published_at" name="published_at"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="conf-conference_name" class="form-label">Conference Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="conf-conference_name"
+                                    name="conference_name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="conf-conference_location" class="form-label">Conference Location <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="conf-conference_location"
+                                    name="conference_location" placeholder="City, Country" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="conf-publisher" class="form-label">Publisher <small
+                                        class="text-muted">(optional)</small></label>
+                                <input type="text" class="form-control" id="conf-publisher" name="publisher">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">File Visibility <span class="text-danger">*</span></label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="is_public"
+                                            id="conf-visibility_public" value="1" required>
+                                        <label class="form-check-label" for="conf-visibility_public">Public</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="is_public"
+                                            id="conf-visibility_private" value="0" required>
+                                        <label class="form-check-label" for="conf-visibility_private">Private</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Keywords/Tags <small
+                                        class="text-muted">(optional)</small></label>
+                                <div class="border rounded p-2" id="conf-keywords-container">
+                                    <div class="d-flex flex-wrap gap-2 mb-2" id="conf-keywords-chips"></div>
+                                    <input type="text" id="conf-keywords-input" class="form-control"
+                                        placeholder="Type a keyword and press Enter">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="conf-abstract" class="form-label">Abstract <small
+                                        class="text-muted">(optional)</small></label>
+                                <textarea class="form-control" id="conf-abstract" name="abstract" rows="4"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="conf-language" class="form-label">Language <small class="text-muted">(ISO
+                                        639-1, optional)</small></label>
+                                <input type="text" class="form-control" id="conf-language" name="language"
+                                    placeholder="e.g., en, fr, es">
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i>Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                <i class="fas fa-save me-1"></i>Create
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
@@ -246,6 +243,8 @@
     <!-- DataTables -->
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <!-- Bootstrap JS (required for modals) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- pdf.js for reading PDF metadata and text -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
@@ -253,7 +252,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof $ !== 'undefined' && $.fn.DataTable) {
-                $('#publishedTable, #deletedTable').DataTable({
+                $('#publishedTable, #deletedTable, #conferencePublishedTable, #conferenceDeletedTable').DataTable({
                     order: [
                         [3, 'desc']
                     ],
@@ -262,9 +261,21 @@
                         search: "<i class='fas fa-search'></i> Search:",
                         lengthMenu: "_MENU_ records per page"
                     },
-                    dom: '<"row"<"col-md-6"l><"col-md-6"f>>rtip'
+                    dom: '<"row"<"col-md-6"l><"col-md-6"f>>rtip',
+                    retrieve: true
                 });
             }
+
+            // Ensure conference modal opens even if data attributes are ignored
+            document.querySelectorAll('[data-bs-target="#createConferenceModal"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const modalEl = document.getElementById('createConferenceModal');
+                    if (window.bootstrap && modalEl) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                        modal.show();
+                    }
+                });
+            });
 
             // Authors chips
             const authorsChips = document.getElementById('authors-chips');
@@ -396,13 +407,19 @@
                 fetch('{{ route('admin.research.store') }}', {
                         method: 'POST',
                         headers: {
-                            'X-CSRF-TOKEN': csrfToken
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
                         body: formData
-                    }).then(r => r.json().then(data => ({
-                        status: r.status,
-                        data
-                    })))
+                    }).then(async r => {
+                        const ct = r.headers.get('content-type') || '';
+                        if (ct.includes('application/json')) {
+                            const data = await r.json();
+                            return { status: r.status, data };
+                        }
+                        return { status: r.status, data: { success: r.ok } };
+                    })
                     .then(({
                         status,
                         data
@@ -422,6 +439,136 @@
                         submitBtn.disabled = false;
                         spinner?.classList.add('d-none');
                     });
+            });
+
+            // Conference modal create
+            const createConfForm = document.getElementById('createConferenceForm');
+            createConfForm?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const form = this;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const spinner = submitBtn.querySelector('.spinner-border');
+                submitBtn.disabled = true;
+                spinner?.classList.remove('d-none');
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                const formData = new FormData(form);
+                const actionUrl = form.getAttribute('action') || '#';
+                fetch(actionUrl, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: formData
+                    }).then(async r => {
+                        const ct = r.headers.get('content-type') || '';
+                        if (ct.includes('application/json')) {
+                            const data = await r.json();
+                            return { status: r.status, data };
+                        }
+                        return { status: r.status, data: { success: r.ok } };
+                    })
+                    .then(({
+                        status,
+                        data
+                    }) => {
+                        if (status === 200 || status === 201 || data.success) {
+                            window.alert('Success: Conference paper created!');
+                            window.location.reload();
+                        } else if (status === 422) {
+                            window.alert('Error: Please fix the highlighted fields.');
+                        } else {
+                            window.alert('Error: ' + (data.message ||
+                                'Failed to create conference paper'));
+                        }
+                    }).catch(err => {
+                        window.alert('Error: ' + err.message);
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        spinner?.classList.add('d-none');
+                    });
+            });
+
+            // Conference chips & PDF helpers
+            const confAuthorsChips = document.getElementById('conf-authors-chips');
+            const confAuthorsInput = document.getElementById('conf-authors-input');
+
+            function confCreateChip(label, container, hiddenName) {
+                const chip = document.createElement('span');
+                chip.className = 'badge bg-secondary d-inline-flex align-items-center';
+                chip.style.gap = '6px';
+                chip.textContent = label;
+                const remove = document.createElement('button');
+                remove.type = 'button';
+                remove.className = 'btn-close btn-close-white btn-sm ms-2';
+                remove.addEventListener('click', () => chip.remove());
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = hiddenName;
+                hidden.value = label;
+                chip.appendChild(remove);
+                chip.appendChild(hidden);
+                container.appendChild(chip);
+            }
+
+            function confAddChip(input, container) {
+                const value = input.value.trim();
+                if (!value) return;
+                confCreateChip(value, container, 'authors[]');
+                input.value = '';
+            }
+            confAuthorsInput?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    confAddChip(confAuthorsInput, confAuthorsChips);
+                }
+            });
+            const confCurrentUser = @json(Auth::user()?->name ?? '');
+            if (confCurrentUser) confCreateChip(confCurrentUser, confAuthorsChips, 'authors[]');
+
+            const confKeywordsChips = document.getElementById('conf-keywords-chips');
+            const confKeywordsInput = document.getElementById('conf-keywords-input');
+
+            function confAddKeyword(input, container) {
+                const value = input.value.trim();
+                if (!value) return;
+                const chip = document.createElement('span');
+                chip.className = 'badge bg-info d-inline-flex align-items-center';
+                chip.style.gap = '6px';
+                chip.textContent = value;
+                const remove = document.createElement('button');
+                remove.type = 'button';
+                remove.className = 'btn-close btn-close-white btn-sm ms-2';
+                remove.addEventListener('click', () => chip.remove());
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'keywords[]';
+                hidden.value = value;
+                chip.appendChild(remove);
+                chip.appendChild(hidden);
+                container.appendChild(chip);
+                input.value = '';
+            }
+            confKeywordsInput?.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    confAddKeyword(confKeywordsInput, confKeywordsChips);
+                }
+            });
+
+            if (window['pdfjsLib']) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc =
+                    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            }
+            const confFileInput = document.getElementById('conf-file');
+            const confTitleInput = document.getElementById('conf-title');
+            confFileInput?.addEventListener('change', async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const fileNameBase = file.name.replace(/\.pdf$/i, '').replace(/[_-]+/g, ' ');
+                if (!confTitleInput.value) confTitleInput.value = fileNameBase;
             });
         });
     </script>

@@ -14,7 +14,10 @@ class ResearchController extends Controller
     {
         $research = Research::orderByDesc('id')->paginate(12);
         $deletedResearch = Research::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
-        return view('admin.research.index', compact('research', 'deletedResearch'));
+        // For Conference tab to render lists when selected
+        $conferencePapers = \App\Models\ConferencePaper::orderByDesc('id')->paginate(12);
+        $deletedConferencePapers = \App\Models\ConferencePaper::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        return view('admin.research.index', compact('research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers'));
     }
 
     public function store(Request $request)
@@ -56,7 +59,7 @@ class ResearchController extends Controller
 
     public function edit(Research $research)
     {
-        return view('admin.research.edit', compact('research'));
+        return view('admin.research.partials.research.edit', compact('research'));
     }
 
     public function update(Request $request, Research $research)
