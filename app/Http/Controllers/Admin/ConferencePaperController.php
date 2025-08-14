@@ -14,7 +14,14 @@ class ConferencePaperController extends Controller
     {
         $conferencePapers = ConferencePaper::orderByDesc('id')->paginate(12);
         $deletedConferencePapers = ConferencePaper::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
-        return view('admin.research.index', compact('conferencePapers', 'deletedConferencePapers'));
+        // Load other tab data to prevent errors
+        $research = \App\Models\Research::orderByDesc('id')->paginate(12);
+        $deletedResearch = \App\Models\Research::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        $preprints = \App\Models\Preprint::orderByDesc('id')->paginate(12);
+        $deletedPreprints = \App\Models\Preprint::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        $books = \App\Models\Book::orderByDesc('id')->paginate(12);
+        $deletedBooks = \App\Models\Book::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        return view('admin.research.index', compact('conferencePapers', 'deletedConferencePapers', 'research', 'deletedResearch', 'preprints', 'deletedPreprints', 'books', 'deletedBooks'));
     }
 
     public function store(Request $request)
@@ -121,6 +128,16 @@ class ConferencePaperController extends Controller
         $paper = ConferencePaper::onlyTrashed()->findOrFail($id);
         $paper->restore();
         return back()->with('success', 'Conference paper restored successfully.');
+    }
+
+    public function forceDelete($id)
+    {
+        $paper = ConferencePaper::onlyTrashed()->findOrFail($id);
+        if ($paper->file_path && Storage::disk('public')->exists($paper->file_path)) {
+            Storage::disk('public')->delete($paper->file_path);
+        }
+        $paper->forceDelete();
+        return back()->with('success', 'Conference paper permanently deleted.');
     }
 }
 

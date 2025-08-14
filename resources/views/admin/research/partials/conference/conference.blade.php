@@ -78,7 +78,7 @@
                             <tr>
                                 <th>Title</th>
                                 <th>Deleted At</th>
-                                <th width="120">Actions</th>
+                                <th width="220">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,12 +87,21 @@
                                 <td>{{ $paper->title }}</td>
                                 <td>{{ optional($paper->deleted_at)->format('M d, Y H:i') }}</td>
                                 <td>
-                                    <form method="POST" action="{{ route('admin.conference-papers.restore', $paper->id) }}">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-success">
-                                            <i class="fas fa-undo-alt"></i> Restore
-                                        </button>
-                                    </form>
+                                    <div class="d-flex gap-2">
+                                        <form method="POST" action="{{ route('admin.conference-papers.restore', $paper->id) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="fas fa-undo-alt"></i> Restore
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('admin.conference-papers.force-delete', $paper->id) }}" onsubmit="return confirm('Permanently delete this conference paper? This action cannot be undone!');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash-alt"></i> Delete Forever
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             @endforeach

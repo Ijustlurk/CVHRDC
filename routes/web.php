@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\PublicationController;
 use App\Http\Controllers\Admin\ResearchController;
 use App\Http\Controllers\Admin\ConferencePaperController;
 use App\Http\Controllers\Admin\PreprintController;
+use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Users\DashboardController as UserDashboardController;
@@ -99,11 +100,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     // Research Management
     Route::post('research/{research}/visibility', [ResearchController::class, 'updateVisibility'])->name('research.visibility');
     Route::post('research/{id}/restore', [ResearchController::class, 'restore'])->name('research.restore');
+    Route::delete('research/{id}/force-delete', [ResearchController::class, 'forceDelete'])->name('research.force-delete');
     Route::resource('research', ResearchController::class)->except(['create', 'show']);
 
     // Conference Papers Management
     Route::post('conference-papers/{conference_paper}/visibility', [ConferencePaperController::class, 'updateVisibility'])->name('conference-papers.visibility');
     Route::post('conference-papers/{id}/restore', [ConferencePaperController::class, 'restore'])->name('conference-papers.restore');
+    Route::delete('conference-papers/{id}/force-delete', [ConferencePaperController::class, 'forceDelete'])->name('conference-papers.force-delete');
     Route::resource('conference-papers', ConferencePaperController::class)->except(['create', 'show']);
 
     // Preprints Management
@@ -111,6 +114,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('preprints/{id}/restore', [PreprintController::class, 'restore'])->name('preprints.restore');
     Route::delete('preprints/{id}/force-delete', [PreprintController::class, 'forceDelete'])->name('preprints.force-delete');
     Route::resource('preprints', PreprintController::class)->except(['create', 'show']);
+
+    // Books Management
+    Route::post('books/{book}/visibility', [BookController::class, 'updateVisibility'])->name('books.visibility');
+    Route::post('books/{id}/restore', [BookController::class, 'restore'])->name('books.restore');
+    Route::delete('books/{id}/force-delete', [BookController::class, 'forceDelete'])->name('books.force-delete');
+    Route::resource('books', BookController::class)->except(['create', 'show']);
     Route::resource('partners', PartnerController::class);
 
 

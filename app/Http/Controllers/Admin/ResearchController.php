@@ -20,7 +20,10 @@ class ResearchController extends Controller
         // For Preprint tab to render lists when selected
         $preprints = \App\Models\Preprint::orderByDesc('id')->paginate(12);
         $deletedPreprints = \App\Models\Preprint::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
-        return view('admin.research.index', compact('research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'preprints', 'deletedPreprints'));
+        // For Book tab to render lists when selected
+        $books = \App\Models\Book::orderByDesc('id')->paginate(12);
+        $deletedBooks = \App\Models\Book::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        return view('admin.research.index', compact('research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'preprints', 'deletedPreprints', 'books', 'deletedBooks'));
     }
 
     public function store(Request $request)
@@ -114,5 +117,15 @@ class ResearchController extends Controller
         $research = Research::onlyTrashed()->findOrFail($id);
         $research->restore();
         return back()->with('success', 'Research restored successfully.');
+    }
+
+    public function forceDelete($id)
+    {
+        $research = Research::onlyTrashed()->findOrFail($id);
+        if ($research->file_path && Storage::disk('public')->exists($research->file_path)) {
+            Storage::disk('public')->delete($research->file_path);
+        }
+        $research->forceDelete();
+        return back()->with('success', 'Research permanently deleted.');
     }
 }

@@ -30,10 +30,18 @@
                       <i class="fas fa-file-lines me-2"></i>Preprint
                   </a>
               </li>
+               <li class="nav-item">
+                   <a class="nav-link{{ request('type') === 'book' ? ' active' : '' }}"
+                       href="{{ route('admin.research.index', ['type' => 'book']) }}">
+                       <i class="fas fa-book-open me-2"></i>Book
+                   </a>
+               </li>
           </ul>
 
           @if (request('type') === 'preprint')
               @include('admin.research.partials.preprint.preprint')
+          @elseif (request('type') === 'book')
+              @include('admin.research.partials.book.book')
           @elseif (request('type', 'research') !== 'conference')
               @include('admin.research.partials.research.research')
           @else
@@ -260,7 +268,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof $ !== 'undefined' && $.fn.DataTable) {
-                $('#publishedTable, #deletedTable, #conferencePublishedTable, #conferenceDeletedTable').DataTable({
+                $('#publishedTable, #deletedTable, #conferencePublishedTable, #conferenceDeletedTable, #bookPublishedTable, #bookDeletedTable').DataTable({
                     order: [
                         [3, 'desc']
                     ],
@@ -586,6 +594,16 @@
             setTimeout(function() {
                 if (typeof window.initPreprintChips === 'function') {
                     window.initPreprintChips();
+                }
+            }, 500);
+        }
+
+        // Initialize book chips if book tab is active
+        if (window.location.href.includes('type=book')) {
+            // Wait for book partial to load and then initialize chips
+            setTimeout(function() {
+                if (typeof window.initBookChips === 'function') {
+                    window.initBookChips();
                 }
             }, 500);
         }

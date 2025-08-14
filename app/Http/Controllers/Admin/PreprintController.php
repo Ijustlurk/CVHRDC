@@ -21,8 +21,10 @@ class PreprintController extends Controller
         $deletedResearch = \App\Models\Research::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
         $conferencePapers = \App\Models\ConferencePaper::orderByDesc('id')->paginate(12);
         $deletedConferencePapers = \App\Models\ConferencePaper::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        $books = \App\Models\Book::orderByDesc('id')->paginate(12);
+        $deletedBooks = \App\Models\Book::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
         
-        return view('admin.research.index', compact('preprints', 'deletedPreprints', 'research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers'));
+        return view('admin.research.index', compact('preprints', 'deletedPreprints', 'research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'books', 'deletedBooks'));
     }
 
     public function store(Request $request)
