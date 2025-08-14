@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\PublicationController;
 use App\Http\Controllers\Admin\ResearchController;
 use App\Http\Controllers\Admin\ConferencePaperController;
+use App\Http\Controllers\Admin\PreprintController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Users\DashboardController as UserDashboardController;
@@ -104,6 +105,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('conference-papers/{conference_paper}/visibility', [ConferencePaperController::class, 'updateVisibility'])->name('conference-papers.visibility');
     Route::post('conference-papers/{id}/restore', [ConferencePaperController::class, 'restore'])->name('conference-papers.restore');
     Route::resource('conference-papers', ConferencePaperController::class)->except(['create', 'show']);
+
+    // Preprints Management
+    Route::post('preprints/{preprint}/visibility', [PreprintController::class, 'updateVisibility'])->name('preprints.visibility');
+    Route::post('preprints/{id}/restore', [PreprintController::class, 'restore'])->name('preprints.restore');
+    Route::delete('preprints/{id}/force-delete', [PreprintController::class, 'forceDelete'])->name('preprints.force-delete');
+    Route::resource('preprints', PreprintController::class)->except(['create', 'show']);
     Route::resource('partners', PartnerController::class);
 
 

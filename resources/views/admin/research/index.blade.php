@@ -23,12 +23,20 @@
                     href="{{ route('admin.research.index', ['type' => 'conference']) }}">
                     <i class="fas fa-file-alt me-2"></i>Conference Paper
                 </a>
-            </li>
-        </ul>
+                          </li>
+              <li class="nav-item">
+                  <a class="nav-link{{ request('type') === 'preprint' ? ' active' : '' }}"
+                      href="{{ route('admin.research.index', ['type' => 'preprint']) }}">
+                      <i class="fas fa-file-lines me-2"></i>Preprint
+                  </a>
+              </li>
+          </ul>
 
-        @if (request('type', 'research') !== 'conference')
-            @include('admin.research.partials.research.research')
-        @else
+          @if (request('type') === 'preprint')
+              @include('admin.research.partials.preprint.preprint')
+          @elseif (request('type', 'research') !== 'conference')
+              @include('admin.research.partials.research.research')
+          @else
             @include('admin.research.partials.conference.conference')
         @endif
     </div>
@@ -571,5 +579,15 @@
                 if (!confTitleInput.value) confTitleInput.value = fileNameBase;
             });
         });
+
+        // Initialize preprint chips if preprint tab is active
+        if (window.location.href.includes('type=preprint')) {
+            // Wait for preprint partial to load and then initialize chips
+            setTimeout(function() {
+                if (typeof window.initPreprintChips === 'function') {
+                    window.initPreprintChips();
+                }
+            }, 500);
+        }
     </script>
 @endpush

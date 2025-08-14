@@ -17,7 +17,10 @@ class ResearchController extends Controller
         // For Conference tab to render lists when selected
         $conferencePapers = \App\Models\ConferencePaper::orderByDesc('id')->paginate(12);
         $deletedConferencePapers = \App\Models\ConferencePaper::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
-        return view('admin.research.index', compact('research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers'));
+        // For Preprint tab to render lists when selected
+        $preprints = \App\Models\Preprint::orderByDesc('id')->paginate(12);
+        $deletedPreprints = \App\Models\Preprint::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        return view('admin.research.index', compact('research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'preprints', 'deletedPreprints'));
     }
 
     public function store(Request $request)
