@@ -18,5 +18,9 @@ class RolesTableSeeder extends Seeder
         Role::create(['name' => 'superadmin']);
         Role::create(['name' => 'admin']);
         Role::create(['name' => 'user']);
+        Role::create(['name' => 'Editor-in-Chief', 'description' => 'Oversees the entire publication process and editorial direction.']);
+        Role::create(['name' => 'Peer Review Coordinator', 'description' => 'Manages submission and review assignments.']);
+        Role::create(['name' => 'Reviewer', 'description' => 'Evaluates submitted manuscripts for quality and accuracy.']);
+        Role::create(['name' => 'Publishing Coordinator', 'description' => 'Handles scheduling, documentation, and communication.']);
     }
 }

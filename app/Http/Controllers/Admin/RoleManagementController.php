@@ -18,12 +18,11 @@ class RoleManagementController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255', 'unique:roles', 'regex:/^[a-z0-9_]+$/'],
+            'name' => ['required', 'string', 'max:255', 'unique:roles'],
             'description' => ['nullable', 'string', 'max:1000']
         ], [
             'name.required' => 'Role name is required.',
             'name.unique' => 'This role name already exists.',
-            'name.regex' => 'Role name should only contain lowercase letters, numbers, and underscores.',
             'description.max' => 'Description cannot exceed 1000 characters.'
         ]);
 
@@ -37,7 +36,7 @@ class RoleManagementController extends Controller
 
         try {
             $role = Role::create([
-                'name' => strtolower(trim($request->name)),
+                'name' => trim($request->name),
                 'description' => $request->description
             ]);
 
@@ -79,12 +78,11 @@ class RoleManagementController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255', 'unique:roles,name,' . $id, 'regex:/^[a-z0-9_]+$/'],
+            'name' => ['required', 'string', 'max:255', 'unique:roles,name,' . $id],
             'description' => ['nullable', 'string', 'max:1000']
         ], [
             'name.required' => 'Role name is required.',
             'name.unique' => 'This role name already exists.',
-            'name.regex' => 'Role name should only contain lowercase letters, numbers, and underscores.',
             'description.max' => 'Description cannot exceed 1000 characters.'
         ]);
 
@@ -98,7 +96,7 @@ class RoleManagementController extends Controller
 
         try {
             $role->update([
-                'name' => strtolower(trim($request->name)),
+                'name' => trim($request->name),
                 'description' => $request->description
             ]);
 
