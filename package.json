@@ -19,6 +19,6 @@
     "dependencies": {
         "bootstrap": "^5.3.7",
         "jquery": "^3.7.1",
-        "sweetalert2": "^11.22.2"
+        "sweetalert2": "^11.22.4"
     }
 }
