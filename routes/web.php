@@ -17,6 +17,10 @@ use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Users\DashboardController as UserDashboardController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Users\UserResearchCTRL;
+use App\Http\Controllers\Users\UserPreprintController;
+
+
 
 
 /*
@@ -86,7 +90,7 @@ Route::namespace('App\Http\Controllers\SuperAdmin')->prefix('superadmin')->name(
 
 // admin routes here
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function(){
-    
+
 
     Route::post('news/{id}/visibility', [NewsController::class, 'updateVisibility'])->name('news.visibility');
     Route::post('projects/{id}/visibility', [ProjectController::class, 'updateVisibility'])->name('projects.visibility');
@@ -124,7 +128,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
 
     Route::resource('cms', App\Http\Controllers\Admin\CMSController::class);
-    
+
     // User Management Routes
     Route::resource('users', App\Http\Controllers\Admin\UserManagementController::class);
     Route::post('users/{id}/restore', [App\Http\Controllers\Admin\UserManagementController::class, 'restore'])->name('users.restore');
@@ -133,7 +137,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('tabs/{tab?}', [App\Http\Controllers\Admin\AdminTabsController::class, 'index'])->name('tabs.index');
     Route::post('/admin/news/{id}/visibility', [NewsController::class, 'updateVisibility']);
 
-    
+
 
     // Admin Footer Management
     Route::get('/footer/edit', [App\Http\Controllers\Admin\FooterController::class, 'edit'])->name('admin.footer.edit');
@@ -148,12 +152,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('/settings/database-backup', [App\Http\Controllers\Admin\DatabaseBackupController::class, 'show'])->name('settings.database_backup');
     Route::post('/settings/database-backup', [App\Http\Controllers\Admin\DatabaseBackupController::class, 'update'])->name('settings.database_backup.update');
     Route::post('/settings/database-backup/perform', [App\Http\Controllers\Admin\DatabaseBackupController::class, 'performBackup'])->name('settings.database_backup.perform');
-    
+
     // Admin Banner Management
     Route::post('/banner/update', [App\Http\Controllers\Admin\BannerController::class, 'update'])->name('banner.update');
     Route::post('/announcement/update', [App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('announcement.update');
     Route::post('/header/update', [App\Http\Controllers\Admin\HeaderController::class, 'update'])->name('header.update');
-    
+
     // Admin Settings Update Maintenance
     Route::prefix('settings')->group(function () {
         Route::post('/update-maintenance', [SettingsController::class, 'updateMaintenance'])->name('settings.updateMaintenance');
@@ -171,6 +175,8 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::resource('/feedback','CTRLFeedbacks',['except' => ['update','edit','destroy']]);
     Route::get('/myfeedbacks','CTRLFeedbacks@myfeedback')->name('myfeedback');
     Route::resource('/products', 'ProductsController')->only(['index']);
+    Route::post('/research/store', [UserResearchCTRL::class, 'store'])->name('research.store');
+    Route::post('/preprint/store', [UserPreprintController::class, 'store'])->name('preprint.store');
 });
 
 
@@ -180,7 +186,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
 
 // // Content Editor routes
 // Route::namespace('App\Http\Controllers\ContentEditor')->prefix('contenteditor')->name('contenteditor.')->middleware('can:contenteditor-access')->group(function(){
-   
+
 //     Route::get('/dashboard', 'DashboardController@index')->name('dashboard');
 //     // CMS Management
 //     Route::resource('cms', 'CMSController');
