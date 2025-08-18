@@ -53,10 +53,53 @@ class NewsController extends Controller
             'published_at' => 'required|date',
             'is_visible' => 'nullable|boolean',
         ]);
+        
+        // Convert Google Drive URL to direct image URL
+        $validated['image'] = $this->convertGoogleDriveUrl($validated['image']);
+        
         $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
         $validated['added_by'] = auth()->user() ? auth()->user()->name : 'Unknown';
+        
         $news = \App\Models\News::create($validated);
+        
         return redirect()->back()->with('success', 'News added successfully!');
+    }
+    
+    /**
+     * Convert Google Drive sharing URL to direct image URL
+     */
+    private function convertGoogleDriveUrl($url)
+    {
+        if (!$url || !str_contains($url, 'drive.google.com')) {
+            return $url;
+        }
+        
+        // Check if it's already a direct image URL or thumbnail URL
+        if (str_contains($url, 'drive.google.com/thumbnail') ||
+            str_contains($url, 'drive.usercontent.google.com')) {
+            return $url;
+        }
+        
+        // Extract file ID from various Google Drive URL formats
+        $fileId = null;
+        
+        // Format: https://drive.google.com/file/d/FILE_ID/view
+        if (preg_match('/\/file\/d\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
+            $fileId = $matches[1];
+        }
+        
+        // Format: https://drive.google.com/open?id=FILE_ID
+        if (!$fileId && preg_match('/[?&]id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+            $fileId = $matches[1];
+        }
+        
+        // If file ID found, convert to thumbnail URL
+        if ($fileId) {
+            return "https://drive.google.com/thumbnail?id={$fileId}&sz=s4000";
+        }
+        
+        // If no match found, return original URL
+        return $url;
     }
 
     /**
