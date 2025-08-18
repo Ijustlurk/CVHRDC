@@ -69,7 +69,9 @@ class ProjectController extends Controller
 
             // Add the authenticated user's name
             $validated['added_by'] = auth()->user() ? auth()->user()->name : 'Unknown';
-
+            $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+            // Convert Google Drive URL to direct image URL
+            $validated['image'] = $this->convertGoogleDriveUrl($validated['image']);
             $project = Project::create($validated);
 
             if ($request->expectsJson()) {
@@ -104,7 +106,39 @@ class ProjectController extends Controller
             return redirect()->back()->with('error', 'An error occurred while adding the project: ' . $e->getMessage());
         }
     }
-
+    private function convertGoogleDriveUrl($url)
+    {
+        if (!$url || !str_contains($url, 'drive.google.com')) {
+            return $url;
+        }
+        
+        // Check if it's already a direct image URL or thumbnail URL
+        if (str_contains($url, 'drive.google.com/thumbnail') ||
+            str_contains($url, 'drive.usercontent.google.com')) {
+            return $url;
+        }
+        
+        // Extract file ID from various Google Drive URL formats
+        $fileId = null;
+        
+        // Format: https://drive.google.com/file/d/FILE_ID/view
+        if (preg_match('/\/file\/d\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
+            $fileId = $matches[1];
+        }
+        
+        // Format: https://drive.google.com/open?id=FILE_ID
+        if (!$fileId && preg_match('/[?&]id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
+            $fileId = $matches[1];
+        }
+        
+        // If file ID found, convert to thumbnail URL
+        if ($fileId) {
+            return "https://drive.google.com/thumbnail?id={$fileId}&sz=s4000";
+        }
+        
+        // If no match found, return original URL
+        return $url;
+    }
     /**
      * Display the specified resource.
      */
