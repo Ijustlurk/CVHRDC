@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
@@ -152,7 +152,7 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        //
+        return response()->json($project);
     }
 
     /**
@@ -160,7 +160,50 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        //
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|min:3|max:255',
+                'description' => 'required|string|min:10',
+                'image' => 'required|url',
+                'start_date' => 'required|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'status' => 'required|string|max:100',
+                'budget' => 'nullable|numeric|min:0',
+                'lead_researcher' => 'required|string|max:255',
+                'leader' => 'required|string|max:255',
+                'funding_agency' => 'nullable|string|max:255',
+                'is_active' => 'nullable|boolean',
+                'is_visible' => 'nullable|boolean',
+            ]);
+            
+            // Convert Google Drive URL to direct image URL
+            $validated['image'] = $this->convertGoogleDriveUrl($validated['image']);
+            
+            $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+            $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+            
+            $project->update($validated);
+            
+            // Check if it's an AJAX request from the modal
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Project updated successfully!']);
+            }
+            
+            // For regular form submissions, redirect with flash message
+            return redirect()->back()->with('success', 'Project updated successfully!');
+            
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error updating project: ' . $e->getMessage());
+            
+            // Check if it's an AJAX request from the modal
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to update project. Please try again.'], 500);
+            }
+            
+            // For regular form submissions, redirect with error message
+            return redirect()->back()->with('error', 'Failed to update project. Please try again.');
+        }
     }
 
     /**
