@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class NewsController extends Controller
 {
@@ -115,7 +116,7 @@ class NewsController extends Controller
      */
     public function edit(News $news)
     {
-        //
+        return response()->json($news);
     }
 
     /**
@@ -123,7 +124,42 @@ class NewsController extends Controller
      */
     public function update(Request $request, News $news)
     {
-        //
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|min:3|max:255',
+                'content' => 'required|string|min:10',
+                'image' => 'required|url',
+                'published_at' => 'required|date',
+                'is_visible' => 'nullable|boolean',
+            ]);
+            
+            // Convert Google Drive URL to direct image URL
+            $validated['image'] = $this->convertGoogleDriveUrl($validated['image']);
+            
+            $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+            
+            $news->update($validated);
+            
+            // Check if it's an AJAX request from the modal
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'News updated successfully!']);
+            }
+            
+            // For regular form submissions, redirect with flash message
+            return redirect()->back()->with('success', 'News updated successfully!');
+            
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error updating news: ' . $e->getMessage());
+            
+            // Check if it's an AJAX request from the modal
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to update news. Please try again.'], 500);
+            }
+            
+            // For regular form submissions, redirect with error message
+            return redirect()->back()->with('error', 'Failed to update news. Please try again.');
+        }
     }
 
     /**
