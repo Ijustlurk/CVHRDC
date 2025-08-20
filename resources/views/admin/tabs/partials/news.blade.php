@@ -134,7 +134,7 @@
                                     </button>
                                 </form>
                                 <button type="button" class="btn btn-sm btn-warning me-2"
-                                    onclick="openEditModal({{ $item->id }})"><i class="fa fa-edit"></i></button>
+                                    onclick="openEditModal({{ $item->id }})"><i class="fa fa-edit"></i>Edit</button>
                                 <form method="POST" action="{{ route('admin.news.destroy', $item->id) }}"
                                     onsubmit="return confirm('Delete this news?');">
                                     @csrf
