@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Event;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class EventController extends Controller
 {
@@ -133,7 +133,7 @@ class EventController extends Controller
      */
     public function edit(Event $event)
     {
-        //
+        return response()->json($event);
     }
 
     /**
@@ -141,7 +141,45 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
-        //
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|min:3|max:255',
+                'description' => 'required|string|min:10',
+                'location' => 'required|string|max:255',
+                'start_date' => 'required|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'organizer' => 'required|string|max:255',
+                'image_url' => 'required|url',
+                'is_visible' => 'nullable|boolean',
+            ]);
+            
+            // Convert Google Drive URL to direct image URL
+            $validated['image_url'] = $this->convertGoogleDriveUrl($validated['image_url']);
+            
+            $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+            
+            $event->update($validated);
+            
+            // Check if it's an AJAX request from the modal
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Event updated successfully!']);
+            }
+            
+            // For regular form submissions, redirect with flash message
+            return redirect()->back()->with('success', 'Event updated successfully!');
+            
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error updating event: ' . $e->getMessage());
+            
+            // Check if it's an AJAX request from the modal
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to update event. Please try again.'], 500);
+            }
+            
+            // For regular form submissions, redirect with error message
+            return redirect()->back()->with('error', 'Failed to update event. Please try again.');
+        }
     }
 
     /**
