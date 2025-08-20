@@ -135,7 +135,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('roles', App\Http\Controllers\Admin\RoleManagementController::class);
 
     Route::get('tabs/{tab?}', [App\Http\Controllers\Admin\AdminTabsController::class, 'index'])->name('tabs.index');
-    Route::post('/admin/news/{id}/visibility', [NewsController::class, 'updateVisibility']);
 
 
 
