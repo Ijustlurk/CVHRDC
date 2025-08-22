@@ -22,25 +22,13 @@ class EventController extends Controller
             $event = Event::where('id', $id)->firstOrFail();
             $event->is_visible = $request->input('is_visible') ? 1 : 0;
             $event->save();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Event visibility updated successfully!',
-                'is_visible' => $event->is_visible
-            ]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-
+            
+            $status = $event->is_visible ? 'visible' : 'hidden';
+            return redirect()->back()->with('success', "Event is now {$status}!");
+            
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while updating visibility: ' . $e->getMessage()
-            ], 500);
+            Log::error('Error updating event visibility: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update event visibility. Please try again.');
         }
     }
     /**
