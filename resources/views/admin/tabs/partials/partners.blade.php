@@ -1,13 +1,29 @@
 @if (session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa fa-check-circle me-2"></i>
+        <strong>Success!</strong> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 @endif
+
+@if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-triangle me-2"></i>
+        <strong>Error!</strong> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
 @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-triangle me-2"></i>
+        <strong>Validation Errors:</strong>
+        <ul class="mb-0 mt-2">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 @endif
 
@@ -100,8 +116,8 @@
                                 </div>
                             </div>
                             <div class="card-footer d-flex justify-content-between align-items-center">
-                                <a href="{{ route('admin.partners.edit', $item->id) }}"
-                                    class="btn btn-sm btn-warning me-2"><i class="fa fa-edit"></i></a>
+                                <button type="button" class="btn btn-sm btn-warning me-2"
+                                    onclick="openEditPartnerModal({{ $item->id }})"><i class="fa fa-edit"></i>Edit</button>
                                 <form method="POST" action="{{ route('admin.partners.destroy', $item->id) }}"
                                     onsubmit="return confirm('Delete this partner?');">
                                     @csrf
@@ -119,6 +135,73 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Partner Modal -->
+    <div class="modal fade" id="editPartnerModal" tabindex="-1" aria-labelledby="editPartnerModalLabel" aria-hidden="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="editPartnerModalLabel">
+                        <i class="fa fa-edit me-2"></i>Edit Partner
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPartnerForm" class="needs-validation" novalidate>
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="edit_partner_id" name="partner_id">
+                        <div class="mb-3">
+                            <label for="edit_name" class="form-label fw-bold">Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="edit_name" class="form-control" required
+                                placeholder="Enter partner name">
+                            <div class="invalid-feedback">Name is required.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_organization" class="form-label fw-bold">Organization <span class="text-danger">*</span></label>
+                            <input type="text" name="organization" id="edit_organization" class="form-control" required
+                                placeholder="Enter organization name">
+                            <div class="invalid-feedback">Organization is required.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_contact_email" class="form-label fw-bold">Contact Email</label>
+                            <input type="email" name="contact_email" id="edit_contact_email" class="form-control"
+                                placeholder="Enter contact email">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_contact_phone" class="form-label fw-bold">Contact Phone</label>
+                            <input type="tel" name="contact_phone" id="edit_contact_phone" class="form-control"
+                                placeholder="Enter contact phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_address" class="form-label fw-bold">Address</label>
+                            <textarea name="address" id="edit_address" class="form-control" rows="2"
+                                placeholder="Enter address"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_website" class="form-label fw-bold">Website</label>
+                            <input type="url" name="website" id="edit_website" class="form-control"
+                                placeholder="https://example.com">
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="edit_is_active" value="1">
+                            <label class="form-check-label fw-bold" for="edit_is_active">Active</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-warning" id="updatePartnerBtn">
+                        <i class="fa fa-save me-2"></i>Update Partner
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Bootstrap validation
         (() => {
@@ -134,5 +217,131 @@
                 }, false);
             });
         })();
+
+        // Edit Partner Modal Functions
+        function openEditPartnerModal(partnerId) {
+            console.log('Opening edit modal for partner ID:', partnerId);
+
+            // Show loading state
+            const updateBtn = document.getElementById('updatePartnerBtn');
+            const originalText = updateBtn.innerHTML;
+            updateBtn.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
+            updateBtn.disabled = true;
+
+            // Fetch partner data
+            fetch(`/admin/partners/${partnerId}/edit`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Populate modal fields
+                    document.getElementById('edit_partner_id').value = data.id;
+                    document.getElementById('edit_name').value = data.name;
+                    document.getElementById('edit_organization').value = data.organization;
+                    document.getElementById('edit_contact_email').value = data.contact_email || '';
+                    document.getElementById('edit_contact_phone').value = data.contact_phone || '';
+                    document.getElementById('edit_address').value = data.address || '';
+                    document.getElementById('edit_website').value = data.website || '';
+                    document.getElementById('edit_is_active').checked = data.is_active == 1;
+
+                    // Show modal
+                    const modalElement = document.getElementById('editPartnerModal');
+                    console.log('Modal element found:', modalElement);
+
+                    if (modalElement) {
+                        try {
+                            const modal = new bootstrap.Modal(modalElement);
+                            modal.show();
+                            console.log('Modal shown successfully');
+                        } catch (error) {
+                            console.error('Error showing modal:', error);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching partner data:', error);
+                    alert('Error loading partner data. Please try again.');
+                })
+                .finally(() => {
+                    // Reset button state
+                    updateBtn.innerHTML = originalText;
+                    updateBtn.disabled = false;
+                });
+        }
+
+        // Handle update button click
+        document.getElementById('updatePartnerBtn').addEventListener('click', function() {
+            const form = document.getElementById('editPartnerForm');
+            const partnerId = document.getElementById('edit_partner_id').value;
+            const updateBtn = this;
+
+            // Validate form
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            // Show loading state
+            const originalText = updateBtn.innerHTML;
+            updateBtn.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Updating...';
+            updateBtn.disabled = true;
+
+            // Create a hidden form to submit the data as a regular form submission
+            const hiddenForm = document.createElement('form');
+            hiddenForm.method = 'POST';
+            hiddenForm.action = `/admin/partners/${partnerId}`;
+            hiddenForm.style.display = 'none';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            hiddenForm.appendChild(csrfInput);
+
+            // Add method spoofing for PUT
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'PUT';
+            hiddenForm.appendChild(methodInput);
+
+            // Add all form fields
+            const formData = new FormData(form);
+
+            // Handle checkbox separately to ensure proper value
+            const isActiveCheckbox = document.getElementById('edit_is_active');
+            const isActiveInput = document.createElement('input');
+            isActiveInput.type = 'hidden';
+            isActiveInput.name = 'is_active';
+            isActiveInput.value = isActiveCheckbox.checked ? '1' : '0';
+            hiddenForm.appendChild(isActiveInput);
+
+            for (let [key, value] of formData.entries()) {
+                if (key !== '_token' && key !== '_method' && key !== 'is_active') {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    hiddenForm.appendChild(input);
+                }
+            }
+
+            // Append form to body and submit
+            document.body.appendChild(hiddenForm);
+            hiddenForm.submit();
+        });
+
+        // Reset form validation when modal is hidden
+        document.getElementById('editPartnerModal').addEventListener('hidden.bs.modal', function() {
+            const form = document.getElementById('editPartnerForm');
+            form.classList.remove('was-validated');
+            form.reset();
+        });
     </script>
 @endisset
