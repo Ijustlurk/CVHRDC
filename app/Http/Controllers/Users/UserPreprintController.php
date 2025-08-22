@@ -55,9 +55,10 @@ class UserPreprintController extends Controller
             ]);
 
             if ($request->wantsJson() || $request->expectsJson()) {
-                return response()->json(['success' => true, 'id' => $preprint->id, 'message' => 'Preprint created successfully!']);
+                return response()->json(['preprintsuccess' => true, 'id' => $preprint->id, 'message' => 'Preprint created successfully!']);
             }
-            return redirect()->route('admin.research.index', ['type' => 'preprint'])->with('success', 'Preprint created successfully.');
+            // return redirect()->route('admin.research.index', ['type' => 'preprint'])->with('success', 'Preprint created successfully.');
+            return redirect()->back()->with('preprintsuccess', 'Preprint uploaded successfully!');
         } catch (\Exception $e) {
             // Log the error for debugging
             Log::error('Preprint creation failed: ' . $e->getMessage());

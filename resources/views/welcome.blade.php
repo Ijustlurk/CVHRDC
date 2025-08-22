@@ -194,10 +194,21 @@ true)->orderByDesc('start_date')->take(3)->get(); @endphp
                         health.
                     </p>
                     @if($banner && $banner->link)
+                    @guest
                     <a href="{{ route('login') }}"
-                        class="btn btn-primary btn-md px-5 shadow animate__animated animate__pulse animate__infinite">Get
-                        Started</a>
+                        class="btn btn-primary btn-md px-5 shadow animate__animated animate__pulse animate__infinite">
+                        Get Started
+                    </a>
+                    @endguest
+
+                    @auth
+                    <a href="{{ url('/dashboard') }}"
+                        class="btn btn-primary btn-md px-5 shadow animate__animated animate__pulse animate__infinite">
+                        Dashboard
+                    </a>
+                    @endauth
                     @endif
+
                 </div>
                 <div class="col-lg-6 text-center">
                     @if($banner && $banner->image)
