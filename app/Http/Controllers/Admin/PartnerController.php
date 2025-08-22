@@ -12,14 +12,41 @@ class PartnerController extends Controller
     /**
      * Display a listing of the resource.
      */
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function index()
     {
         $partners = \App\Models\Partner::orderBy('id', 'desc')->paginate(8);
         return view('admin.tabs.partials.partners', compact('partners'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Update the visibility of a partner item.
+     */
+    public function updateVisibility(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'is_active' => 'required|boolean',
+            ]);
+
+            $partner = Partner::findOrFail($id);
+            $partner->is_active = $request->input('is_active') ? 1 : 0;
+            $partner->save();
+            
+            $status = $partner->is_active ? 'active' : 'inactive';
+            return redirect()->back()->with('success', "Partner is now {$status}!");
+            
+        } catch (\Exception $e) {
+            Log::error('Error updating partner visibility: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update partner visibility. Please try again.');
+        }
     }
 
     /**
@@ -106,6 +133,12 @@ class PartnerController extends Controller
      */
     public function destroy(Partner $partner)
     {
-        //
+        try {
+            $partner->delete();
+            return redirect()->back()->with('success', 'Partner deleted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error deleting partner: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete partner. Please try again.');
+        }
     }
 }
