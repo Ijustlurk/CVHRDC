@@ -119,13 +119,21 @@ class AnnouncementController extends Controller
      */
     public function updateVisibility(Request $request, $id)
     {
-        $request->validate([
-            'active' => 'required|boolean',
-        ]);
+        try {
+            $request->validate([
+                'active' => 'required|boolean',
+            ]);
 
-        $announcement = Announcement::findOrFail($id);
-        $announcement->active = $request->input('active') ? 1 : 0;
-        $announcement->save();
-        return response()->json(['success' => true, 'active' => $announcement->active]);
+            $announcement = Announcement::findOrFail($id);
+            $announcement->active = $request->input('active') ? 1 : 0;
+            $announcement->save();
+            
+            $status = $announcement->active ? 'active' : 'inactive';
+            return redirect()->back()->with('success', "Announcement is now {$status}!");
+            
+        } catch (\Exception $e) {
+            Log::error('Error updating announcement visibility: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update announcement visibility. Please try again.');
+        }
     }
 }
