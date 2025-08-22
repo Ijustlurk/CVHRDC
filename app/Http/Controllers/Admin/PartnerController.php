@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Partner;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PartnerController extends Controller
 {
@@ -56,7 +56,7 @@ class PartnerController extends Controller
      */
     public function edit(Partner $partner)
     {
-        //
+        return response()->json($partner);
     }
 
     /**
@@ -64,7 +64,41 @@ class PartnerController extends Controller
      */
     public function update(Request $request, Partner $partner)
     {
-        //
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|min:3|max:255',
+                'organization' => 'required|string|min:3|max:255',
+                'contact_email' => 'nullable|email|max:255',
+                'contact_phone' => 'nullable|string|max:255',
+                'address' => 'nullable|string|max:255',
+                'website' => 'nullable|url|max:255',
+                'is_active' => 'nullable|boolean',
+            ]);
+            
+            $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+            
+            $partner->update($validated);
+            
+            // Check if it's an AJAX request from the modal
+            if ($request->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Partner updated successfully!']);
+            }
+            
+            // For regular form submissions, redirect with flash message
+            return redirect()->back()->with('success', 'Partner updated successfully!');
+            
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Error updating partner: ' . $e->getMessage());
+            
+            // Check if it's an AJAX request from the modal
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Failed to update partner. Please try again.'], 500);
+            }
+            
+            // For regular form submissions, redirect with error message
+            return redirect()->back()->with('error', 'Failed to update partner. Please try again.');
+        }
     }
 
     /**
