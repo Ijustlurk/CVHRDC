@@ -174,7 +174,7 @@
                                 </form>
                                 <button type="button" class="btn btn-sm btn-warning me-2"
                                     onclick="openEditProjectModal({{ $item->id }})"><i
-                                        class="fa fa-edit"></i>Edit</button>
+                                        class="fa fa-edit"></i></button>
                                 <form method="POST" action="{{ route('admin.projects.destroy', $item->id) }}"
                                     onsubmit="return confirm('Delete this project?');">
                                     @csrf
