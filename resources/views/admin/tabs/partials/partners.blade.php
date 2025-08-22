@@ -116,6 +116,16 @@
                                 </div>
                             </div>
                             <div class="card-footer d-flex justify-content-between align-items-center">
+                                <form method="POST" action="{{ route('admin.partners.visibility', $item->id) }}"
+                                    class="me-2">
+                                    @csrf
+                                    <input type="hidden" name="is_active" value="{{ $item->is_active ? 0 : 1 }}">
+                                    <button type="submit"
+                                        class="btn btn-sm btn-outline-{{ $item->is_active ? 'success' : 'secondary' }}"
+                                        title="{{ $item->is_active ? 'Deactivate' : 'Activate' }}">
+                                        <i class="fa fa-eye{{ $item->is_active ? '' : '-slash' }}"></i>
+                                    </button>
+                                </form>
                                 <button type="button" class="btn btn-sm btn-warning me-2"
                                     onclick="openEditPartnerModal({{ $item->id }})"><i class="fa fa-edit"></i>Edit</button>
                                 <form method="POST" action="{{ route('admin.partners.destroy', $item->id) }}"
