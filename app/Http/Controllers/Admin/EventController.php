@@ -175,6 +175,12 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
-        //
+        try {
+            $event->delete();
+            return redirect()->back()->with('success', 'Event deleted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error deleting event: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete event. Please try again.');
+        }
     }
 }
