@@ -14,14 +14,22 @@ class NewsController extends Controller
      */
     public function updateVisibility(Request $request, $id)
     {
-        $request->validate([
-            'is_visible' => 'required|boolean',
-        ]);
+        try {
+            $request->validate([
+                'is_visible' => 'required|boolean',
+            ]);
 
-        $news = News::findOrFail($id);
-        $news->is_visible = $request->input('is_visible') ? 1 : 0;
-        $news->save();
-        return response()->json(['success' => true, 'is_visible' => $news->is_visible]);
+            $news = News::findOrFail($id);
+            $news->is_visible = $request->input('is_visible') ? 1 : 0;
+            $news->save();
+            
+            $status = $news->is_visible ? 'visible' : 'hidden';
+            return redirect()->back()->with('success', "News item is now {$status}!");
+            
+        } catch (\Exception $e) {
+            Log::error('Error updating news visibility: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update news visibility. Please try again.');
+        }
     }
     /**
      * Display a listing of the resource.
