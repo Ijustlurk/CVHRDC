@@ -7,6 +7,7 @@ use App\Models\ConferencePaper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ConferencePaperController extends Controller
 {
@@ -26,6 +27,37 @@ class ConferencePaperController extends Controller
 
     public function store(Request $request)
     {
+        // Check for duplicate submission using submission ID
+        $submissionId = $request->input('submission_id');
+        if ($submissionId) {
+            // Check if this submission ID was already processed
+            $cacheKey = 'conference_paper_submission_' . $submissionId;
+            if (cache()->has($cacheKey)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This submission has already been processed.',
+                    'duplicate' => true
+                ], 409);
+            }
+            
+            // Mark this submission ID as processed (cache for 5 minutes)
+            cache()->put($cacheKey, true, 300);
+        }
+        
+        // Additional duplicate prevention: Check for similar conference paper within last 5 minutes
+        $recentPaper = ConferencePaper::where('user_id', Auth::id())
+            ->where('title', $request->input('title'))
+            ->where('created_at', '>=', now()->subMinutes(5))
+            ->first();
+            
+        if ($recentPaper) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A conference paper with this title was already submitted recently. Please wait a few minutes before submitting again.',
+                'duplicate' => true
+            ], 409);
+        }
+
         $validated = $request->validate([
             'file' => ['required', 'file', 'mimes:pdf', 'max:51200'],
             'title' => ['required', 'string', 'max:255'],
@@ -42,31 +74,62 @@ class ConferencePaperController extends Controller
             'is_public' => ['required', 'boolean'],
         ]);
 
-        $file = $request->file('file');
-        $path = $file->store('conference_papers', 'public');
+        try {
+            $file = $request->file('file');
+            $path = $file->store('conference_papers', 'public');
 
-        $paper = ConferencePaper::create([
-            'user_id' => Auth::id(),
-            'file_path' => $path,
-            'file_original_name' => $file->getClientOriginalName(),
-            'file_mime' => $file->getClientMimeType(),
-            'file_size' => $file->getSize(),
-            'title' => $validated['title'],
-            'authors' => $validated['authors'],
-            'published_at' => $validated['published_at'] ?? null,
-            'conference_name' => $validated['conference_name'],
-            'conference_location' => $validated['conference_location'],
-            'publisher' => $validated['publisher'] ?? null,
-            'abstract' => $validated['abstract'] ?? null,
-            'language' => $validated['language'] ?? null,
-            'keywords' => $validated['keywords'] ?? [],
-            'is_public' => (bool) $validated['is_public'],
-        ]);
+            $paper = ConferencePaper::create([
+                'user_id' => Auth::id(),
+                'file_path' => $path,
+                'file_original_name' => $file->getClientOriginalName(),
+                'file_mime' => $file->getClientMimeType(),
+                'file_size' => $file->getSize(),
+                'title' => $validated['title'],
+                'authors' => $validated['authors'],
+                'published_at' => $validated['published_at'] ?? null,
+                'conference_name' => $validated['conference_name'],
+                'conference_location' => $validated['conference_location'],
+                'publisher' => $validated['publisher'] ?? null,
+                'abstract' => $validated['abstract'] ?? null,
+                'language' => $validated['language'] ?? null,
+                'keywords' => $validated['keywords'] ?? [],
+                'is_public' => (bool) $validated['is_public'],
+            ]);
 
-        if ($request->wantsJson()) {
-            return response()->json(['success' => true, 'id' => $paper->id]);
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Conference paper created successfully.',
+                    'paper' => $paper
+                ], 201);
+            }
+
+            // For regular form submissions (fallback)
+            return redirect()->route('admin.tabs.index', ['tab' => 'conference'])
+                ->with('success', 'Conference paper created successfully.');
+                
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Error creating conference paper: ' . $e->getMessage());
+            
+            // Remove the cached submission ID on error
+            if ($submissionId) {
+                cache()->forget('conference_paper_submission_' . $submissionId);
+            }
+            
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while creating the conference paper. Please try again.',
+                    'error' => $e->getMessage()
+                ], 409);
+            }
+            
+            // For regular form submissions (fallback)
+            return redirect()->back()->with('error', 'An error occurred while creating the conference paper. Please try again.');
         }
-        return back()->with('success', 'Conference paper created successfully.');
     }
 
     public function edit(ConferencePaper $conference_paper)
@@ -140,5 +203,3 @@ class ConferencePaperController extends Controller
         return back()->with('success', 'Conference paper permanently deleted.');
     }
 }
-
-
