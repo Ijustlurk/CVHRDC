@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ConferencePaperController;
 use App\Http\Controllers\Admin\PreprintController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\PartnerController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Users\DashboardController as UserDashboardController;
 use App\Http\Controllers\Admin\SettingsController;
@@ -126,6 +127,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('books', BookController::class)->except(['create', 'show']);
     Route::resource('partners', PartnerController::class);
 
+    // Announcements Management
+    Route::post('announcements/{id}/visibility', [AnnouncementController::class, 'updateVisibility'])->name('announcements.visibility');
+    Route::resource('announcements', AnnouncementController::class);
 
     Route::resource('cms', App\Http\Controllers\Admin\CMSController::class);
 
@@ -154,7 +158,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 
     // Admin Banner Management
     Route::post('/banner/update', [App\Http\Controllers\Admin\BannerController::class, 'update'])->name('banner.update');
-    Route::post('/announcement/update', [App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('announcement.update');
     Route::post('/header/update', [App\Http\Controllers\Admin\HeaderController::class, 'update'])->name('header.update');
 
     // Admin Settings Update Maintenance
