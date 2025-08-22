@@ -152,7 +152,7 @@
                                     </button>
                                 </form>
                                 <button type="button" class="btn btn-sm btn-warning me-2"
-                                    onclick="openEditEventModal({{ $item->id }})"><i class="fa fa-edit"></i>Edit</button>
+                                    onclick="openEditEventModal({{ $item->id }})"><i class="fa fa-edit"></i></button>
                                 <form method="POST" action="{{ route('admin.events.destroy', $item->id) }}"
                                     onsubmit="return confirm('Delete this event?');">
                                     @csrf
