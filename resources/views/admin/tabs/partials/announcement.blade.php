@@ -1,13 +1,29 @@
 @if (session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa fa-check-circle me-2"></i>
+        <strong>Success!</strong> {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 @endif
+
+@if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-triangle me-2"></i>
+        <strong>Error!</strong> {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+
 @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-triangle me-2"></i>
+        <strong>Validation Errors:</strong>
+        <ul class="mb-0 mt-2">
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
         </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 @endif
 
@@ -17,17 +33,17 @@
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-primary fw-bold text-white">Add Announcement</div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('admin.announcement.update') }}" class="needs-validation"
+                    <form method="POST" action="{{ route('admin.announcements.store') }}" class="needs-validation"
                         novalidate>
                         @csrf
                         <div class="mb-3">
-                            <label for="title" class="form-label">Title</label>
+                            <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
                             <input type="text" name="title" id="title" class="form-control" required
                                 placeholder="Enter announcement title" value="{{ old('title') }}">
                             <div class="invalid-feedback">Title is required.</div>
                         </div>
                         <div class="mb-3">
-                            <label for="content" class="form-label">Content</label>
+                            <label for="content" class="form-label">Content <span class="text-danger">*</span></label>
                             <textarea name="content" id="content" class="form-control" rows="4" required
                                 placeholder="Enter announcement content">{{ old('content') }}</textarea>
                             <div class="invalid-feedback">Content is required.</div>
@@ -37,14 +53,14 @@
                             <div class="col-6">
                                 <label for="start_date" class="form-label">Start Date</label>
                                 <input type="date" name="start_date" id="start_date" class="form-control"
-                                    value="{{ old('start_date') }}" required>
-                                <div class="invalid-feedback">Date is required.</div>
+                                    value="{{ old('start_date') }}">
+                                <div class="invalid-feedback">Start date is required.</div>
                             </div>
                             <div class="col-6">
                                 <label for="end_date" class="form-label">End Date</label>
                                 <input type="date" name="end_date" id="end_date" class="form-control"
-                                    value="{{ old('end_date') }}" required>
-                                <div class="invalid-feedback" id="end-date-error">Date is required.</div>
+                                    value="{{ old('end_date') }}">
+                                <div class="invalid-feedback" id="end-date-error">End date is required.</div>
                             </div>
                         </div>
                         <div class="form-check form-switch mb-3">
@@ -61,7 +77,7 @@
         <div class="col-12 col-lg-7">
             <div class="row g-3">
                 @forelse ($announcements as $item)
-                    <div class="col-12">
+                    <div class="col-6">
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-2">
@@ -91,19 +107,19 @@
                                     Created: {{ $item->created_at ? $item->created_at->format('M d, Y') : 'N/A' }}
                                 </small>
                                 <div class="btn-group" role="group">
-                                    <form method="POST" action="{{-- route('admin.announcement.toggle', $item->id) --}}" class="d-inline">
+                                    <form method="POST" action="{{ route('admin.announcements.visibility', $item->id) }}" class="d-inline">
                                         @csrf
                                         <input type="hidden" name="active" value="{{ $item->active ? 0 : 1 }}">
                                         <button type="submit"
-                                            class="btn btn-sm btn-outline-{{ $item->active ? 'success' : 'secondary' }}"
-                                            title="{{ $item->active ? 'Deactivate' : 'Activate' }}">
-                                            <i class="fa fa-{{ $item->active ? 'toggle-on' : 'toggle-off' }}"></i>
+                                            class="btn btn-sm btn-outline-{{ $item->active ? 'success' : 'secondary' }}">
+                                            <i class="fa fa-eye{{ $item->active ? '' : '-slash' }}"></i>
                                         </button>
                                     </form>
-                                    <a href="{{-- route('admin.announcement.edit', $item->id) --}}" class="btn btn-sm btn-warning ms-1" title="Edit">
+                                    <button type="button" class="btn btn-sm btn-warning ms-1" title="Edit"
+                                        onclick="openEditAnnouncementModal({{ $item->id }})">
                                         <i class="fa fa-edit"></i>
-                                    </a>
-                                    <form method="POST" action="{{-- route('admin.announcement.destroy', $item->id) --}}"
+                                    </button>
+                                    <form method="POST" action="{{ route('admin.announcements.destroy', $item->id) }}"
                                         onsubmit="return confirm('Are you sure you want to delete this announcement?');"
                                         class="d-inline ms-1">
                                         @csrf
@@ -134,6 +150,64 @@
                     {{ $announcements->links() }}
                 </div>
             @endif
+        </div>
+    </div>
+
+    <!-- Edit Announcement Modal -->
+    <div class="modal fade" id="editAnnouncementModal" tabindex="-1" aria-labelledby="editAnnouncementModalLabel" aria-hidden="true"
+        data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="editAnnouncementModalLabel">
+                        <i class="fa fa-edit me-2"></i>Edit Announcement
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editAnnouncementForm" class="needs-validation" novalidate>
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="edit_announcement_id" name="announcement_id">
+                        <div class="mb-3">
+                            <label for="edit_title" class="form-label fw-bold">Title <span class="text-danger">*</span></label>
+                            <input type="text" name="title" id="edit_title" class="form-control" required
+                                placeholder="Enter announcement title">
+                            <div class="invalid-feedback">Title is required.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_content" class="form-label fw-bold">Content <span class="text-danger">*</span></label>
+                            <textarea name="content" id="edit_content" class="form-control" rows="4" required
+                                placeholder="Enter announcement content"></textarea>
+                            <div class="invalid-feedback">Content is required.</div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label for="edit_start_date" class="form-label fw-bold">Start Date</label>
+                                <input type="date" name="start_date" id="edit_start_date" class="form-control">
+                                <div class="invalid-feedback">Start date is required.</div>
+                            </div>
+                            <div class="col-6">
+                                <label for="edit_end_date" class="form-label fw-bold">End Date</label>
+                                <input type="date" name="end_date" id="edit_end_date" class="form-control">
+                                <div class="invalid-feedback" id="edit-end-date-error">End date is required.</div>
+                            </div>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" name="active" id="edit_active" value="1">
+                            <label class="form-check-label fw-bold" for="edit_active">Active</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-warning" id="updateAnnouncementBtn">
+                        <i class="fa fa-save me-2"></i>Update Announcement
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -173,5 +247,140 @@
 
         document.getElementById('start_date').addEventListener('change', validateDates);
         document.getElementById('end_date').addEventListener('change', validateDates);
+
+        // Edit Announcement Modal Functions
+        function openEditAnnouncementModal(announcementId) {
+            console.log('Opening edit modal for announcement ID:', announcementId);
+
+            // Show loading state
+            const updateBtn = document.getElementById('updateAnnouncementBtn');
+            const originalText = updateBtn.innerHTML;
+            updateBtn.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...';
+            updateBtn.disabled = true;
+
+            // Fetch announcement data
+            fetch(`/admin/announcements/${announcementId}/edit`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Populate modal fields
+                    document.getElementById('edit_announcement_id').value = data.id;
+                    document.getElementById('edit_title').value = data.title;
+                    document.getElementById('edit_content').value = data.content;
+
+                    // Format dates for input fields (YYYY-MM-DD)
+                    if (data.start_date) {
+                        const startDate = new Date(data.start_date);
+                        const formattedStartDate = startDate.toISOString().split('T')[0];
+                        document.getElementById('edit_start_date').value = formattedStartDate;
+                    }
+                    if (data.end_date) {
+                        const endDate = new Date(data.end_date);
+                        const formattedEndDate = endDate.toISOString().split('T')[0];
+                        document.getElementById('edit_end_date').value = formattedEndDate;
+                    }
+
+                    document.getElementById('edit_active').checked = data.active == 1;
+
+                    // Show modal
+                    const modalElement = document.getElementById('editAnnouncementModal');
+                    console.log('Modal element found:', modalElement);
+
+                    if (modalElement) {
+                        try {
+                            const modal = new bootstrap.Modal(modalElement);
+                            modal.show();
+                            console.log('Modal shown successfully');
+                        } catch (error) {
+                            console.error('Error showing modal:', error);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching announcement data:', error);
+                    alert('Error loading announcement data. Please try again.');
+                })
+                .finally(() => {
+                    // Reset button state
+                    updateBtn.innerHTML = originalText;
+                    updateBtn.disabled = false;
+                });
+        }
+
+        // Handle update button click
+        document.getElementById('updateAnnouncementBtn').addEventListener('click', function() {
+            const form = document.getElementById('editAnnouncementForm');
+            const announcementId = document.getElementById('edit_announcement_id').value;
+            const updateBtn = this;
+
+            // Validate form
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            // Show loading state
+            const originalText = updateBtn.innerHTML;
+            updateBtn.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Updating...';
+            updateBtn.disabled = true;
+
+            // Create a hidden form to submit the data as a regular form submission
+            const hiddenForm = document.createElement('form');
+            hiddenForm.method = 'POST';
+            hiddenForm.action = `/admin/announcements/${announcementId}`;
+            hiddenForm.style.display = 'none';
+
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            hiddenForm.appendChild(csrfInput);
+
+            // Add method spoofing for PUT
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'PUT';
+            hiddenForm.appendChild(methodInput);
+
+            // Add all form fields
+            const formData = new FormData(form);
+
+            // Handle checkbox separately to ensure proper value
+            const isActiveCheckbox = document.getElementById('edit_active');
+            const isActiveInput = document.createElement('input');
+            isActiveInput.type = 'hidden';
+            isActiveInput.name = 'active';
+            isActiveInput.value = isActiveCheckbox.checked ? '1' : '0';
+            hiddenForm.appendChild(isActiveInput);
+
+            for (let [key, value] of formData.entries()) {
+                if (key !== '_token' && key !== '_method' && key !== 'active') {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = value;
+                    hiddenForm.appendChild(input);
+                }
+            }
+
+            // Append form to body and submit
+            document.body.appendChild(hiddenForm);
+            hiddenForm.submit();
+        });
+
+        // Reset form validation when modal is hidden
+        document.getElementById('editAnnouncementModal').addEventListener('hidden.bs.modal', function() {
+            const form = document.getElementById('editAnnouncementForm');
+            form.classList.remove('was-validated');
+            form.reset();
+        });
     </script>
 @endisset
