@@ -2,7 +2,7 @@
 @section('content')
     <div class="container py-4">
         <div class="d-flex align-items-center mb-4 gap-3">
-            <h4 class="mb-0">CVHRDC Content Managment System</h4>
+            <h4 class="mb-0">CVHRDC Content Management System</h4>
             <div class="alert alert-info mb-0 py-2 px-3">
                 Welcome to the CMS section. You can manage your content here.
             </div>
