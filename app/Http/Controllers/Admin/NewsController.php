@@ -175,6 +175,12 @@ class NewsController extends Controller
      */
     public function destroy(News $news)
     {
-        //
+        try {
+            $news->delete();
+            return redirect()->back()->with('success', 'News deleted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Error deleting news: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete news. Please try again.');
+        }
     }
 }
