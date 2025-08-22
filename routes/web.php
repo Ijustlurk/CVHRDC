@@ -125,6 +125,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('books/{id}/restore', [BookController::class, 'restore'])->name('books.restore');
     Route::delete('books/{id}/force-delete', [BookController::class, 'forceDelete'])->name('books.force-delete');
     Route::resource('books', BookController::class)->except(['create', 'show']);
+    // Partners Management
+    Route::post('partners/{id}/visibility', [PartnerController::class, 'updateVisibility'])->name('partners.visibility');
     Route::resource('partners', PartnerController::class);
 
     // Announcements Management
