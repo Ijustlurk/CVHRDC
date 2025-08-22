@@ -29,9 +29,16 @@ class PartnerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|min:3|max:255',
-            'type' => 'required|string|min:3|max:255',
-            'contact' => 'nullable|string|max:255',
+            'organization' => 'required|string|min:3|max:255',
+            'contact_email' => 'nullable|email|max:255',
+            'contact_phone' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'website' => 'nullable|url|max:255',
+            'is_active' => 'nullable|boolean',
         ]);
+        
+        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+        
         $partner = \App\Models\Partner::create($validated);
         return redirect()->back()->with('success', 'Partner added successfully!');
     }
