@@ -7,6 +7,7 @@ use App\Models\Research;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ResearchController extends Controller
 {
@@ -28,6 +29,37 @@ class ResearchController extends Controller
 
     public function store(Request $request)
     {
+        // Check for duplicate submission using submission ID
+        $submissionId = $request->input('submission_id');
+        if ($submissionId) {
+            // Check if this submission ID was already processed
+            $cacheKey = 'research_submission_' . $submissionId;
+            if (cache()->has($cacheKey)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This submission has already been processed.',
+                    'duplicate' => true
+                ], 409);
+            }
+            
+            // Mark this submission ID as processed (cache for 5 minutes)
+            cache()->put($cacheKey, true, 300);
+        }
+        
+        // Additional duplicate prevention: Check for similar research within last 5 minutes
+        $recentResearch = Research::where('user_id', Auth::id())
+            ->where('title', $request->input('title'))
+            ->where('created_at', '>=', now()->subMinutes(5))
+            ->first();
+            
+        if ($recentResearch) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A research entry with this title was already submitted recently. Please wait a few minutes before submitting again.',
+                'duplicate' => true
+            ], 409);
+        }
+        
         $validated = $request->validate([
             'file' => ['required', 'file', 'mimes:pdf', 'max:51200'], // 50MB
             'title' => ['required', 'string', 'max:255'],
@@ -40,27 +72,60 @@ class ResearchController extends Controller
             'keywords.*' => ['string', 'max:255'],
             'is_public' => ['required', 'boolean'],
         ]);
-
-        $file = $request->file('file');
-        $path = $file->store('research', 'public');
-
-        $research = Research::create([
-            'user_id' => Auth::id(),
-            'file_path' => $path,
-            'file_original_name' => $file->getClientOriginalName(),
-            'file_mime' => $file->getClientMimeType(),
-            'file_size' => $file->getSize(),
-            'title' => $validated['title'],
-            'authors' => $validated['authors'],
-            'published_at' => $validated['published_at'],
-            'abstract' => $validated['abstract'] ?? null,
-            'category' => $validated['category'],
-            'keywords' => $validated['keywords'] ?? [],
-            'is_public' => (bool)$validated['is_public'],
-        ]);
-
-        return redirect()->route('admin.tabs.index', ['tab' => 'research'])
-            ->with('success', 'Research entry published successfully.');
+    
+        try {
+            $file = $request->file('file');
+            $path = $file->store('research', 'public');
+        
+            $research = Research::create([
+                'user_id' => Auth::id(),
+                'file_path' => $path,
+                'file_original_name' => $file->getClientOriginalName(),
+                'file_mime' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+                'title' => $validated['title'],
+                'authors' => $validated['authors'],
+                'published_at' => $validated['published_at'],
+                'abstract' => $validated['abstract'] ?? null,
+                'category' => $validated['category'],
+                'keywords' => $validated['keywords'] ?? [],
+                'is_public' => (bool)$validated['is_public'],
+            ]);
+        
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Research entry published successfully.',
+                    'research' => $research
+                ], 201);
+            }
+        
+            // For regular form submissions (fallback)
+            return redirect()->route('admin.tabs.index', ['tab' => 'research'])
+                ->with('success', 'Research entry published successfully.');
+                
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Error creating research: ' . $e->getMessage());
+            
+            // Remove the cached submission ID on error
+            if ($submissionId) {
+                cache()->forget('research_submission_' . $submissionId);
+            }
+            
+            // Check if request is AJAX
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while creating the research entry. Please try again.',
+                    'error' => $e->getMessage()
+                ], 409);
+            }
+            
+            // For regular form submissions (fallback)
+            return redirect()->back()->with('error', 'An error occurred while creating the research entry. Please try again.');
+        }
     }
 
     public function edit(Research $research)
