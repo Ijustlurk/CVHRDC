@@ -14,14 +14,22 @@ class ProjectController extends Controller
      */
     public function updateVisibility(Request $request, $id)
     {
-        $request->validate([
-            'is_visible' => 'required|boolean',
-        ]);
+        try {
+            $request->validate([
+                'is_visible' => 'required|boolean',
+            ]);
 
-        $project = Project::findOrFail($id);
-        $project->is_visible = $request->input('is_visible') ? 1 : 0;
-        $project->save();
-        return response()->json(['success' => true, 'is_visible' => $project->is_visible]);
+            $project = Project::findOrFail($id);
+            $project->is_visible = $request->input('is_visible') ? 1 : 0;
+            $project->save();
+            
+            $status = $project->is_visible ? 'visible' : 'hidden';
+            return redirect()->back()->with('success', "Project is now {$status}!");
+            
+        } catch (\Exception $e) {
+            Log::error('Error updating project visibility: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update project visibility. Please try again.');
+        }
     }
 
     /**
