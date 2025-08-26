@@ -158,6 +158,10 @@
                         aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="publishLabel"><i class="fas fa-flask me-2"></i>Publish Research</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
                                 <div class="modal-body">
                                     <form enctype="multipart/form-data" action="{{ route('users.research.store') }}"
                                         method="POST" id="researchForm">
@@ -256,7 +260,7 @@
                                                 <div class="d-flex gap-3">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="is_public"
-                                                            id="visibility_public" value="1" required>
+                                                            id="visibility_public" value="1" required checked>
                                                         <label class="form-check-label"
                                                             for="visibility_public">Public</label>
                                                     </div>
@@ -271,7 +275,8 @@
                                         </div>
 
                                         <div class="modal-footer bg-light">
-                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                <i class="fas fa-times me-1"></i>Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="fas fa-save me-1"></i>Publish
@@ -282,13 +287,15 @@
                             </div>
                         </div>
                     </div>
-
-
                     <!-- Preprint -->
-                    <div class="modal fade" id="Preprint" tabindex="-1" aria-labelledby="publishLabel"
+                    <div class="modal fade" id="Preprint" tabindex="-1" aria-labelledby="preprintLabel"
                         aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="preprintLabel"><i class="fas fa-file-alt me-2"></i>Preprint</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
                                 <div class="modal-body">
                                     <form enctype="multipart/form-data" action="{{ route('users.preprint.store')}}"
                                         method="POST">
@@ -415,12 +422,11 @@
                                         </div>
 
                                         <div class="modal-footer bg-light">
-                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                                Cancel
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                <i class="fas fa-times me-1"></i>Cancel
                                             </button>
                                             <button type="submit" class="btn btn-primary">
-                                                <span class="spinner-border spinner-border-sm d-none"
-                                                    role="status"></span>
+                                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
                                                 <i class="fas fa-save me-1"></i>Create
                                             </button>
                                         </div>
@@ -435,9 +441,12 @@
                         aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content">
-                                <div class="modal-body">
-                                    <form id="createConferenceForm" method="POST" enctype="multipart/form-data"
-                                        action="{{ route('users.conferencepaper.store') }}">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="ConferenceLabel"><i class="fas fa-chalkboard me-2"></i>Conference Paper</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form id="createConferenceForm" method="POST" enctype="multipart/form-data" action="{{ route('users.conferencepaper.store') }}">
+                                    <div class="modal-body">
                                         @csrf
                                         <div class="modal-body">
                                             <div class="mb-3">
@@ -564,6 +573,100 @@
                 <!-- Dynamic list -->
                 <div class="card-body pt-0">
                     <div id="outputList" class="mt-2"></div>
+                </div>
+
+                <!-- Book Modal -->
+                <div class="modal fade" id="Book" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Create New Book</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <form id="createUserBookForm" method="POST" enctype="multipart/form-data" action="{{ route('users.book.store') }}">
+                                @csrf
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="user-book-file" class="form-label">File (PDF) <span class="text-danger">*</span></label>
+                                        <input type="file" class="form-control" id="user-book-file" name="file" accept="application/pdf" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="user-book-title" class="form-label">Title <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="user-book-title" name="title" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Authors <span class="text-danger">*</span></label>
+                                        <div class="border rounded p-2" id="user-book-authors-container">
+                                            <div class="d-flex flex-wrap gap-2 mb-2" id="user-book-authors-chips"></div>
+                                            <input type="text" id="user-book-authors-input" class="form-control" placeholder="Type a name and press Enter">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Editors <small class="text-muted">(optional)</small></label>
+                                        <div class="border rounded p-2" id="user-book-editors-container">
+                                            <div class="d-flex flex-wrap gap-2 mb-2" id="user-book-editors-chips"></div>
+                                            <input type="text" id="user-book-editors-input" class="form-control" placeholder="Type a name and press Enter">
+                                        </div>
+                                    </div>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="user-book-published_at" class="form-label">Publication Date <span class="text-danger">*</span></label>
+                                            <input type="date" class="form-control" id="user-book-published_at" name="published_at" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="user-book-publisher" class="form-label">Publisher <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="user-book-publisher" name="publisher" required>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mt-0">
+                                        <div class="col-md-6">
+                                            <label for="user-book-isbn" class="form-label">ISBN <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="user-book-isbn" name="isbn" placeholder="10 or 13 digits" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="user-book-edition" class="form-label">Edition <small class="text-muted">(optional)</small></label>
+                                            <input type="text" class="form-control" id="user-book-edition" name="edition" placeholder="e.g., 2nd, Revised">
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mt-0">
+                                        <div class="col-md-6">
+                                            <label for="user-book-doi" class="form-label">DOI <small class="text-muted">(optional)</small></label>
+                                            <input type="text" class="form-control" id="user-book-doi" name="doi" placeholder="e.g., 10.1234/abc.5678">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">File Visibility <span class="text-danger">*</span></label>
+                                            <div class="d-flex gap-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="is_public" id="user-book-visibility_public" value="1" checked required>
+                                                    <label class="form-check-label" for="user-book-visibility_public">Public</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="is_public" id="user-book-visibility_private" value="0" required>
+                                                    <label class="form-check-label" for="user-book-visibility_private">Private</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3 mt-3">
+                                        <label class="form-label">Keywords/Tags <small class="text-muted">(optional)</small></label>
+                                        <div class="border rounded p-2" id="user-book-keywords-container">
+                                            <div class="d-flex flex-wrap gap-2 mb-2" id="user-book-keywords-chips"></div>
+                                            <input type="text" id="user-book-keywords-input" class="form-control" placeholder="Type a keyword and press Enter">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer bg-light">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-1"></i>Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                        <i class="fas fa-save me-1"></i>Create
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Details Modal -->
@@ -797,16 +900,7 @@
         handleChips('authors-input', 'authors-chips', 'authors-hidden-container', 'authors');
         handleChips('keywords-input', 'keywords-chips', 'keywords-hidden-container', 'keywords');
 
-        // (Optional) select to modal trigger
-        const uploadSelect = document.getElementById('uploadSelect');
-        if (uploadSelect) {
-            uploadSelect.addEventListener('change', function () {
-                const modalId = this.value;
-                if (modalId) {
-                    new bootstrap.Modal(document.getElementById(modalId)).show();
-                }
-            });
-        }
+        // removed duplicate modal trigger; handled in unified script below
     });
 
 </script>
@@ -819,21 +913,25 @@
         return 'Good evening';
     }
     document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('greeting').textContent = getGreeting() +
-            ', {{ $user->title ? $user->title . '
-        ' : '
-        ' }}{{ $user->name }}!';
-        // Project filter
-        document.getElementById('projectFilter').addEventListener('change', function () {
-            const val = this.value;
-            document.querySelectorAll('.project-item').forEach(function (item) {
-                if (val === 'all' || item.dataset.status === val) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
+        const greetingName = @json((($user->title ?? null) ? ($user->title.' ') : '').($user->name ?? ''));
+        const greetingEl = document.getElementById('greeting');
+        if (greetingEl) {
+            greetingEl.textContent = getGreeting() + ', ' + greetingName + '!';
+        }
+        // Project filter (guard for missing element)
+        const projectFilter = document.getElementById('projectFilter');
+        if (projectFilter) {
+            projectFilter.addEventListener('change', function () {
+                const val = this.value;
+                document.querySelectorAll('.project-item').forEach(function (item) {
+                    if (val === 'all' || item.dataset.status === val) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
             });
-        });
+        }
     });
 
 </script>
@@ -843,11 +941,37 @@
         const createSelect = document.getElementById('uploadSelect');
         if(createSelect){
             createSelect.addEventListener('change', function(){
-                if(this.value){
-                    const modal = new bootstrap.Modal(document.getElementById(this.value));
-                    modal.show();
+                const id = this.value;
+                if(!id){ return; }
+
+                // Find target modal element
+                const modalEl = document.getElementById(id);
+                if(!modalEl){
+                    // reset selection and gracefully notify
                     this.selectedIndex = 0;
+                    console.warn('Modal element not found for id:', id);
+                    return;
                 }
+
+                // Close any currently open modal to avoid stacked backdrops
+                const openModalEl = document.querySelector('.modal.show');
+                if(openModalEl){
+                    try {
+                        bootstrap.Modal.getInstance(openModalEl)?.hide();
+                    } catch(e) {}
+                }
+
+                // Ensure backdrop issues are cleared before showing a new modal
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('padding-right');
+
+                // Now show the requested modal
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl, {backdrop: 'static', keyboard: false});
+                modal.show();
+
+                // reset selection
+                this.selectedIndex = 0;
             });
         }
 
@@ -934,6 +1058,82 @@
             typeSelect.addEventListener('change', () => fetchAndRender(typeSelect.value));
             fetchAndRender(typeSelect.value);
         }
+
+        // Initialize Book modal helpers
+        (function initUserBookModal(){
+            const fileInput = document.getElementById('user-book-file');
+            const titleInput = document.getElementById('user-book-title');
+            fileInput?.addEventListener('change', (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const fileNameBase = file.name.replace(/\.pdf$/i, '').replace(/[_-]+/g, ' ');
+                if (!titleInput.value) titleInput.value = fileNameBase;
+            });
+
+            const bookModal = document.getElementById('Book');
+            if (bookModal) {
+                bookModal.addEventListener('shown.bs.modal', function() {
+                    const form = document.getElementById('createUserBookForm');
+                    if (form) {
+                        form.reset();
+                        const aChips = document.getElementById('user-book-authors-chips');
+                        const eChips = document.getElementById('user-book-editors-chips');
+                        const kChips = document.getElementById('user-book-keywords-chips');
+                        if (aChips) aChips.innerHTML = '';
+                        if (eChips) eChips.innerHTML = '';
+                        if (kChips) kChips.innerHTML = '';
+                    }
+                    setTimeout(() => { initChipInputs(); }, 150);
+                });
+            }
+
+            const createForm = document.getElementById('createUserBookForm');
+            createForm?.addEventListener('submit', function(e) {
+                const authorsChips = this.querySelectorAll('#user-book-authors-chips input[name="authors[]"]');
+                if (authorsChips.length === 0) {
+                    e.preventDefault();
+                    alert('Please add at least one author.');
+                    return false;
+                }
+            });
+
+            function initChipInputs(){
+                setupChipInput('user-book-authors-input','user-book-authors-chips','authors[]','bg-secondary');
+                setupChipInput('user-book-editors-input','user-book-editors-chips','editors[]','bg-secondary');
+                setupChipInput('user-book-keywords-input','user-book-keywords-chips','keywords[]','bg-info');
+            }
+
+            function setupChipInput(inputId, chipsId, hiddenName, badgeClass){
+                const input = document.getElementById(inputId);
+                const chips = document.getElementById(chipsId);
+                if(!input || !chips) return;
+                input.removeEventListener('keydown', input._chipHandler || (()=>{}));
+                input._chipHandler = (e) => {
+                    if(e.key === 'Enter' || e.key === ','){
+                        e.preventDefault();
+                        const value = input.value.trim();
+                        if(!value) return;
+                        const chip = document.createElement('span');
+                        chip.className = `badge ${badgeClass} d-inline-flex align-items-center`;
+                        chip.style.gap = '6px';
+                        chip.textContent = value;
+                        const remove = document.createElement('button');
+                        remove.type = 'button';
+                        remove.className = 'btn-close btn-close-white btn-sm ms-2';
+                        remove.addEventListener('click', () => chip.remove());
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = hiddenName;
+                        hidden.value = value;
+                        chip.appendChild(remove);
+                        chip.appendChild(hidden);
+                        chips.appendChild(chip);
+                        input.value = '';
+                    }
+                };
+                input.addEventListener('keydown', input._chipHandler);
+            }
+        })();
     });
 </script>
 @endsection
