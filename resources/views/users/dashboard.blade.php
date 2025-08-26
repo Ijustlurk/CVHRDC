@@ -131,17 +131,27 @@
             </script>
             @endif
             <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <span>Research Projects</span>
-                    <!-- Select Dropdown -->
-                    <select class="form-select form-select-sm w-auto d-inline-block border-primary text-primary"
-                        id="uploadSelect">
-                        <option selected hidden>Add New</option>
-                        <option value="PublishResearch">Publish Research</option>
-                        <option value="Preprint">Preprint</option>
-                        <option value="ConferencePaper">Conference Paper</option>
-                        <option value="Book">Publish Book</option>
-                    </select>
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-semibold">Research outputs</span>
+                        <small class="text-muted">Select a type to view your records.</small>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <select class="form-select form-select-sm w-auto border-secondary" id="outputTypeSelect">
+                            <option value="research" selected>Research</option>
+                            <option value="preprints">Preprint</option>
+                            <option value="conference-papers">Conference Paper</option>
+                            <option value="books">Book</option>
+                        </select>
+                        <!-- Create new (kept existing behavior) -->
+                        <select class="form-select form-select-sm w-auto border-primary text-primary" id="uploadSelect">
+                            <option selected hidden>Create new…</option>
+                            <option value="PublishResearch">Publish Research</option>
+                            <option value="Preprint">Preprint</option>
+                            <option value="ConferencePaper">Conference Paper</option>
+                            <option value="Book">Publish Book</option>
+                        </select>
+                    </div>
 
                     <!-- Research Modal -->
                     <div class="modal fade" id="PublishResearch" tabindex="-1" aria-labelledby="publishLabel"
@@ -551,113 +561,38 @@
 
                 </div>
 
-                <!-- ===== Script to Trigger Correct Modal ===== -->
-                <script>
-                    document.getElementById('uploadSelect').addEventListener('change', function () {
-                        if (this.value) {
-                            var modalId = this.value;
-                            var myModal = new bootstrap.Modal(document.getElementById(modalId));
-                            myModal.show();
-                            this.selectedIndex = 0;
-                        }
-                    });
-
-                </script>
-
-                <!-- Clickable container -->
-                <div class="clickable-container position-relative mb-1 mt-1">
-                    <a href="javascript:void(0);" class="stretched-link text-decoration-none" data-bs-toggle="modal"
-                        data-bs-target="#infoModal">
-                        <div class="d-flex align-items-center border rounded-1 px-3 mx-1">
-                            <!-- <div class="me-3">
-                                <img src="{{ asset('assets/Image/logo.jpg') }}" class="border border-1 border-secondary"
-                                    height="40" width="40" alt="" style="border-radius:50%; object-fit:cover;">
-                            </div> -->
-                            <div class="list-group">
-                                <div class="p-1">
-                                    <div class="flex-grow-1">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h6 class="mb-0 text-primary fw-bold">Sample</h6>
-                                            </div>
-                                            <div class="col-12">
-                                                <p class="mb-0 text-muted">
-                                                    Lorem ipsum dolor sit amet.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
+                <!-- Dynamic list -->
+                <div class="card-body pt-0">
+                    <div id="outputList" class="mt-2"></div>
                 </div>
 
-                <!-- Clickable container -->
-                <div class="clickable-container position-relative mb-1">
-                    <a href="javascript:void(0);" class="stretched-link text-decoration-none" data-bs-toggle="modal"
-                        data-bs-target="#infoModal">
-                        <div class="d-flex align-items-center border rounded-1 px-3 mx-1">
-                            <!-- <div class="me-3">
-                                <img src="{{ asset('assets/Image/logo.jpg') }}" class="border border-1 border-secondary"
-                                    height="40" width="40" alt="" style="border-radius:50%; object-fit:cover;">
-                            </div> -->
-                            <div class="list-group">
-                                <div class="p-1">
-                                    <div class="flex-grow-1">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <h6 class="mb-0 text-primary fw-bold">Sample</h6>
-                                            </div>
-                                            <div class="col-12">
-                                                <p class="mb-0 text-muted">
-                                                    Lorem ipsum dolor sit amet.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <!-- Modal -->
-                <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true"
-                    data-bs-backdrop="false">
-
-                    <div class="modal-dialog modal-dialog-centered">
+                <!-- Details Modal -->
+                <div class="modal fade" id="outputDetailsModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="outputDetailsTitle"></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
                             <div class="modal-body">
-                                <h5 class="modal-title mb-2 fw-bold" id="infoModalLabel">Sample Details</h5>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus suscipit
-                                    libero at felis cursus, eget facilisis velit tincidunt.</p>
+                                <div class="mb-2" id="outputDetailsMeta"></div>
+                                <div class="mb-3">
+                                    <h6 class="fw-semibold mb-1">Abstract</h6>
+                                    <div id="outputDetailsAbstract" class="text-muted"></div>
+                                </div>
+                                <div class="mb-2">
+                                    <h6 class="fw-semibold mb-1">Tags</h6>
+                                    <div id="outputDetailsTags" class="d-flex flex-wrap gap-2"></div>
+                                </div>
                             </div>
-                            <div class="d-flex justify-content-end p-3">
-                                <button type="button" class="btn btn-danger btn-sm"
-                                    data-bs-dismiss="modal">Close</button>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                <div id="projectsList">
-                    @forelse($projects as $project)
-                    <div class="border rounded p-2 mb-2 project-item"
-                        data-status="{{ strtolower($project->status ?? 'ongoing') }}">
-                        <div class="fw-bold">{{ $project->title }}</div>
-                        <div>Status: <span
-                                class="badge bg-{{ ($project->status ?? 'ongoing') == 'completed' ? 'success' : 'info' }}">{{ ucfirst($project->status ?? 'Ongoing') }}</span>
-                        </div>
-                        <div>Funding: {{ $project->funding_agency ?? 'N/A' }}</div>
-                        <div><small>{{ $project->start_date }} - {{ $project->end_date }}</small></div>
-                    </div>
-                    @empty
-                    <!-- <div class="text-muted">No projects found.</div> -->
-                    @endforelse
-                </div>
-            </div>
+            
         </div>
     </div>
 </div>
@@ -901,6 +836,105 @@
         });
     });
 
+</script>
+<script>
+    // Research outputs section interactivity
+    document.addEventListener('DOMContentLoaded', function(){
+        const createSelect = document.getElementById('uploadSelect');
+        if(createSelect){
+            createSelect.addEventListener('change', function(){
+                if(this.value){
+                    const modal = new bootstrap.Modal(document.getElementById(this.value));
+                    modal.show();
+                    this.selectedIndex = 0;
+                }
+            });
+        }
+
+        const typeSelect = document.getElementById('outputTypeSelect');
+        const list = document.getElementById('outputList');
+
+        async function fetchAndRender(type){
+            list.innerHTML = '<div class="text-muted">Loading…</div>';
+            let url = '';
+            if(type === 'research') url = '{{ route('users.research.list') }}';
+            if(type === 'preprints') url = '{{ route('users.preprints.list') }}';
+            if(type === 'conference-papers') url = '{{ route('users.conference-papers.list') }}';
+            if(type === 'books') url = '{{ route('users.books.list') }}';
+
+            try{
+                const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+                const data = await res.json();
+                renderList(data);
+            }catch(e){
+                list.innerHTML = '<div class="text-danger">Failed to load records.</div>';
+            }
+        }
+
+        function renderList(items){
+            if(!items || items.length === 0){
+                list.innerHTML = '<div class="text-muted">No records found.</div>';
+                return;
+            }
+            list.innerHTML = '';
+            items.forEach(item => {
+                const row = document.createElement('button');
+                row.type = 'button';
+                row.className = 'w-100 text-start border rounded-1 px-3 py-2 mb-2 bg-white';
+                row.addEventListener('click', () => openDetails(item));
+                const authors = Array.isArray(item.authors) ? item.authors.join(', ') : (item.authors || '');
+                row.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div>
+                            <div class="fw-semibold">${escapeHtml(item.title || 'Untitled')}</div>
+                            <div class="small text-muted">${escapeHtml(authors)}${item.published_at ? ' • ' + escapeHtml(item.published_at) : ''}</div>
+                        </div>
+                        <span class="badge text-bg-light">${escapeHtml(item.type || '')}</span>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function openDetails(item){
+            const titleEl = document.getElementById('outputDetailsTitle');
+            const metaEl = document.getElementById('outputDetailsMeta');
+            const absEl = document.getElementById('outputDetailsAbstract');
+            const tagsEl = document.getElementById('outputDetailsTags');
+
+            titleEl.textContent = item.title || 'Untitled';
+            const authors = Array.isArray(item.authors) ? item.authors.join(', ') : (item.authors || '');
+            let metaParts = [];
+            if(authors) metaParts.push('Authors: ' + authors);
+            if(item.published_at) metaParts.push('Published: ' + item.published_at);
+            if(item.category) metaParts.push('Category: ' + item.category);
+            if(item.repository_name) metaParts.push('Repository: ' + item.repository_name);
+            if(item.conference_name) metaParts.push('Conference: ' + item.conference_name);
+            if(item.publisher) metaParts.push('Publisher: ' + item.publisher);
+            if(item.isbn) metaParts.push('ISBN: ' + item.isbn);
+            if(item.doi) metaParts.push('DOI: ' + item.doi);
+            metaEl.innerHTML = metaParts.map(p => `<span class="badge text-bg-light me-2 mb-2">${escapeHtml(p)}</span>`).join('');
+            absEl.textContent = item.abstract || 'No abstract provided.';
+            tagsEl.innerHTML = '';
+            const keywords = Array.isArray(item.keywords) ? item.keywords : (item.keywords || []);
+            keywords.forEach(k => {
+                const b = document.createElement('span');
+                b.className = 'badge bg-secondary-subtle text-secondary-emphasis';
+                b.textContent = k;
+                tagsEl.appendChild(b);
+            });
+            new bootstrap.Modal(document.getElementById('outputDetailsModal')).show();
+        }
+
+        function escapeHtml(str){
+            return String(str).replace(/[&<>\"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;','\'':'&#39;'}[s]));
+        }
+
+        if(typeSelect){
+            typeSelect.addEventListener('change', () => fetchAndRender(typeSelect.value));
+            fetchAndRender(typeSelect.value);
+        }
+    });
 </script>
 @endsection
 @endcan
