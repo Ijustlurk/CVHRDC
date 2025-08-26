@@ -20,7 +20,8 @@ use App\Http\Controllers\Users\DashboardController as UserDashboardController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Users\UserResearchCTRL;
 use App\Http\Controllers\Users\UserPreprintController;
-use App\Http\Controllers\Users\UserConfeBookCTRL;
+use App\Http\Controllers\Users\UserConferencePaperController;
+use App\Http\Controllers\Users\UserBookController;
 
 
 
@@ -183,7 +184,8 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::resource('/products', 'ProductsController')->only(['index']);
     Route::post('/research/store', [UserResearchCTRL::class, 'store'])->name('research.store');
     Route::post('/preprint/store', [UserPreprintController::class, 'store'])->name('preprint.store');
-    Route::post('/conferencepaper/store',[UserConfeBookCTRL::class, 'store'])->name('conferencepaper.store');
+    Route::post('/conferencepaper/store',[UserConferencePaperController::class, 'store'])->name('conferencepaper.store');
+    Route::post('/book/store',[UserBookController::class, 'store'])->name('book.store');
     // Dashboard data feeds for research outputs
     Route::get('/research/list', function () {
         $userId = Auth::id();
