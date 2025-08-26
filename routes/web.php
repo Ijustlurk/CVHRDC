@@ -184,6 +184,99 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::post('/research/store', [UserResearchCTRL::class, 'store'])->name('research.store');
     Route::post('/preprint/store', [UserPreprintController::class, 'store'])->name('preprint.store');
     Route::post('/conferencepaper/store',[UserConfeBookCTRL::class, 'store'])->name('conferencepaper.store');
+    // Dashboard data feeds for research outputs
+    Route::get('/research/list', function () {
+        $userId = Auth::id();
+        return \App\Models\Research::query()
+            ->where('user_id', $userId)
+            ->latest('published_at')
+            ->take(50)
+            ->get(['id','title','authors','published_at','abstract','category','keywords','file_path','file_original_name'])
+            ->map(function($r){
+                return [
+                    'id' => $r->id,
+                    'title' => $r->title,
+                    'authors' => $r->authors,
+                    'published_at' => optional($r->published_at)->toDateString(),
+                    'abstract' => $r->abstract,
+                    'category' => $r->category,
+                    'keywords' => $r->keywords,
+                    'file' => $r->file_original_name,
+                    'type' => 'Research',
+                ];
+            });
+    })->name('research.list');
+
+    Route::get('/preprints/list', function () {
+        $userId = Auth::id();
+        return \App\Models\Preprint::query()
+            ->where('user_id', $userId)
+            ->latest('published_at')
+            ->take(50)
+            ->get(['id','title','authors','published_at','abstract','repository_name','keywords','file_path','file_original_name'])
+            ->map(function($p){
+                return [
+                    'id' => $p->id,
+                    'title' => $p->title,
+                    'authors' => $p->authors,
+                    'published_at' => optional($p->published_at)->toDateString(),
+                    'abstract' => $p->abstract,
+                    'repository_name' => $p->repository_name,
+                    'keywords' => $p->keywords,
+                    'file' => $p->file_original_name,
+                    'type' => 'Preprint',
+                ];
+            });
+    })->name('preprints.list');
+
+    Route::get('/conference-papers/list', function () {
+        $userId = Auth::id();
+        return \App\Models\ConferencePaper::query()
+            ->where('user_id', $userId)
+            ->latest('published_at')
+            ->take(50)
+            ->get(['id','title','authors','published_at','abstract','conference_name','conference_location','publisher','keywords','file_path','file_original_name'])
+            ->map(function($c){
+                return [
+                    'id' => $c->id,
+                    'title' => $c->title,
+                    'authors' => $c->authors,
+                    'published_at' => optional($c->published_at)->toDateString(),
+                    'abstract' => $c->abstract,
+                    'conference_name' => $c->conference_name,
+                    'conference_location' => $c->conference_location,
+                    'publisher' => $c->publisher,
+                    'keywords' => $c->keywords,
+                    'file' => $c->file_original_name,
+                    'type' => 'Conference Paper',
+                ];
+            });
+    })->name('conference-papers.list');
+
+    Route::get('/books/list', function () {
+        $userId = Auth::id();
+        return \App\Models\Book::query()
+            ->where('user_id', $userId)
+            ->latest('published_at')
+            ->take(50)
+            ->get(['id','title','authors','editors','published_at','publisher','isbn','edition','doi','keywords','file_path','file_original_name'])
+            ->map(function($b){
+                return [
+                    'id' => $b->id,
+                    'title' => $b->title,
+                    'authors' => $b->authors,
+                    'editors' => $b->editors,
+                    'published_at' => optional($b->published_at)->toDateString(),
+                    'publisher' => $b->publisher,
+                    'isbn' => $b->isbn,
+                    'edition' => $b->edition,
+                    'doi' => $b->doi,
+                    'keywords' => $b->keywords,
+                    'file' => $b->file_original_name,
+                    'type' => 'Book',
+                ];
+            });
+    })->name('books.list');
 });
 
 
