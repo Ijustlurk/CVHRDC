@@ -1,9 +1,45 @@
 .colored-toast.swal2-icon-success {
-    background-color: #47aa0eff !important;
+    background-color: #3674B5 !important;
+}
+
+/*  Success Deletion */
+.colored-toast-success-delete.swal2-icon-success {
+    background-color: #f32323 !important;
+    color: #fff !important;
+}
+
+/*  Success Update */
+.colored-toast-success-update.swal2-icon-success {
+    background-color: #3674B5 !important;
+    color: #fff !important;
+}
+
+/*  Error Update*/
+.colored-toast-error-update.swal2-icon-success {
+    background-color: #f32323 !important;
+    color: #fff !important;
+}
+
+/* Success Visibility */
+.colored-toast-success-visibility.swal2-icon-success {
+    background-color: #3674B5 !important;
+    color: #fff !important;
+}
+
+/*  Error Visibility  */
+.colored-toast-error-visibility.swal2-icon-success {
+    background-color: #f32323 !important;
+    color: #fff !important;
+}
+
+/*  Error Delete  */
+.colored-toast-error-delete.swal2-icon-success {
+    background-color: #f32323 !important;
+    color: #fff !important;
 }
 
 .colored-toast.swal2-icon-error {
-    background-color: #f27474 !important;
+    background-color: #f53434 !important;
 }
 
 .colored-toast.swal2-icon-warning {
