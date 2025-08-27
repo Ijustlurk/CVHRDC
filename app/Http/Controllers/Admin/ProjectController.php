@@ -22,13 +22,13 @@ class ProjectController extends Controller
             $project = Project::findOrFail($id);
             $project->is_visible = $request->input('is_visible') ? 1 : 0;
             $project->save();
-            
+
             $status = $project->is_visible ? 'visible' : 'hidden';
-            return redirect()->back()->with('success', "Project is now {$status}!");
-            
+            return redirect()->back()->with('successvisibility', "Project is now {$status}!");
+
         } catch (\Exception $e) {
             Log::error('Error updating project visibility: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to update project visibility. Please try again.');
+            return redirect()->back()->with('errorvisibility', 'Failed to update project visibility. Please try again.');
         }
     }
 
@@ -119,31 +119,31 @@ class ProjectController extends Controller
         if (!$url || !str_contains($url, 'drive.google.com')) {
             return $url;
         }
-        
+
         // Check if it's already a direct image URL or thumbnail URL
         if (str_contains($url, 'drive.google.com/thumbnail') ||
             str_contains($url, 'drive.usercontent.google.com')) {
             return $url;
         }
-        
+
         // Extract file ID from various Google Drive URL formats
         $fileId = null;
-        
+
         // Format: https://drive.google.com/file/d/FILE_ID/view
         if (preg_match('/\/file\/d\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
             $fileId = $matches[1];
         }
-        
+
         // Format: https://drive.google.com/open?id=FILE_ID
         if (!$fileId && preg_match('/[?&]id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
             $fileId = $matches[1];
         }
-        
+
         // If file ID found, convert to thumbnail URL
         if ($fileId) {
             return "https://drive.google.com/thumbnail?id={$fileId}&sz=s4000";
         }
-        
+
         // If no match found, return original URL
         return $url;
     }
@@ -183,34 +183,34 @@ class ProjectController extends Controller
                 'is_active' => 'nullable|boolean',
                 'is_visible' => 'nullable|boolean',
             ]);
-            
+
             // Convert Google Drive URL to direct image URL
             $validated['image'] = $this->convertGoogleDriveUrl($validated['image']);
-            
+
             $validated['is_active'] = $request->has('is_active') ? 1 : 0;
             $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
-            
+
             $project->update($validated);
-            
+
             // Check if it's an AJAX request from the modal
             if ($request->ajax()) {
-                return response()->json(['success' => true, 'message' => 'Project updated successfully!']);
+                return response()->json(['successupdate' => true, 'message' => 'Project updated successfully!']);
             }
-            
+
             // For regular form submissions, redirect with flash message
-            return redirect()->back()->with('success', 'Project updated successfully!');
-            
+            return redirect()->back()->with('successupdate', 'Project updated successfully!');
+
         } catch (\Exception $e) {
             // Log the error for debugging
             Log::error('Error updating project: ' . $e->getMessage());
-            
+
             // Check if it's an AJAX request from the modal
             if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Failed to update project. Please try again.'], 500);
+                return response()->json(['errorupdate' => false, 'message' => 'Failed to update project. Please try again.'], 500);
             }
-            
+
             // For regular form submissions, redirect with error message
-            return redirect()->back()->with('error', 'Failed to update project. Please try again.');
+            return redirect()->back()->with('errorupdate', 'Failed to update project. Please try again.');
         }
     }
 
@@ -221,10 +221,10 @@ class ProjectController extends Controller
     {
         try {
             $project->delete();
-            return redirect()->back()->with('success', 'Project deleted successfully!');
+            return redirect()->back()->with('successdelete', 'Project deleted successfully!');
         } catch (\Exception $e) {
             Log::error('Error deleting project: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to delete project. Please try again.');
+            return redirect()->back()->with('errordelete', 'Failed to delete project. Please try again.');
         }
     }
 }
