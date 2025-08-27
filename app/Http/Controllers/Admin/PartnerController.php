@@ -39,13 +39,13 @@ class PartnerController extends Controller
             $partner = Partner::findOrFail($id);
             $partner->is_active = $request->input('is_active') ? 1 : 0;
             $partner->save();
-            
+
             $status = $partner->is_active ? 'active' : 'inactive';
-            return redirect()->back()->with('success', "Partner is now {$status}!");
-            
+            return redirect()->back()->with('successvisibility', "Partner is now {$status}!");
+
         } catch (\Exception $e) {
             Log::error('Error updating partner visibility: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to update partner visibility. Please try again.');
+            return redirect()->back()->with('errorvisibility', 'Failed to update partner visibility. Please try again.');
         }
     }
 
@@ -63,9 +63,9 @@ class PartnerController extends Controller
             'website' => 'nullable|url|max:255',
             'is_active' => 'nullable|boolean',
         ]);
-        
+
         $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-        
+
         $partner = \App\Models\Partner::create($validated);
         return redirect()->back()->with('success', 'Partner added successfully!');
     }
@@ -101,30 +101,30 @@ class PartnerController extends Controller
                 'website' => 'nullable|url|max:255',
                 'is_active' => 'nullable|boolean',
             ]);
-            
+
             $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-            
+
             $partner->update($validated);
-            
+
             // Check if it's an AJAX request from the modal
             if ($request->ajax()) {
-                return response()->json(['success' => true, 'message' => 'Partner updated successfully!']);
+                return response()->json(['successupdate' => true, 'message' => 'Partner updated successfully!']);
             }
-            
+
             // For regular form submissions, redirect with flash message
-            return redirect()->back()->with('success', 'Partner updated successfully!');
-            
+            return redirect()->back()->with('successupdate', 'Partner updated successfully!');
+
         } catch (\Exception $e) {
             // Log the error for debugging
             Log::error('Error updating partner: ' . $e->getMessage());
-            
+
             // Check if it's an AJAX request from the modal
             if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Failed to update partner. Please try again.'], 500);
+                return response()->json(['errorupdate' => false, 'message' => 'Failed to update partner. Please try again.'], 500);
             }
-            
+
             // For regular form submissions, redirect with error message
-            return redirect()->back()->with('error', 'Failed to update partner. Please try again.');
+            return redirect()->back()->with('errorupdate', 'Failed to update partner. Please try again.');
         }
     }
 
@@ -135,10 +135,10 @@ class PartnerController extends Controller
     {
         try {
             $partner->delete();
-            return redirect()->back()->with('success', 'Partner deleted successfully!');
+            return redirect()->back()->with('successdelete', 'Partner deleted successfully!');
         } catch (\Exception $e) {
             Log::error('Error deleting partner: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to delete partner. Please try again.');
+            return redirect()->back()->with('errordelete', 'Failed to delete partner. Please try again.');
         }
     }
 }
