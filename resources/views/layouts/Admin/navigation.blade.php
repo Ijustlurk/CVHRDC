@@ -1,6 +1,6 @@
 @php
-    $user = Auth::user();
-    $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Role';
+$user = Auth::user();
+$userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Role';
 @endphp
 
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
@@ -24,11 +24,13 @@
                     </x-nav-link>
 
                     <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
-                        :href="route('admin.tabs.index', ['tab' => 'news'])" :active="request()->routeIs('admin.cms.*')">
+                        :href="route('admin.tabs.index', ['tab' => 'news'])"
+                        :active="request()->routeIs('admin.cms.*')">
                         CMS
                     </x-nav-link>
                     <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
-                        :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')">
+                        :href="route('admin.users.index')"
+                        :active="request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')">
                         User Management
                     </x-nav-link>
                     <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
@@ -44,7 +46,7 @@
                     <x-slot name="trigger">
                         <button
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ $user->name }}</div>
+                            <div class="text-capitalize">{{ $user->name }}</div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 20 20">
