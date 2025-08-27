@@ -570,9 +570,21 @@
 
                 </div>
 
-                <!-- Dynamic list -->
+                <!-- Research outputs table -->
                 <div class="card-body pt-0">
-                    <div id="outputList" class="mt-2"></div>
+                    <div class="table-responsive">
+                        <table id="researchOutputsTable" class="table table-striped table-bordered w-100">
+                            <thead>
+                                <tr id="researchOutputsHeader">
+                                    <th>Title</th>
+                                    <th>Authors</th>
+                                    <th>Published</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Book Modal -->
@@ -976,47 +988,88 @@
         }
 
         const typeSelect = document.getElementById('outputTypeSelect');
-        const list = document.getElementById('outputList');
+        const tableEl = $('#researchOutputsTable');
+        let dt;
 
-        async function fetchAndRender(type){
-            list.innerHTML = '<div class="text-muted">Loading…</div>';
-            let url = '';
-            if(type === 'research') url = '{{ route('users.research.list') }}';
-            if(type === 'preprints') url = '{{ route('users.preprints.list') }}';
-            if(type === 'conference-papers') url = '{{ route('users.conference-papers.list') }}';
-            if(type === 'books') url = '{{ route('users.books.list') }}';
-
-            try{
-                const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
-                const data = await res.json();
-                renderList(data);
-            }catch(e){
-                list.innerHTML = '<div class="text-danger">Failed to load records.</div>';
+        function getConfigForType(type){
+            if(type === 'research'){
+                return {
+                    ajax: {
+                        url: '{{ route('users.research.list') }}',
+                        dataSrc: ''
+                    },
+                    columns: [
+                        { data: 'title', title: 'Title', render: data => escapeHtml(data || 'Untitled') },
+                        { data: 'authors', title: 'Authors', render: data => Array.isArray(data) ? escapeHtml(data.join(', ')) : escapeHtml(data || '') },
+                        { data: 'published_at', title: 'Published' },
+                        { data: 'category', title: 'Category' },
+                    ]
+                };
             }
+            if(type === 'preprints'){
+                return {
+                    ajax: { url: '{{ route('users.preprints.list') }}', dataSrc: '' },
+                    columns: [
+                        { data: 'title', title: 'Title', render: data => escapeHtml(data || 'Untitled') },
+                        { data: 'authors', title: 'Authors', render: data => Array.isArray(data) ? escapeHtml(data.join(', ')) : escapeHtml(data || '') },
+                        { data: 'published_at', title: 'Published' },
+                        { data: 'repository_name', title: 'Repository' },
+                    ]
+                };
+            }
+            if(type === 'conference-papers'){
+                return {
+                    ajax: { url: '{{ route('users.conference-papers.list') }}', dataSrc: '' },
+                    columns: [
+                        { data: 'title', title: 'Title', render: data => escapeHtml(data || 'Untitled') },
+                        { data: 'authors', title: 'Authors', render: data => Array.isArray(data) ? escapeHtml(data.join(', ')) : escapeHtml(data || '') },
+                        { data: 'published_at', title: 'Published' },
+                        { data: 'conference_name', title: 'Conference' },
+                    ]
+                };
+            }
+            // books
+            return {
+                ajax: { url: '{{ route('users.books.list') }}', dataSrc: '' },
+                columns: [
+                    { data: 'title', title: 'Title', render: data => escapeHtml(data || 'Untitled') },
+                    { data: 'authors', title: 'Authors', render: data => Array.isArray(data) ? escapeHtml(data.join(', ')) : escapeHtml(data || '') },
+                    { data: 'published_at', title: 'Published' },
+                    { data: 'publisher', title: 'Publisher' },
+                ]
+            };
         }
 
-        function renderList(items){
-            if(!items || items.length === 0){
-                list.innerHTML = '<div class="text-muted">No records found.</div>';
-                return;
+        function initOrRebuild(type){
+            if(dt){
+                dt.destroy();
+                tableEl.find('thead tr').empty();
             }
-            list.innerHTML = '';
-            items.forEach(item => {
-                const row = document.createElement('button');
-                row.type = 'button';
-                row.className = 'w-100 text-start border rounded-1 px-3 py-2 mb-2 bg-white';
-                row.addEventListener('click', () => openDetails(item));
-                const authors = Array.isArray(item.authors) ? item.authors.join(', ') : (item.authors || '');
-                row.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-start gap-3">
-                        <div>
-                            <div class="fw-semibold">${escapeHtml(item.title || 'Untitled')}</div>
-                            <div class="small text-muted">${escapeHtml(authors)}${item.published_at ? ' • ' + escapeHtml(item.published_at) : ''}</div>
-                        </div>
-                        <span class="badge text-bg-light">${escapeHtml(item.type || '')}</span>
-                    </div>
-                `;
-                list.appendChild(row);
+            const cfg = getConfigForType(type);
+            // rebuild header
+            const theadRow = document.getElementById('researchOutputsHeader');
+            if(theadRow){
+                theadRow.innerHTML = '';
+                cfg.columns.forEach(col => {
+                    const th = document.createElement('th');
+                    th.textContent = col.title;
+                    theadRow.appendChild(th);
+                });
+            }
+            dt = tableEl.DataTable({
+                processing: true,
+                serverSide: false,
+                searching: true,
+                paging: true,
+                pageLength: 10,
+                lengthChange: false,
+                order: [[2, 'desc']],
+                ajax: cfg.ajax,
+                columns: cfg.columns,
+                createdRow: function(row, data){
+                    row.style.cursor = 'pointer';
+                    row.addEventListener('click', () => openDetails(data));
+                }
             });
         }
 
@@ -1055,8 +1108,8 @@
         }
 
         if(typeSelect){
-            typeSelect.addEventListener('change', () => fetchAndRender(typeSelect.value));
-            fetchAndRender(typeSelect.value);
+            typeSelect.addEventListener('change', () => initOrRebuild(typeSelect.value));
+            initOrRebuild(typeSelect.value);
         }
 
         // Initialize Book modal helpers
