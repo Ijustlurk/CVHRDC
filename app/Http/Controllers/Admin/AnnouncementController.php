@@ -37,9 +37,9 @@ class AnnouncementController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'active' => 'nullable|boolean',
         ]);
-        
+
         $validated['active'] = $request->has('active') ? 1 : 0;
-        
+
         $announcement = Announcement::create($validated);
         return redirect()->back()->with('success', 'Announcement added successfully!');
     }
@@ -73,30 +73,30 @@ class AnnouncementController extends Controller
                 'end_date' => 'nullable|date|after_or_equal:start_date',
                 'active' => 'nullable|boolean',
             ]);
-            
+
             $validated['active'] = $request->has('active') ? 1 : 0;
-            
+
             $announcement->update($validated);
-            
+
             // Check if it's an AJAX request from the modal
             if ($request->ajax()) {
-                return response()->json(['success' => true, 'message' => 'Announcement updated successfully!']);
+                return response()->json(['successupdate' => true, 'message' => 'Announcement updated successfully!']);
             }
-            
+
             // For regular form submissions, redirect with flash message
-            return redirect()->back()->with('success', 'Announcement updated successfully!');
-            
+            return redirect()->back()->with('successupdate', 'Announcement updated successfully!');
+
         } catch (\Exception $e) {
             // Log the error for debugging
             Log::error('Error updating announcement: ' . $e->getMessage());
-            
+
             // Check if it's an AJAX request from the modal
             if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Failed to update announcement. Please try again.'], 500);
+                return response()->json(['errorupdate' => false, 'message' => 'Failed to update announcement. Please try again.'], 500);
             }
-            
+
             // For regular form submissions, redirect with error message
-            return redirect()->back()->with('error', 'Failed to update announcement. Please try again.');
+            return redirect()->back()->with('errorupdate', 'Failed to update announcement. Please try again.');
         }
     }
 
@@ -107,10 +107,10 @@ class AnnouncementController extends Controller
     {
         try {
             $announcement->delete();
-            return redirect()->back()->with('success', 'Announcement deleted successfully!');
+            return redirect()->back()->with('successdelete', 'Announcement deleted successfully!');
         } catch (\Exception $e) {
             Log::error('Error deleting announcement: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to delete announcement. Please try again.');
+            return redirect()->back()->with('errordelete', 'Failed to delete announcement. Please try again.');
         }
     }
 
@@ -127,13 +127,13 @@ class AnnouncementController extends Controller
             $announcement = Announcement::findOrFail($id);
             $announcement->active = $request->input('active') ? 1 : 0;
             $announcement->save();
-            
+
             $status = $announcement->active ? 'active' : 'inactive';
-            return redirect()->back()->with('success', "Announcement is now {$status}!");
-            
+            return redirect()->back()->with('successvisibility', "Announcement is now {$status}!");
+
         } catch (\Exception $e) {
             Log::error('Error updating announcement visibility: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to update announcement visibility. Please try again.');
+            return redirect()->back()->with('errorvisibility', 'Failed to update announcement visibility. Please try again.');
         }
     }
 }
