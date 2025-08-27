@@ -174,7 +174,7 @@ class ResearchController extends Controller
     {
         $request->validate(['is_public' => ['required', 'boolean']]);
         $research->update(['is_public' => (bool)$request->boolean('is_public')]);
-        return back()->with('success', 'Visibility updated.');
+        return back()->with('successvisibility', 'Visibility updated.');
     }
 
     public function restore($id)
