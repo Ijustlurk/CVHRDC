@@ -78,10 +78,10 @@
                     <h5 class="card-title">Popular Articles</h5>
                     <ul class="list-group">
                         @foreach($popularArticles as $article)
-                            <li class="list-group-item">
-                                <strong>{{ $article->title }}</strong>
-                                <br><small>{{ $article->created_at->format('M d, Y') }}</small>
-                            </li>
+                        <li class="list-group-item">
+                            <strong>{{ $article->title }}</strong>
+                            <br><small>{{ $article->created_at->format('M d, Y') }}</small>
+                        </li>
                         @endforeach
                     </ul>
                 </div>
@@ -107,17 +107,28 @@
             labels: ['Views', 'Downloads'],
             datasets: [{
                 label: 'User Engagement',
-                data: [{{ $engagement['views'] ?? 0 }}, {{ $engagement['downloads'] ?? 0 }}],
+                data: [{
+                    {
+                        $engagement['views'] ? ? 0
+                    }
+                }, {
+                    {
+                        $engagement['downloads'] ? ? 0
+                    }
+                }],
                 backgroundColor: ['#0d6efd', '#198754']
             }]
         },
         options: {
             responsive: true,
             plugins: {
-                legend: { display: false }
+                legend: {
+                    display: false
+                }
             }
         }
     });
+
 </script>
 @endsection
 @endcan
