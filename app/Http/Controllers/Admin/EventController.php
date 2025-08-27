@@ -22,13 +22,13 @@ class EventController extends Controller
             $event = Event::where('id', $id)->firstOrFail();
             $event->is_visible = $request->input('is_visible') ? 1 : 0;
             $event->save();
-            
+
             $status = $event->is_visible ? 'visible' : 'hidden';
-            return redirect()->back()->with('success', "Event is now {$status}!");
-            
+            return redirect()->back()->with('successvisibility', "Event is now {$status}!");
+
         } catch (\Exception $e) {
             Log::error('Error updating event visibility: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to update event visibility. Please try again.');
+            return redirect()->back()->with('errorvisibility', 'Failed to update event visibility. Please try again.');
         }
     }
     /**
@@ -80,31 +80,31 @@ class EventController extends Controller
         if (!$url || !str_contains($url, 'drive.google.com')) {
             return $url;
         }
-        
+
         // Check if it's already a direct image URL or thumbnail URL
         if (str_contains($url, 'drive.google.com/thumbnail') ||
             str_contains($url, 'drive.usercontent.google.com')) {
             return $url;
         }
-        
+
         // Extract file ID from various Google Drive URL formats
         $fileId = null;
-        
+
         // Format: https://drive.google.com/file/d/FILE_ID/view
         if (preg_match('/\/file\/d\/([a-zA-Z0-9_-]+)/', $url, $matches)) {
             $fileId = $matches[1];
         }
-        
+
         // Format: https://drive.google.com/open?id=FILE_ID
         if (!$fileId && preg_match('/[?&]id=([a-zA-Z0-9_-]+)/', $url, $matches)) {
             $fileId = $matches[1];
         }
-        
+
         // If file ID found, convert to thumbnail URL
         if ($fileId) {
             return "https://drive.google.com/thumbnail?id={$fileId}&sz=s4000";
         }
-        
+
         // If no match found, return original URL
         return $url;
     }
@@ -140,33 +140,33 @@ class EventController extends Controller
                 'image_url' => 'required|url',
                 'is_visible' => 'nullable|boolean',
             ]);
-            
+
             // Convert Google Drive URL to direct image URL
             $validated['image_url'] = $this->convertGoogleDriveUrl($validated['image_url']);
-            
+
             $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
-            
+
             $event->update($validated);
-            
+
             // Check if it's an AJAX request from the modal
             if ($request->ajax()) {
-                return response()->json(['success' => true, 'message' => 'Event updated successfully!']);
+                return response()->json(['successupdate' => true, 'message' => 'Event updated successfully!']);
             }
-            
+
             // For regular form submissions, redirect with flash message
-            return redirect()->back()->with('success', 'Event updated successfully!');
-            
+            return redirect()->back()->with('errorupdate', 'Event updated successfully!');
+
         } catch (\Exception $e) {
             // Log the error for debugging
             Log::error('Error updating event: ' . $e->getMessage());
-            
+
             // Check if it's an AJAX request from the modal
             if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => 'Failed to update event. Please try again.'], 500);
+                return response()->json(['errorupdate' => false, 'message' => 'Failed to update event. Please try again.'], 500);
             }
-            
+
             // For regular form submissions, redirect with error message
-            return redirect()->back()->with('error', 'Failed to update event. Please try again.');
+            return redirect()->back()->with('errorupdate', 'Failed to update event. Please try again.');
         }
     }
 
@@ -177,10 +177,10 @@ class EventController extends Controller
     {
         try {
             $event->delete();
-            return redirect()->back()->with('success', 'Event deleted successfully!');
+            return redirect()->back()->with('successdelete', 'Event deleted successfully!');
         } catch (\Exception $e) {
             Log::error('Error deleting event: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to delete event. Please try again.');
+            return redirect()->back()->with('errordelete', 'Failed to delete event. Please try again.');
         }
     }
 }
