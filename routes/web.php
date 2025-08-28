@@ -186,6 +186,40 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::post('/preprint/store', [UserPreprintController::class, 'store'])->name('preprint.store');
     Route::post('/conferencepaper/store',[UserConferencePaperController::class, 'store'])->name('conferencepaper.store');
     Route::post('/book/store',[UserBookController::class, 'store'])->name('book.store');
+    
+    // File download routes
+    Route::get('/download/research/{id}', function($id) {
+        $research = \App\Models\Research::findOrFail($id);
+        if (auth()->id() === $research->user_id) {
+            return response()->download(storage_path('app/public/' . $research->file_path), $research->file_original_name);
+        }
+        abort(403);
+    })->name('download.research');
+    
+    Route::get('/download/preprint/{id}', function($id) {
+        $preprint = \App\Models\Preprint::findOrFail($id);
+        if (auth()->id() === $preprint->user_id) {
+            return response()->download(storage_path('app/public/' . $preprint->file_path), $preprint->file_original_name);
+        }
+        abort(403);
+    })->name('download.preprint');
+    
+    Route::get('/download/conference-paper/{id}', function($id) {
+        $paper = \App\Models\ConferencePaper::findOrFail($id);
+        if (auth()->id() === $paper->user_id) {
+            return response()->download(storage_path('app/public/' . $paper->file_path), $paper->file_original_name);
+        }
+        abort(403);
+    })->name('download.conference-paper');
+    
+    Route::get('/download/book/{id}', function($id) {
+        $book = \App\Models\Book::findOrFail($id);
+        if (auth()->id() === $book->user_id) {
+            return response()->download(storage_path('app/public/' . $book->file_path), $book->file_original_name);
+        }
+        abort(403);
+    })->name('download.book');
+    
     // Dashboard data feeds for research outputs
     Route::get('/research/list', function () {
         $userId = Auth::id();
@@ -193,7 +227,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
             ->where('user_id', $userId)
             ->latest('published_at')
             ->take(50)
-            ->get(['id','title','authors','published_at','abstract','category','keywords','file_path','file_original_name'])
+            ->get(['id','title','authors','published_at','abstract','category','keywords','file_path','file_original_name','file_size'])
             ->map(function($r){
                 return [
                     'id' => $r->id,
@@ -204,6 +238,8 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
                     'category' => $r->category,
                     'keywords' => $r->keywords,
                     'file' => $r->file_original_name,
+                    'file_path' => $r->file_path,
+                    'file_size' => $r->file_size,
                     'type' => 'Research',
                 ];
             });
@@ -215,7 +251,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
             ->where('user_id', $userId)
             ->latest('published_at')
             ->take(50)
-            ->get(['id','title','authors','published_at','abstract','repository_name','keywords','file_path','file_original_name'])
+            ->get(['id','title','authors','published_at','abstract','repository_name','keywords','file_path','file_original_name','file_size'])
             ->map(function($p){
                 return [
                     'id' => $p->id,
@@ -226,6 +262,8 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
                     'repository_name' => $p->repository_name,
                     'keywords' => $p->keywords,
                     'file' => $p->file_original_name,
+                    'file_path' => $p->file_path,
+                    'file_size' => $p->file_size,
                     'type' => 'Preprint',
                 ];
             });
@@ -237,7 +275,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
             ->where('user_id', $userId)
             ->latest('published_at')
             ->take(50)
-            ->get(['id','title','authors','published_at','abstract','conference_name','conference_location','publisher','keywords','file_path','file_original_name'])
+            ->get(['id','title','authors','published_at','abstract','conference_name','conference_location','publisher','keywords','file_path','file_original_name','file_size'])
             ->map(function($c){
                 return [
                     'id' => $c->id,
@@ -250,6 +288,8 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
                     'publisher' => $c->publisher,
                     'keywords' => $c->keywords,
                     'file' => $c->file_original_name,
+                    'file_path' => $c->file_path,
+                    'file_size' => $c->file_size,
                     'type' => 'Conference Paper',
                 ];
             });
@@ -261,7 +301,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
             ->where('user_id', $userId)
             ->latest('published_at')
             ->take(50)
-            ->get(['id','title','authors','editors','published_at','publisher','isbn','edition','doi','keywords','file_path','file_original_name'])
+            ->get(['id','title','authors','editors','published_at','publisher','isbn','edition','doi','keywords','file_path','file_original_name','file_size'])
             ->map(function($b){
                 return [
                     'id' => $b->id,
@@ -275,6 +315,8 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
                     'doi' => $b->doi,
                     'keywords' => $b->keywords,
                     'file' => $b->file_original_name,
+                    'file_path' => $b->file_path,
+                    'file_size' => $b->file_size,
                     'type' => 'Book',
                 ];
             });
