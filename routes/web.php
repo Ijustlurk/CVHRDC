@@ -321,6 +321,94 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
                 ];
             });
     })->name('books.list');
+
+    // Activity feed across research outputs (research, preprints, conference papers, books)
+    Route::get('/activity/list', function () {
+        $userId = Auth::id();
+
+        $events = [];
+
+        $pushEvent = function (string $type, ?string $title, string $action, $timestamp) use (&$events) {
+            if ($timestamp) {
+                $events[] = [
+                    'type' => $type,
+                    'title' => $title ?? 'Untitled',
+                    'action' => $action,
+                    'timestamp' => $timestamp->toIso8601String(),
+                ];
+            }
+        };
+
+        // Research
+        \App\Models\Research::withTrashed()
+            ->where('user_id', $userId)
+            ->latest('updated_at')
+            ->take(200)
+            ->get(['id','title','created_at','updated_at','deleted_at'])
+            ->each(function ($r) use ($pushEvent) {
+                $pushEvent('Research', $r->title, 'created', $r->created_at);
+                if ($r->updated_at && $r->updated_at->ne($r->created_at)) {
+                    $pushEvent('Research', $r->title, 'updated', $r->updated_at);
+                }
+                if ($r->deleted_at) {
+                    $pushEvent('Research', $r->title, 'deleted', $r->deleted_at);
+                }
+            });
+
+        // Preprints
+        \App\Models\Preprint::withTrashed()
+            ->where('user_id', $userId)
+            ->latest('updated_at')
+            ->take(200)
+            ->get(['id','title','created_at','updated_at','deleted_at'])
+            ->each(function ($p) use ($pushEvent) {
+                $pushEvent('Preprint', $p->title, 'created', $p->created_at);
+                if ($p->updated_at && $p->updated_at->ne($p->created_at)) {
+                    $pushEvent('Preprint', $p->title, 'updated', $p->updated_at);
+                }
+                if ($p->deleted_at) {
+                    $pushEvent('Preprint', $p->title, 'deleted', $p->deleted_at);
+                }
+            });
+
+        // Conference Papers
+        \App\Models\ConferencePaper::withTrashed()
+            ->where('user_id', $userId)
+            ->latest('updated_at')
+            ->take(200)
+            ->get(['id','title','created_at','updated_at','deleted_at'])
+            ->each(function ($c) use ($pushEvent) {
+                $pushEvent('Conference Paper', $c->title, 'created', $c->created_at);
+                if ($c->updated_at && $c->updated_at->ne($c->created_at)) {
+                    $pushEvent('Conference Paper', $c->title, 'updated', $c->updated_at);
+                }
+                if ($c->deleted_at) {
+                    $pushEvent('Conference Paper', $c->title, 'deleted', $c->deleted_at);
+                }
+            });
+
+        // Books
+        \App\Models\Book::withTrashed()
+            ->where('user_id', $userId)
+            ->latest('updated_at')
+            ->take(200)
+            ->get(['id','title','created_at','updated_at','deleted_at'])
+            ->each(function ($b) use ($pushEvent) {
+                $pushEvent('Book', $b->title, 'created', $b->created_at);
+                if ($b->updated_at && $b->updated_at->ne($b->created_at)) {
+                    $pushEvent('Book', $b->title, 'updated', $b->updated_at);
+                }
+                if ($b->deleted_at) {
+                    $pushEvent('Book', $b->title, 'deleted', $b->deleted_at);
+                }
+            });
+
+        usort($events, function ($a, $b) {
+            return strcmp($b['timestamp'], $a['timestamp']);
+        });
+
+        return array_slice($events, 0, 50);
+    })->name('activity.list');
 });
 
 

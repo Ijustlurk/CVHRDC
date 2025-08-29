@@ -32,7 +32,7 @@
                     <div class="col-auto ms-auto">
                         <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary btn-sm">Edit Profile</a>
                         <a href="#" class="btn btn-outline-secondary btn-sm">Upload CV</a>
-                        <a href="#" class="btn btn-outline-secondary btn-sm">Upload Publications</a>
+                        <!--a href="#" class="btn btn-outline-secondary btn-sm">Upload Publications</a-->
                     </div>
                 </div>
             </div>
@@ -44,17 +44,11 @@
             <div class="card h-100">
                 <div class="card-header">Recent Activity</div>
                 <div class="card-body">
-                    <ul class="list-group">
-                        @forelse($activities as $activity)
-                        <li class="list-group-item">
-                            <span class="fw-bold text-primary">{{ ucfirst($activity['type']) }}</span>:
-                            {{ $activity['text'] }}<br>
-                            <small class="text-muted">{{ $activity['date']->diffForHumans() }}</small>
-                        </li>
-                        @empty
-                        <li class="list-group-item text-muted">No recent activity</li>
-                        @endforelse
-                    </ul>
+                    <div id="activityFeed">
+                        <div class="text-muted text-center py-3" id="activityLoading">Loading…</div>
+                        <ul class="list-group d-none" id="activityList"></ul>
+                        <div class="text-muted d-none" id="activityEmpty">No recent activity</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -812,103 +806,139 @@
             
         </div>
     </div>
-</div>
-
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span>Publications</span>
-                <div>
-                    <a href="#" class="btn btn-outline-primary btn-sm">Upload</a>
-                    <a href="#" class="btn btn-outline-secondary btn-sm">Export PDF</a>
-                </div>
-            </div>
-            <div class="card-body">
-                <!-- Instruction for users -->
-                <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
-                    <i class="fas fa-info-circle me-2"></i>
+{{--  
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Publications</span>
                     <div>
-                        <strong>Tip:</strong> Click on any research output item above to view complete details and download the PDF file.
+                        <a href="#" class="btn btn-outline-primary btn-sm">Upload</a>
+                        <a href="#" class="btn btn-outline-secondary btn-sm">Export PDF</a>
                     </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Year</th>
-                                <th>Co-authors</th>
-                                <th>DOI</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($publications as $pub)
-                            <tr>
-                                <td>{{ $pub->title ?? 'Untitled' }}</td>
-                                <td>{{ $pub->year ?? '-' }}</td>
-                                <td>{{ $pub->co_authors ?? '-' }}</td>
-                                <td>@if(!empty($pub->doi))<a href="https://doi.org/{{ $pub->doi }}"
-                                        target="_blank">{{ $pub->doi }}</a>@else - @endif</td>
-                                <td>
-                                    <a href="#" class="btn btn-sm btn-outline-secondary">Edit</a>
-                                    <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="text-muted">No publications found.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div class="card-body">
+                    <!-- Instruction for users -->
+                    <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <div>
+                            <strong>Tip:</strong> Click on any research output item above to view complete details and download the PDF file.
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Year</th>
+                                    <th>Co-authors</th>
+                                    <th>DOI</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($publications as $pub)
+                                <tr>
+                                    <td>{{ $pub->title ?? 'Untitled' }}</td>
+                                    <td>{{ $pub->year ?? '-' }}</td>
+                                    <td>{{ $pub->co_authors ?? '-' }}</td>
+                                    <td>@if(!empty($pub->doi))<a href="https://doi.org/{{ $pub->doi }}"
+                                            target="_blank">{{ $pub->doi }}</a>@else - @endif</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                        <a href="#" class="btn btn-sm btn-outline-danger">Delete</a>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-muted">No publications found.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    --}}
 </div>
-</div>
+
+
+
 <!-- Bootstrap Icons CDN for bell icon -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        function setupChips(inputId, chipsId, hiddenId, inputName, badgeClass) {
-            const input = document.getElementById(inputId);
-            const chips = document.getElementById(chipsId);
-            const hidden = document.getElementById(hiddenId);
+    // Recent Activity dynamic fetch and render
+    document.addEventListener('DOMContentLoaded', function(){
+        const listEl = document.getElementById('activityList');
+        const loadingEl = document.getElementById('activityLoading');
+        const emptyEl = document.getElementById('activityEmpty');
 
-            input.addEventListener("keydown", function (e) {
-                if (e.key === "Enter" && this.value.trim() !== "") {
-                    e.preventDefault();
-                    const value = this.value.trim();
+        if(!listEl) return;
 
-                    // Create chip
-                    const chip = document.createElement("span");
-                    chip.className = `badge ${badgeClass} me-2`;
-                    chip.innerText = value;
-                    chips.appendChild(chip);
+        function escapeHtml(str){
+            return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s] || s));
+        }
 
-                    // Create hidden input
-                    const hiddenInput = document.createElement("input");
-                    hiddenInput.type = "hidden";
-                    hiddenInput.name = inputName;
-                    hiddenInput.value = value;
-                    hidden.appendChild(hiddenInput);
+        function formatTimestamp(iso){
+            try{
+                const d = new Date(iso);
+                return d.toLocaleString();
+            }catch(e){
+                return iso;
+            }
+        }
 
-                    this.value = "";
-                }
+        function render(items){
+            loadingEl?.classList.add('d-none');
+            listEl.innerHTML = '';
+
+            if(!items || items.length === 0){
+                emptyEl?.classList.remove('d-none');
+                listEl.classList.add('d-none');
+                return;
+            }
+
+            emptyEl?.classList.add('d-none');
+            listEl.classList.remove('d-none');
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item';
+                li.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                        <div class="text-break">
+                            <span class="fw-bold text-primary">${escapeHtml(item.type)}</span>
+                            <span class="text-muted">${escapeHtml(item.action)}</span>:
+                            ${escapeHtml(item.title || 'Untitled')}
+                        </div>
+                        <small class="text-muted text-nowrap">${escapeHtml(formatTimestamp(item.timestamp))}</small>
+                    </div>
+                `;
+                listEl.appendChild(li);
             });
         }
 
-        setupChips("conf-authors-input", "conf-authors-chips", "conf-authors-hidden", "authors[]",
-        "bg-primary");
-        setupChips("conf-keywords-input", "conf-keywords-chips", "conf-keywords-hidden", "keywords[]",
-            "bg-success");
-    });
+        async function load(){
+            try{
+                const res = await fetch(`{{ route('users.activity.list') }}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+                const data = await res.json();
+                // Server already sorts desc, but ensure newest first
+                data.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+                render(data);
+            }catch(e){
+                if (loadingEl) loadingEl.textContent = 'Failed to load activity.';
+            }
+        }
 
+        load();
+    });
+ </script>
+<script>
+    // Conference chips now use the generic handleChips initializer below
 </script>
 
 
@@ -964,6 +994,9 @@
         handleChips('preprint-authors-input', 'preprint-authors-chips', 'preprint-authors-hidden', 'authors');
         handleChips('preprint-keywords-input', 'preprint-keywords-chips', 'preprint-keywords-hidden',
             'keywords');
+        // For Conference Paper modal
+        handleChips('conf-authors-input', 'conf-authors-chips', 'conf-authors-hidden', 'authors');
+        handleChips('conf-keywords-input', 'conf-keywords-chips', 'conf-keywords-hidden', 'keywords');
     });
 
 </script>
