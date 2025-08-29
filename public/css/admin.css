@@ -1,0 +1,22 @@
+ .modern-card {
+     border: none;
+     border-radius: 1rem;
+     background: linear-gradient(135deg, #ffffff, #f8f9fa);
+     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+     transition: transform 0.3s ease, box-shadow 0.3s ease;
+ }
+
+ .modern-card:hover {
+     transform: translateY(-6px);
+     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+ }
+
+ .modern-card .card-title {
+     color: #343a40;
+ }
+
+ .modern-card .list-group-item {
+     background: transparent;
+     padding-left: 0;
+     padding-right: 0;
+ }
