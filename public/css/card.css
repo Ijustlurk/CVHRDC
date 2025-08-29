@@ -1,0 +1,88 @@
+/* Base animated card */
+.card-animated {
+    cursor: pointer;
+    color: black;
+    transition: background 0.8s ease, color 0.4s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-animated:hover {
+    color: white;
+    transform: translateY(-6px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Blue Variant */
+.card-blue {
+    background: linear-gradient(135deg, #68acdd, #ffffff);
+}
+
+.card-blue:hover {
+    background: linear-gradient(135deg, #133679, #6e96da);
+}
+
+/* Green Variant */
+.card-green {
+    background: linear-gradient(135deg, #77e48b, #ffffff);
+}
+
+.card-green:hover {
+    background: linear-gradient(135deg, #11998e, #5be992);
+}
+
+/* Cyan Variant */
+.card-cyan {
+    background: linear-gradient(135deg, #37b0c0, #ffffff);
+}
+
+.card-cyan:hover {
+    background: linear-gradient(135deg, #00bcd4, #89edf8);
+}
+
+/* Red Variant */
+.card-grey {
+    background: linear-gradient(120deg, #f74242, #f0eaea);
+}
+
+.card-grey:hover {
+    background: linear-gradient(135deg, #ec2727, #e05e5e);
+}
+
+/* Yellow Variant */
+.card-yellow {
+    background: linear-gradient(120deg, #e2be1e, #f5f4f1);
+}
+
+.card-yellow:hover {
+    background: linear-gradient(135deg, #f1bc34, #e2ec4e);
+    color: white;
+}
+
+/* Orange Variant */
+.card-orange {
+    background: linear-gradient(120deg, #eb9a18, #fcf2e7);
+}
+
+.card-orange:hover {
+    background: linear-gradient(135deg, #fb8c00, #e65100);
+    color: white;
+}
+
+/* Purple Variant */
+.card-purple {
+    background: linear-gradient(120deg, #c237d8, #ead3f0);
+}
+
+.card-purple:hover {
+    background: linear-gradient(135deg, #8e24aa, #6a1b9a);
+    color: white;
+}
+
+/* Army Green Variant */
+.card-armygreen {
+    background: linear-gradient(135deg, #134117, #b8d6c2);
+}
+
+.card-armygreen:hover {
+    background: linear-gradient(135deg, #556b2f, #3e4c1f);
+    color: white;
+}
