@@ -5,39 +5,43 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
 
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
+    <div class="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8">
+        <div class="flex items-center h-16">
+            <!-- Left: Logo -->
+            <div class="flex items-center">
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" class="text-decoration-none">
                         {{-- <x-application-logo class="block h-9 w-auto fill-current text-gray-800" /> --}}
-                        CVHRDC
+                        <span
+                            class="site-logo text-xl md:text-2xl lg:text-3xl text-cyan-600 font-bold text-gray-800">CVHRDC</span>
                     </a>
                 </div>
+            </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
-                        :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+            <!-- Center: Navigation Links (desktop) -->
+            <div class="hidden sm:flex sm:items-center sm:justify-center sm:flex-1 space-x-8">
+                <x-nav-link
+                    class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
+                    :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    {{ __('Dashboard') }}
+                </x-nav-link>
 
-                    <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
-                        :href="route('admin.tabs.index', ['tab' => 'news'])"
-                        :active="request()->routeIs('admin.cms.*')">
-                        CMS
-                    </x-nav-link>
-                    <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
-                        :href="route('admin.users.index')"
-                        :active="request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')">
-                        User Management
-                    </x-nav-link>
-                    <x-nav-link class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
-                        :href="route('admin.research.index')" :active="request()->routeIs('admin.research.*')">
-                        Research Management
-                    </x-nav-link>
-                </div>
+                <x-nav-link
+                    class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
+                    :href="route('admin.tabs.index', ['tab' => 'news'])" :active="request()->routeIs('admin.tabs.*')">
+                    CMS
+                </x-nav-link>
+                <x-nav-link
+                    class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
+                    :href="route('admin.research.index')" :active="request()->routeIs('admin.research.*')">
+                    Research Management
+                </x-nav-link>
+                <x-nav-link
+                    class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
+                    :href="route('admin.users.index')"
+                    :active="request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')">
+                    User Management
+                </x-nav-link>
             </div>
 
             <!-- Settings Dropdown -->
@@ -73,14 +77,14 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <x-dropdown-link :href="route('logout')"
-                                class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150"
+                                class="text-decoration-none hover:text-red-600 hover:underline transition duration-150"
                                 onclick="event.preventDefault(); this.closest('form').submit();">
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
 
                         <x-dropdown-link
-                            class="text-decoration-none hover:text-blue-600 hover:underline transition duration-150">
+                            class="text-decoration-none hover:text-red-600 hover:underline transition duration-150">
                             Logged in as {{ $userRole }}
                         </x-dropdown-link>
                     </x-slot>
@@ -107,17 +111,17 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
     <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')"
-                class="hover:text-blue-600 hover:underline transition duration-150">
+                class="text-sm hover:text-blue-600 hover:underline transition duration-150">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')"
-                class="hover:text-blue-600 hover:underline transition duration-150">
+                class="text-sm hover:text-blue-600 hover:underline transition duration-150">
                 {{ __('Manage Users') }}
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('admin.roles.index')" :active="request()->routeIs('admin.roles.*')"
-                class="hover:text-blue-600 hover:underline transition duration-150">
+                class="text-sm hover:text-blue-600 hover:underline transition duration-150">
                 {{ __('Manage Roles') }}
             </x-responsive-nav-link>
         </div>
