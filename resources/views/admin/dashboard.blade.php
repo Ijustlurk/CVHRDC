@@ -135,15 +135,10 @@
             labels: ['Views', 'Downloads'],
             datasets: [{
                 label: 'User Engagement',
-                data: [{
-                    {
-                        $engagement['views'] ? ? 0
-                    }
-                }, {
-                    {
-                        $engagement['downloads'] ? ? 0
-                    }
-                }],
+                data: [
+                    {{ $engagement['views'] ?? 0 }},
+                    {{ $engagement['downloads'] ?? 0 }}
+                ],
                 backgroundColor: ['#0d6efd', '#198754']
             }]
         },
