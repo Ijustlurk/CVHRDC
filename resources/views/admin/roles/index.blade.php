@@ -236,11 +236,9 @@
                     return;
                 }
 
-                console.log('Sending role request to:', '{{ route('
-                    admin.roles.store ') }}');
+                console.log('Sending role request to:', '{{ route('admin.roles.store') }}');
 
-                fetch('{{ route('
-                        admin.roles.store ') }}', {
+                fetch('{{ route('admin.roles.store') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
