@@ -36,7 +36,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($conferencePapers as $paper)
+                            @forelse ($conferencePapers as $paper)
                             <tr>
                                 <td>{{ $paper->title }}</td>
                                 <td>{{ implode(', ', $paper->authors ?? []) }}</td>
@@ -63,7 +63,14 @@
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">No conference papers found. Click "Create New Conference Paper" to get started!</p>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -81,7 +88,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($deletedConferencePapers as $paper)
+                            @forelse ($deletedConferencePapers as $paper)
                             <tr>
                                 <td>{{ $paper->title }}</td>
                                 <td>{{ optional($paper->deleted_at)->format('M d, Y H:i') }}</td>
@@ -103,7 +110,14 @@
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="3" class="text-center py-4">
+                                    <i class="fas fa-trash fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">No deleted conference papers found.</p>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
