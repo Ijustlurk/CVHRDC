@@ -36,7 +36,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($research as $item)
+                            @forelse ($research as $item)
                             <tr>
                                 <td>{{ $item->title }}</td>
                                 <td>{{ implode(', ', $item->authors ?? []) }}</td>
@@ -63,7 +63,14 @@
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <i class="fas fa-flask fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">No research found. Click "Create New Research" to get started!</p>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -81,7 +88,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($deletedResearch as $item)
+                            @forelse ($deletedResearch as $item)
                             <tr>
                                 <td>{{ $item->title }}</td>
                                 <td>{{ optional($item->deleted_at)->format('M d, Y H:i') }}</td>
@@ -103,7 +110,14 @@
                                     </div>
                                 </td>
                             </tr>
-                            @endforeach
+                            @empty
+                            <tr>
+                                <td colspan="3" class="text-center py-4">
+                                    <i class="fas fa-trash fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted mb-0">No deleted research found.</p>
+                                </td>
+                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
