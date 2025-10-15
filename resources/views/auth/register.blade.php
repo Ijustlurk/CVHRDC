@@ -135,8 +135,8 @@
 
                             <!-- reCAPTCHA -->
                             <div class="mb-3">
-                                {!! NoCaptcha::renderJs() !!}
-                                {!! NoCaptcha::display() !!}
+                                {{-- {!! NoCaptcha::renderJs() !!}
+                                {!! NoCaptcha::display() !!} --}}
                                 @error('g-recaptcha-response')
                                 <span class="text-danger">{{ $message }}</span>
                                 @enderror
