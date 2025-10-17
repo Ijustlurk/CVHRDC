@@ -39,8 +39,88 @@ class NewsController extends Controller
 
     public function index(Request $request)
     {
-        $news = \App\Models\News::orderBy('id', 'desc')->paginate(8);
-        return view('admin.tabs.partials.news', compact('news'));
+        $query = \App\Models\News::query();
+
+        // Search by title or content
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('content', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Filter by visibility status
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            if ($status === 'public') {
+                $query->where('is_visible', 1);
+            } elseif ($status === 'private') {
+                $query->where('is_visible', 0);
+            }
+        }
+
+        // Filter by date range
+        if ($request->filled('date_filter')) {
+            $dateFilter = $request->input('date_filter');
+            $now = now();
+
+            switch ($dateFilter) {
+                case 'last_7_days':
+                    $query->where('published_at', '>=', $now->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('published_at', '>=', $now->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('published_at', '>=', $now->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('published_at', '>=', $request->input('date_from'));
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('published_at', '<=', $request->input('date_to'));
+                    }
+                    break;
+            }
+        }
+
+        // Sorting
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('published_at', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('published_at', 'desc');
+                break;
+        }
+
+        // Paginate results (get total count for display)
+        $news = $query->paginate(8)->appends($request->except('page'));
+        $totalCount = $news->total();
+
+        // If AJAX request (for real-time search), return JSON
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.tabs.partials.news-cards', compact('news'))->render(),
+                'pagination' => $news->links()->render(),
+                'totalCount' => $totalCount,
+                'currentCount' => $news->count(),
+                'from' => $news->firstItem() ?? 0,
+                'to' => $news->lastItem() ?? 0,
+            ]);
+        }
+
+        return view('admin.tabs.partials.news', compact('news', 'totalCount'));
     }
     /**
      * Show the form for creating a new resource.
