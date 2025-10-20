@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Users\DashboardController as UserDashboardController;
+use App\Http\Controllers\RMC\DashboardController as RMCDashboardController;
+use App\Http\Controllers\RUC\DashboardController as RUCDashboardController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Users\UserResearchCTRL;
 use App\Http\Controllers\Users\UserPreprintController;
@@ -62,6 +64,10 @@ Route::get('/dashboard', function () {
         $role = strtolower($user->roles[0]->name);
         if ($role === 'admin' || $role === 'superadmin') {
             return app(AdminDashboardController::class)->index();
+        } elseif ($role === 'rmc') {
+            return app(RMCDashboardController::class)->index();
+        } elseif ($role === 'ruc') {
+            return app(RUCDashboardController::class)->index();
         } else {
             return app(UserDashboardController::class)->index();
         }
@@ -173,6 +179,22 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 });
 
 
+// RMC (Research Management Committee) routes here
+Route::middleware(['auth', 'rmc'])->prefix('rmc')->name('rmc.')->group(function () {
+    Route::get('/dashboard', [RMCDashboardController::class, 'index'])->name('dashboard');
+    
+    // Add more RMC routes here as needed
+    // Example: Route::resource('calls', CallForProposalController::class);
+});
+
+
+// RUC (Research Utilization Committee) routes here
+Route::middleware(['auth', 'ruc'])->prefix('ruc')->name('ruc.')->group(function () {
+    Route::get('/dashboard', [RUCDashboardController::class, 'index'])->name('dashboard');
+    
+    // Add more RUC routes here as needed
+    // Example: Route::get('review-calls', [ReviewController::class, 'index'])->name('review.index');
+});
 
 
 // users routes here
