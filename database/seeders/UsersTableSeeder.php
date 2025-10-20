@@ -37,6 +37,8 @@ class UsersTableSeeder extends Seeder
         $superadminRole = Role::Where('name', 'superadmin')->first();
         $adminRole = Role::Where('name', 'admin')->first();
         $userRole = Role::Where('name', 'user')->first();
+        $rmcRole = Role::Where('name', 'RMC')->first();
+        $rucRole = Role::Where('name', 'RUC')->first();
 
         // this will define the users credentials and adds to the table users
         $superadmin = User::create([
@@ -56,6 +58,18 @@ class UsersTableSeeder extends Seeder
             'name' => 'User',
             'email' => 'user@mail.com',
             'password' => Hash::make('user')
+        ]);
+
+        $rmc = User::create([
+            'name' => 'RMC User',
+            'email' => 'rmc@gmail.com',
+            'password' => Hash::make('rmc123')
+        ]);
+
+        $ruc = User::create([
+            'name' => 'RUC User',
+            'email' => 'ruc@gmail.com',
+            'password' => Hash::make('ruc123')
         ]);
 
             // $x = 0;
@@ -78,6 +92,8 @@ class UsersTableSeeder extends Seeder
         $superadmin->roles()->attach($superadminRole);
         $admin->roles()->attach($adminRole);
         $user->roles()->attach($userRole);
+        $rmc->roles()->attach($rmcRole);
+        $ruc->roles()->attach($rucRole);
 
 
 
