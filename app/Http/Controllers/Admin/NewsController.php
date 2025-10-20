@@ -120,7 +120,8 @@ class NewsController extends Controller
             ]);
         }
 
-        return view('admin.tabs.partials.news', compact('news', 'totalCount'));
+        // For regular page requests (including refreshes with query params), redirect to AdminTabsController
+        return redirect()->route('admin.tabs.index', array_merge(['tab' => 'news'], $request->query()));
     }
     /**
      * Show the form for creating a new resource.
