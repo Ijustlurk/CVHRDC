@@ -173,11 +173,8 @@ class ProjectController extends Controller
             ]);
         }
 
-        // For regular page loads, paginate results
-        $projects = $query->paginate(8)->appends($request->except('page'));
-        $totalCount = $projects->total();
-
-        return view('admin.tabs.partials.projects', compact('projects', 'totalCount'));
+        // For regular page requests (including refreshes with query params), redirect to AdminTabsController
+        return redirect()->route('admin.tabs.index', array_merge(['tab' => 'projects'], $request->query()));
     }
 
     /**
