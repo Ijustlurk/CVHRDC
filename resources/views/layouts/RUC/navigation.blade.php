@@ -26,14 +26,8 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
 
                 <x-nav-link
                     class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
-                    href="#" :active="false">
-                    Review Calls
-                </x-nav-link>
-                
-                <x-nav-link
-                    class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
-                    href="#" :active="false">
-                    Published Calls
+                    :href="route('ruc.calls.index')" :active="request()->routeIs('ruc.calls.*') && !request()->routeIs('ruc.calls.review') && !request()->routeIs('ruc.calls.published')">
+                    Calls for Proposals
                 </x-nav-link>
             </div>
 
@@ -103,12 +97,12 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link href="#" :active="false"
+            <x-responsive-nav-link :href="route('ruc.calls.review')" :active="request()->routeIs('ruc.calls.review')"
                 class="text-sm hover:text-blue-600 hover:underline transition duration-150">
                 {{ __('Review Calls') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link href="#" :active="false"
+            <x-responsive-nav-link :href="route('ruc.calls.published')" :active="request()->routeIs('ruc.calls.published')"
                 class="text-sm hover:text-blue-600 hover:underline transition duration-150">
                 {{ __('Published Calls') }}
             </x-responsive-nav-link>
