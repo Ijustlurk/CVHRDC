@@ -102,12 +102,22 @@
         <div class="col-md-6">
             <div class="card h-100 modern-card">
                 <div class="card-body">
-                    <h5 class="card-title fs-4 fw-bold">Calls Pending Review</h5>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title fs-4 fw-bold">Calls Pending Review</h5>
+                        <a href="{{ route('ruc.calls.index', ['tab' => 'for-review']) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-external-link-alt me-1"></i>Manage Calls
+                        </a>
+                    </div>
                     <ul class="list-group list-group-flush">
                         @forelse($callsForReview as $call)
                         <li class="list-group-item border-0">
-                            <strong>{{ $call->title }}</strong>
-                            <br><small class="text-muted">Visibility: {{ $call->visibility_status }} | {{ $call->created_at->format('M d, Y') }}</small>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>{{ $call->title }}</strong>
+                                    <br><small class="text-muted">Visibility: {{ $call->visibility_status }} | {{ $call->created_at->format('M d, Y') }}</small>
+                                </div>
+                                <a href="{{ route('ruc.calls.show', $call->id) }}" class="btn btn-sm btn-outline-secondary">Review</a>
+                            </div>
                         </li>
                         @empty
                         <li class="list-group-item border-0 text-muted">No calls pending review.</li>
