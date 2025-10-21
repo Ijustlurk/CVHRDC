@@ -26,13 +26,13 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
 
                 <x-nav-link
                     class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
-                    href="#" :active="false">
+                    :href="route('rmc.calls.index')" :active="request()->routeIs('rmc.calls.*')">
                     Calls for Proposals
                 </x-nav-link>
-                
+
                 <x-nav-link
                     class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
-                    href="#" :active="false">
+                    :href="route('rmc.submissions.index')" :active="request()->routeIs('rmc.submissions.*')">
                     Submissions
                 </x-nav-link>
             </div>
@@ -103,12 +103,12 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link href="#" :active="false"
+            <x-responsive-nav-link :href="route('rmc.calls.index')" :active="request()->routeIs('rmc.calls.*')"
                 class="text-sm hover:text-blue-600 hover:underline transition duration-150">
                 {{ __('Calls for Proposals') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link href="#" :active="false"
+            <x-responsive-nav-link :href="route('rmc.submissions.index')" :active="request()->routeIs('rmc.submissions.*')"
                 class="text-sm hover:text-blue-600 hover:underline transition duration-150">
                 {{ __('Submissions') }}
             </x-responsive-nav-link>
