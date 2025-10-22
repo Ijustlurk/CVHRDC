@@ -59,25 +59,19 @@ class CallForProposalController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid visibility status.'
-            ], 422);
+            return redirect()->back()
+                ->with('error', 'Invalid visibility status. Please try again.');
         }
 
         $call->update([
             'visibility_status' => $request->visibility_status,
-            'approved_by' => Auth::id(),
+            'approved_by' => $request->visibility_status === 'Public' ? Auth::id() : null,
         ]);
 
-        $action = $request->visibility_status === 'Public' ? 'published' : 'unpublished';
+        $action = $request->visibility_status === 'Public' ? 'posted publicly' : 'removed from public view';
+        $message = "Call for proposal has been {$action} successfully.";
 
-        return response()->json([
-            'success' => true,
-            'message' => "Call for proposal {$action} successfully.",
-            'visibility_status' => $call->visibility_status,
-            'approved_by' => $call->approver->name ?? 'N/A'
-        ]);
+        return redirect()->back()->with('success', $message);
     }
 
     /**
@@ -93,10 +87,8 @@ class CallForProposalController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Invalid status or action.'
-            ], 422);
+            return redirect()->back()
+                ->with('error', 'Invalid status or action. Please try again.');
         }
 
         $status = $request->status;
@@ -131,13 +123,7 @@ class CallForProposalController extends Controller
             $message = 'Call status updated successfully.';
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => $message,
-            'status' => $call->status,
-            'visibility_status' => $call->visibility_status,
-            'approved_by' => $call->approver->name ?? 'N/A'
-        ]);
+        return redirect()->back()->with('success', $message);
     }
 
     /**
@@ -181,4 +167,3 @@ class CallForProposalController extends Controller
         return view('ruc.calls.published', compact('calls'));
     }
 }
-
