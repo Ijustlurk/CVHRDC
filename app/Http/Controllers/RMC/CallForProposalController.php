@@ -56,11 +56,10 @@ class CallForProposalController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation errors occurred.',
-                'errors' => $validator->errors()
-            ], 422);
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('error', 'Validation errors occurred. Please check the form and try again.');
         }
 
         $data = $request->all();
@@ -84,11 +83,8 @@ class CallForProposalController extends Controller
 
         $call = CallForProposal::create($data);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Call for proposal created successfully.',
-            'data' => $call
-        ]);
+        return redirect()->route('rmc.calls.show', $call->id)
+            ->with('success', 'Call for proposal created successfully and submitted for review.');
     }
 
     /**
@@ -130,18 +126,14 @@ class CallForProposalController extends Controller
 
         // Ensure only the creator can edit
         if ($call->created_by !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. You can only edit calls you created.'
-            ], 403);
+            return redirect()->back()
+                ->with('error', 'Unauthorized. You can only edit calls you created.');
         }
 
         // Prevent editing of publicly posted calls
         if ($call->visibility_status === 'Public') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot edit calls that have been posted publicly. Please contact RUC to make changes.'
-            ], 403);
+            return redirect()->back()
+                ->with('error', 'Cannot edit calls that have been posted publicly. Please contact RUC to make changes.');
         }
 
         $validator = Validator::make($request->all(), [
@@ -159,11 +151,10 @@ class CallForProposalController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation errors occurred.',
-                'errors' => $validator->errors()
-            ], 422);
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput()
+                ->with('error', 'Validation errors occurred. Please check the form and try again.');
         }
 
         $data = $request->all();
@@ -183,11 +174,8 @@ class CallForProposalController extends Controller
 
         $call->update($data);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Call for proposal updated successfully.',
-            'data' => $call
-        ]);
+        return redirect()->route('rmc.calls.show', $call->id)
+            ->with('success', 'Call for proposal updated successfully.');
     }
 
     /**
@@ -199,18 +187,14 @@ class CallForProposalController extends Controller
 
         // Ensure only the creator can delete
         if ($call->created_by !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized. You can only delete calls you created.'
-            ], 403);
+            return redirect()->back()
+                ->with('error', 'Unauthorized. You can only delete calls you created.');
         }
 
         // Prevent deletion of publicly posted calls
         if ($call->visibility_status === 'Public') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete calls that have been posted publicly. Please contact RUC to remove from public view first.'
-            ], 403);
+            return redirect()->back()
+                ->with('error', 'Cannot delete calls that have been posted publicly. Please contact RUC to remove from public view first.');
         }
 
         // Delete associated file if exists
@@ -220,10 +204,8 @@ class CallForProposalController extends Controller
 
         $call->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Call for proposal deleted successfully.'
-        ]);
+        return redirect()->route('rmc.calls.index')
+            ->with('success', 'Call for proposal deleted successfully.');
     }
 
     /**
@@ -275,4 +257,3 @@ class CallForProposalController extends Controller
         return Storage::disk('public')->download($call->proposal_format_file);
     }
 }
-
