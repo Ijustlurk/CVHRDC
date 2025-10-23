@@ -53,7 +53,13 @@ Route::get('/sample', function () {
 Route::get('/', function () {
    // return view('auth.login');
     return view('welcome');
-});
+})->name('welcome');
+
+// Public routes for calls
+Route::get('/calls', [App\Http\Controllers\Public\CallController::class, 'index'])->name('public.calls.index');
+Route::get('/calls/{id}', [App\Http\Controllers\Public\CallController::class, 'show'])->name('public.calls.show');
+Route::get('/calls/{id}/download-format', [App\Http\Controllers\Public\CallController::class, 'downloadFormat'])->name('public.calls.download-format');
+Route::get('/api/public-calls', [App\Http\Controllers\Public\CallController::class, 'getPublicCalls'])->name('api.public-calls');
 
 
 
