@@ -22,10 +22,100 @@ class CallForProposalController extends Controller
         if ($request->tab === 'my-calls') {
             $query->where('created_by', Auth::id());
         }
+        // Default to "all-calls" if no tab specified
+        if (!$request->has('tab')) {
+            $request->merge(['tab' => 'all-calls']);
+        }
 
-        $calls = $query->orderBy('created_at', 'desc')->paginate(12);
+        // Search by title, research priority area, or description
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('research_priority_area', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%');
+            });
+        }
 
-        return view('rmc.calls.index', compact('calls'));
+        // Filter by status
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            $query->where('status', $status);
+        }
+
+        // Filter by visibility status
+        if ($request->filled('visibility')) {
+            $visibility = $request->input('visibility');
+            $query->where('visibility_status', $visibility);
+        }
+
+        // Filter by date range
+        if ($request->filled('date_filter')) {
+            $dateFilter = $request->input('date_filter');
+            $now = now();
+
+            switch ($dateFilter) {
+                case 'last_7_days':
+                    $query->where('start_date', '>=', $now->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('start_date', '>=', $now->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('start_date', '>=', $now->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('start_date', '>=', $request->input('date_from'));
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('end_date', '<=', $request->input('date_to'));
+                    }
+                    break;
+            }
+        }
+
+        // Sorting
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('start_date', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'funding_high':
+                $query->orderBy('funding_limit', 'desc');
+                break;
+            case 'funding_low':
+                $query->orderBy('funding_limit', 'asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        // Paginate results (get total count for display)
+        $calls = $query->paginate(12)->appends($request->except('page'));
+        $totalCount = $calls->total();
+
+        // If AJAX request (for real-time search), return JSON
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('rmc.calls.partials.calls-table', compact('calls'))->render(),
+                'pagination' => $calls->links()->render(),
+                'totalCount' => $totalCount,
+                'currentCount' => $calls->count(),
+                'from' => $calls->firstItem() ?? 0,
+                'to' => $calls->lastItem() ?? 0,
+            ]);
+        }
+
+        return view('rmc.calls.index', compact('calls', 'totalCount'));
     }
 
     /**
