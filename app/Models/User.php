@@ -110,4 +110,20 @@ class User extends Authenticatable
     {
         return $this->hasRole('RUC');
     }
+
+    /**
+     * Get all calls created by this user.
+     */
+    public function createdCalls()
+    {
+        return $this->hasMany(CallForProposal::class, 'created_by');
+    }
+
+    /**
+     * Get all calls approved by this user.
+     */
+    public function approvedCalls()
+    {
+        return $this->hasMany(CallForProposal::class, 'approved_by');
+    }
 }
