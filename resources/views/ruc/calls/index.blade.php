@@ -475,10 +475,10 @@ function confirmWithdrawCall(event, callTitle) {
 
     Swal.fire({
         title: 'Withdraw & Close Call?',
-        html: `<p class="mb-0">Are you sure you want to withdraw "<strong>${callTitle}</strong>"? This will close the call and remove it from public view.</p>`,
+        html: `<p class="mb-0">Are you sure you want to withdraw "<strong>${callTitle}</strong>"? This will close the call but maintain its public visibility, signaling that the call has ended.</p>`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: '<i class="fas fa-times-circle me-2"></i>Yes, Withdraw Call',
+        confirmButtonText: '<i class="fas fa-times-circle me-2"></i>Yes, Withdraw & Close',
         cancelButtonText: '<i class="fas fa-ban me-2"></i>Cancel',
         reverseButtons: true,
         customClass: {
@@ -512,30 +512,30 @@ function confirmWithdrawCall(event, callTitle) {
     return false;
 }
 
-// SweetAlert confirmation for unposting a call
-function confirmUnpostCall(event, callTitle) {
+// SweetAlert confirmation for reopening a call for review
+function confirmReopenCall(event, callTitle) {
     event.preventDefault();
 
     Swal.fire({
-        title: 'Unpost Call from Public View?',
-        html: `<p class="mb-0">Are you sure you want to unpost "<strong>${callTitle}</strong>"? This will remove it from public view but keep it active internally.</p>`,
+        title: 'Reopen Call for Review?',
+        html: `<p class="mb-0">Are you sure you want to reopen "<strong>${callTitle}</strong>" for review? This will set the status back to "For Review" and visibility to "Private."</p>`,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: '<i class="fas fa-eye-slash me-2"></i>Yes, Unpost Call',
+        confirmButtonText: '<i class="fas fa-redo me-2"></i>Yes, Reopen for Review',
         cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
         reverseButtons: true,
         customClass: {
             popup: 'swal-wide',
-            confirmButton: 'btn btn-secondary btn-lg px-4 me-2',
-            cancelButton: 'btn btn-outline-secondary btn-lg px-4'
+            confirmButton: 'btn btn-info btn-lg px-4 me-2',
+            cancelButton: 'btn btn-secondary btn-lg px-4'
         },
         buttonsStyling: false
     }).then((result) => {
         if (result.isConfirmed) {
             // Show loading
             Swal.fire({
-                title: 'Unposting Call...',
-                html: '<p class="mb-0">Please wait while we remove the call from public view.</p>',
+                title: 'Reopening Call...',
+                html: '<p class="mb-0">Please wait while we reopen the call for review.</p>',
                 icon: 'info',
                 allowOutsideClick: false,
                 showConfirmButton: false,
