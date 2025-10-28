@@ -6,10 +6,15 @@ true)->orderByDesc('published_at')->take(3)->get(); $projects =
 true)->orderByDesc('start_date')->take(3)->get(); $announcements =
 \App\Models\Announcement::where('active',
 true)->orderByDesc('start_date')->take(3)->get(); $calls =
-\App\Models\CallForProposal::where('visibility_status', 'Public')->where('status',
-'Open')->orderByDesc('created_at')->take(6)->get(); $totalPublicCalls =
-\App\Models\CallForProposal::where('visibility_status', 'Public')->where('status',
-'Open')->count(); @endphp
+\App\Models\CallForProposal::where('visibility_status', 'Public')->orderByDesc('created_at')->take(6)->get();
+
+// Update status for calls that have passed their end date
+foreach ($calls as $call) {
+    $call->updateStatusBasedOnDates();
+}
+
+$totalPublicCalls =
+\App\Models\CallForProposal::where('visibility_status', 'Public')->count(); @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -662,7 +667,7 @@ true)->orderByDesc('start_date')->take(3)->get(); $calls =
                                         <i class="fas fa-file-alt text-white"></i>
                                     </div>
                                     <div>
-                                        <span class="badge bg-success status-badge mb-1">Open</span>
+                                        <span class="badge bg-{{ $call->getStatusBadgeColor() }} status-badge mb-1">{{ $call->getStatusLabel() }}</span>
                                         <div class="text-muted small">
                                             <i class="fas fa-calendar-alt me-1"></i>
                                             {{ $call->created_at->diffForHumans() }}
@@ -792,7 +797,7 @@ true)->orderByDesc('start_date')->take(3)->get(); $calls =
                                             <i class="fas fa-file-alt text-white"></i>
                                         </div>
                                         <div>
-                                            <span class="badge bg-success status-badge mb-1">Open</span>
+                                            <span class="badge bg-${call.status_color} status-badge mb-1">${call.status_label}</span>
                                             <div class="text-muted small">
                                                 <i class="fas fa-calendar-alt me-1"></i>
                                                 ${call.created_at}
