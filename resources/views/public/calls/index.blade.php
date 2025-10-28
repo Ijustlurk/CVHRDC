@@ -151,9 +151,12 @@
                                             </div>
                                         </div>
                                         <div class="flex-grow-1">
-                                            <h4 class="card-title mb-2 text font">
-                                                {{ $call->title }}
-                                            </h4>
+                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                <h4 class="card-title mb-0 text font">
+                                                    {{ $call->title }}
+                                                </h4>
+                                                <span class="badge bg-{{ $call->getStatusBadgeColor() }} status-badge">{{ $call->getStatusLabel() }}</span>
+                                            </div>
                                             <p class="card-text text-muted mb-3">
                                                 {{ Str::limit(strip_tags($call->description), 150) }}
                                             </p>
@@ -221,7 +224,7 @@
                     <div class="card shadow-sm">
                         <div class="card-body py-5">
                             <i class="fas fa-search text-muted fs-1 mb-3"></i>
-                            <h4 class="text-muted">No Open Calls Available</h4>
+                            <h4 class="text-muted">No Calls Available</h4>
                             <p class="text-muted">There are currently no public calls for proposals available. Please check back later for new opportunities.</p>
                         </div>
                     </div>
