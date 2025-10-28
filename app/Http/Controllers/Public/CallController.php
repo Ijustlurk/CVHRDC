@@ -14,9 +14,13 @@ class CallController extends Controller
     public function index()
     {
         $calls = CallForProposal::where('visibility_status', 'Public')
-            ->where('status', 'Open')
             ->orderBy('created_at', 'desc')
             ->paginate(12);
+
+        // Update status for calls that have passed their end date
+        foreach ($calls as $call) {
+            $call->updateStatusBasedOnDates();
+        }
 
         return view('public.calls.index', compact('calls'));
     }
@@ -28,8 +32,10 @@ class CallController extends Controller
     {
         $call = CallForProposal::where('id', $id)
             ->where('visibility_status', 'Public')
-            ->where('status', 'Open')
             ->firstOrFail();
+
+        // Update status based on dates if needed
+        $call->updateStatusBasedOnDates();
 
         return view('public.calls.show', compact('call'));
     }
@@ -41,8 +47,12 @@ class CallController extends Controller
     {
         $call = CallForProposal::where('id', $id)
             ->where('visibility_status', 'Public')
-            ->where('status', 'Open')
             ->firstOrFail();
+
+        // Only allow download for calls that are accepting submissions or closed (for reference)
+        if (!$call->isAcceptingSubmissions() && $call->display_status !== 'Closed') {
+            abort(403, 'Format file download not available for this call status');
+        }
 
         if (!$call->proposal_format_file) {
             abort(404, 'Format file not found');
@@ -63,10 +73,14 @@ class CallController extends Controller
     public function getPublicCalls()
     {
         $calls = CallForProposal::where('visibility_status', 'Public')
-            ->where('status', 'Open')
             ->orderBy('created_at', 'desc')
-            ->take(3)
+            ->take(6)
             ->get();
+
+        // Update status for calls that have passed their end date
+        foreach ($calls as $call) {
+            $call->updateStatusBasedOnDates();
+        }
 
         return response()->json([
             'calls' => $calls->map(function ($call) {
@@ -78,6 +92,9 @@ class CallController extends Controller
                     'start_date' => $call->start_date->format('M d, Y'),
                     'end_date' => $call->end_date->format('M d, Y'),
                     'eligibility' => Str::limit($call->eligibility, 25),
+                    'status' => $call->display_status,
+                    'status_label' => $call->getStatusLabel(),
+                    'status_color' => $call->getStatusBadgeColor(),
                     'created_at' => $call->created_at->diffForHumans(),
                     'url' => route('public.calls.show', $call->id)
                 ];
