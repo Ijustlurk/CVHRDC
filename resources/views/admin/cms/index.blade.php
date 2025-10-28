@@ -8,4 +8,6 @@
     </div>
     @include('admin.tabs.index', ['tab' => 'news'])
 </div>
+
 @endsection
+

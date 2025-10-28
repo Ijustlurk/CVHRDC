@@ -22,6 +22,9 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
         });
+
+        // added the column deleted_at DATETIME to NULL
+        
     }
 
     /**

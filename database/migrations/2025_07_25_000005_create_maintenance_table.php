@@ -13,6 +13,8 @@ return new class extends Migration {
             $table->string('message')->nullable();
             $table->timestamps();
         });
+
+        // added the column active 
     }
     public function down() {
         Schema::dropIfExists('maintenance');
