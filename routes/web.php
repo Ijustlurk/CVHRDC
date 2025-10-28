@@ -215,7 +215,6 @@ Route::middleware(['auth', 'ruc'])->prefix('ruc')->name('ruc.')->group(function 
     // Review Calls Management
     Route::get('calls', [RUCallForProposalController::class, 'index'])->name('calls.index');
     Route::get('calls/{id}', [RUCallForProposalController::class, 'show'])->name('calls.show');
-    Route::post('calls/{id}/visibility', [RUCallForProposalController::class, 'updateVisibility'])->name('calls.visibility');
     Route::post('calls/{id}/status', [RUCallForProposalController::class, 'updateStatus'])->name('calls.status');
     Route::get('calls/{id}/download-format', [RUCallForProposalController::class, 'downloadFormatFile'])->name('calls.download-format');
 
