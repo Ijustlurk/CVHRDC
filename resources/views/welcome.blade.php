@@ -5,7 +5,11 @@ true)->orderByDesc('published_at')->take(3)->get(); $projects =
 \App\Models\Project::where('is_visible',
 true)->orderByDesc('start_date')->take(3)->get(); $announcements =
 \App\Models\Announcement::where('active',
-true)->orderByDesc('start_date')->take(3)->get(); @endphp
+true)->orderByDesc('start_date')->take(3)->get(); $calls =
+\App\Models\CallForProposal::where('visibility_status', 'Public')->where('status',
+'Open')->orderByDesc('created_at')->take(6)->get(); $totalPublicCalls =
+\App\Models\CallForProposal::where('visibility_status', 'Public')->where('status',
+'Open')->count(); @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -151,6 +155,10 @@ true)->orderByDesc('start_date')->take(3)->get(); @endphp
                         <li class="nav-item">
                             <a class="nav-link fw-semibold px-3 rounded-pill transition-nav"
                                 href="#announcements">Announcements</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold px-3 rounded-pill transition-nav"
+                                href="#calls">Calls for Proposals</a>
                         </li>
                         @if (Route::has('login')) @auth
                         <li class="nav-item">
@@ -603,8 +611,279 @@ true)->orderByDesc('start_date')->take(3)->get(); @endphp
         </div>
     </section>
 
+    <!-- CALLS FOR PROPOSALS -->
+    <section id="calls" class="position-relative py-5 bg-white overflow-hidden">
+        <!-- Unique Decorative Shapes for Calls Section -->
+        <div class="position-absolute top-20 start-10" style="
+                    width: 100px;
+                    height: 100px;
+                    background: rgba(16, 185, 129, 0.25);
+                    border-radius: 50%;
+                    z-index: 0;
+                "></div>
+        <div class="position-absolute bottom-0 end-75" style="
+                    width: 70px;
+                    height: 70px;
+                    background: rgba(245, 158, 11, 0.25);
+                    border-radius: 50%;
+                    z-index: 0;
+                "></div>
+        <div class="position-absolute top-75 end-10" style="
+                    width: 90px;
+                    height: 90px;
+                    background: rgba(139, 69, 19, 0.25);
+                    border-radius: 50%;
+                    z-index: 0;
+                "></div>
+        <div class="position-absolute bottom-20 start-50 translate-middle-x" style="
+                    width: 60px;
+                    height: 60px;
+                    background: rgba(59, 130, 246, 0.25);
+                    border-radius: 50%;
+                    z-index: 0;
+                "></div>
+
+        <div class="container">
+            <div class="section-title text-center mb-4 font text">
+                <i class="fas fa-bullhorn me-3 text-primary"></i>Calls for Proposals
+            </div>
+            <p class="text-center text-muted mb-4">
+                Explore current opportunities for research funding and collaboration.
+            </p>
+            <div class="row g-4">
+                @forelse($calls as $call)
+                <div class="col-md-4">
+                    <!-- Entire card is wrapped in a clickable anchor to open call details -->
+                    <a href="{{ route('public.calls.show', $call->id) }}" class="text-decoration-none text-dark">
+                        <div class="card card-hover h-100 animate__animated animate__fadeInUp">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                        <i class="fas fa-file-alt text-white"></i>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-success status-badge mb-1">Open</span>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            {{ $call->created_at->diffForHumans() }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h5 class="card-title text font mb-3">
+                                    {{ $call->title }}
+                                </h5>
+
+                                <p class="card-text text-muted mb-3">
+                                    {{ Str::limit(strip_tags($call->description), 100) }}
+                                    <span class="text-primary">Read more...</span>
+                                </p>
+
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <div class="text-center p-2 bg-light rounded">
+                                            <i class="fas fa-money-bill-wave text-success mb-1"></i>
+                                            <small class="d-block text-muted">Funding</small>
+                                            <strong class="text-dark">₱{{ number_format($call->funding_limit, 0) }}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-center p-2 bg-light rounded">
+                                            <i class="fas fa-calendar-alt text-primary mb-1"></i>
+                                            <small class="d-block text-muted">Deadline</small>
+                                            <strong class="text-dark">{{ $call->end_date->format('M d, Y') }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-users me-1"></i>
+                                        {{ Str::limit($call->eligibility, 25) }}
+                                    </small>
+                                    <i class="fas fa-arrow-right text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                @empty
+                <div class="col-12 text-center text-muted">
+                    <div class="card shadow-sm">
+                        <div class="card-body py-5">
+                            <i class="fas fa-search text-muted fs-1 mb-3"></i>
+                            <h4>No Open Calls Available</h4>
+                            <p>There are currently no public calls for proposals available. Please check back later for new opportunities.</p>
+                        </div>
+                    </div>
+                </div>
+                @endforelse
+            </div>
+
+            @if($totalPublicCalls > 6)
+            <div class="text-center mt-4">
+                <a href="{{ route('public.calls.index') }}" class="btn btn-primary btn-md px-4">
+                    <i class="fas fa-list me-2"></i>View All Calls
+                </a>
+            </div>
+            @endif
+        </div>
+    </section>
+
     @include('layouts.Admin.footer', ['footer' => $footer])
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Real-time updates for calls -->
+    <script>
+        let lastUpdateTimestamp = '{{ now()->toISOString() }}';
+        let callsSection = document.getElementById('calls');
+
+        function checkForUpdates() {
+            if (callsSection) {
+                fetch('{{ route("api.public-calls") }}', {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Check if data has changed
+                    if (data.timestamp !== lastUpdateTimestamp || data.count !== {{ $calls->count() ?? 0 }}) {
+                        // Update the calls section
+                        updateCallsSection(data.calls);
+                        lastUpdateTimestamp = data.timestamp;
+
+                        // Show a subtle notification
+                        showUpdateNotification();
+                    }
+                })
+                .catch(error => {
+                    console.log('Error checking for updates:', error);
+                });
+            }
+        }
+
+        function updateCallsSection(calls) {
+            let callsContainer = callsSection.querySelector('.row.g-4');
+            if (!callsContainer) return;
+
+            if (calls.length === 0) {
+                callsContainer.innerHTML = `
+                    <div class="col-12 text-center text-muted">
+                        <div class="card shadow-sm">
+                            <div class="card-body py-5">
+                                <i class="fas fa-search text-muted fs-1 mb-3"></i>
+                                <h4>No Open Calls Available</h4>
+                                <p>There are currently no public calls for proposals available. Please check back later for new opportunities.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                let callsHtml = calls.map(call => `
+                    <div class="col-md-4">
+                        <a href="${call.url}" class="text-decoration-none text-dark">
+                            <div class="card card-hover h-100 animate__animated animate__fadeInUp">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-file-alt text-white"></i>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-success status-badge mb-1">Open</span>
+                                            <div class="text-muted small">
+                                                <i class="fas fa-calendar-alt me-1"></i>
+                                                ${call.created_at}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="card-title text font mb-3">
+                                        ${call.title}
+                                    </h5>
+
+                                    <p class="card-text text-muted mb-3">
+                                        ${call.description}
+                                        <span class="text-primary">Read more...</span>
+                                    </p>
+
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <div class="text-center p-2 bg-light rounded">
+                                                <i class="fas fa-money-bill-wave text-success mb-1"></i>
+                                                <small class="d-block text-muted">Funding</small>
+                                                <strong class="text-dark">₱${call.funding_limit.toLocaleString()}</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center p-2 bg-light rounded">
+                                                <i class="fas fa-calendar-alt text-primary mb-1"></i>
+                                                <small class="d-block text-muted">Deadline</small>
+                                                <strong class="text-dark">${call.end_date}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="fas fa-users me-1"></i>
+                                            ${call.eligibility}
+                                        </small>
+                                        <i class="fas fa-arrow-right text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                `).join('');
+
+                callsContainer.innerHTML = callsHtml;
+
+                // Update the "View All Calls" button visibility
+                let viewAllBtn = callsSection.querySelector('.btn-primary');
+                if (viewAllBtn) {
+                    if (calls.length >= 3) {
+                        viewAllBtn.style.display = 'inline-block';
+                    } else {
+                        viewAllBtn.style.display = 'none';
+                    }
+                }
+            }
+        }
+
+        function showUpdateNotification() {
+            // Create a subtle notification
+            let notification = document.createElement('div');
+            notification.className = 'position-fixed top-0 end-0 m-3 alert alert-info alert-dismissible fade show';
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                <i class="fas fa-sync-alt me-2"></i>
+                Calls for Proposals updated
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // Check for updates every 5 minutes (300,000 milliseconds)
+        setInterval(checkForUpdates, 300000);
+
+        // Also check when the page becomes visible (in case user switched tabs)
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                checkForUpdates();
+            }
+        });
+    </script>
 </body>
 
 </html>

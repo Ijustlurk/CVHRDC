@@ -41,17 +41,140 @@ class ProjectController extends Controller
     }
     public function index(Request $request)
     {
+        $query = Project::query();
+
+        // Search by title, description, lead_researcher, leader, or funding_agency
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%')
+                    ->orWhere('lead_researcher', 'like', '%' . $search . '%')
+                    ->orWhere('leader', 'like', '%' . $search . '%')
+                    ->orWhere('funding_agency', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status_filter')) {
+            $status = $request->input('status_filter');
+            $query->where('status', 'like', '%' . $status . '%');
+        }
+
+        // Filter by visibility
+        if ($request->filled('visibility')) {
+            $visibility = $request->input('visibility');
+            if ($visibility === 'visible') {
+                $query->where('is_visible', 1);
+            } elseif ($visibility === 'hidden') {
+                $query->where('is_visible', 0);
+            }
+        }
+
+        // Filter by active status
+        if ($request->filled('active_status')) {
+            $activeStatus = $request->input('active_status');
+            if ($activeStatus === 'active') {
+                $query->where('is_active', 1);
+            } elseif ($activeStatus === 'inactive') {
+                $query->where('is_active', 0);
+            }
+        }
+
+        // Filter by lead researcher
+        if ($request->filled('lead_researcher_filter')) {
+            $leadResearcher = $request->input('lead_researcher_filter');
+            $query->where('lead_researcher', 'like', '%' . $leadResearcher . '%');
+        }
+
+        // Filter by date range
+        if ($request->filled('date_filter')) {
+            $dateFilter = $request->input('date_filter');
+            $now = now();
+
+            switch ($dateFilter) {
+                case 'last_7_days':
+                    $query->where('start_date', '>=', $now->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('start_date', '>=', $now->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('start_date', '>=', $now->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('start_date', '>=', $request->input('date_from'));
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('start_date', '<=', $request->input('date_to'));
+                    }
+                    break;
+            }
+        }
+
+        // Filter by budget range
+        if ($request->filled('budget_min')) {
+            $query->where('budget', '>=', $request->input('budget_min'));
+        }
+        if ($request->filled('budget_max')) {
+            $query->where('budget', '<=', $request->input('budget_max'));
+        }
+
+        // Filter by funding agency
+        if ($request->filled('funding_agency_filter')) {
+            $fundingAgency = $request->input('funding_agency_filter');
+            $query->where('funding_agency', 'like', '%' . $fundingAgency . '%');
+        }
+
+        // Sorting
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('start_date', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'budget_high':
+                $query->orderBy('budget', 'desc');
+                break;
+            case 'budget_low':
+                $query->orderBy('budget', 'asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('start_date', 'desc');
+                break;
+        }
+
+        // Handle different request types
         if ($request->expectsJson()) {
             if ($request->has('all') && $request->input('all')) {
-                // Return all projects in descending order by id
-                $allProjects = Project::orderBy('id', 'desc')->get();
+                // Return all projects with filters applied
+                $allProjects = $query->get();
                 return response()->json($allProjects);
             }
-            // Otherwise, return 4 recent projects for blade view
-            $recentProjects = Project::orderBy('id', 'desc')->take(4)->get();
-            return response()->json($recentProjects);
+            
+            // For AJAX search requests, paginate and return JSON
+            $projects = $query->paginate(8)->appends($request->except('page'));
+            $totalCount = $projects->total();
+
+            return response()->json([
+                'html' => view('admin.tabs.partials.project-cards', compact('projects'))->render(),
+                'pagination' => $projects->links()->render(),
+                'totalCount' => $totalCount,
+                'currentCount' => $projects->count(),
+                'from' => $projects->firstItem() ?? 0,
+                'to' => $projects->lastItem() ?? 0,
+            ]);
         }
-        return view('admin.tabs.partials.projects');
+
+        // For regular page requests (including refreshes with query params), redirect to AdminTabsController
+        return redirect()->route('admin.tabs.index', array_merge(['tab' => 'projects'], $request->query()));
     }
 
     /**

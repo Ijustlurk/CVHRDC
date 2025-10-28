@@ -203,107 +203,115 @@
         </div>
     </div>
     <div class="col-12 col-lg-7">
-        <div class="row row-cols-1 row-cols-md-2 g-3">
-            @foreach ($news as $item)
-            <div class="col">
-                <div class="card h-100">
-                    @php
-                    $imageUrl = $item->image;
-                    // Convert Google Drive URL to direct image URL
-                    if (strpos($imageUrl, 'drive.google.com') !== false) {
-                    // Extract file ID from Google Drive URL
-                    preg_match('/\/file\/d\/([a-zA-Z0-9_-]+)/', $imageUrl, $matches);
-                    if (!empty($matches[1])) {
-                    $fileId = $matches[1];
-                    $imageUrl = "https://drive.google.com/thumbnail?id={$fileId}&sz=s4000";
-                    } else {
-                    // Try alternative format: ?id=FILE_ID
-                    preg_match('/[?&]id=([a-zA-Z0-9_-]+)/', $imageUrl, $matches);
-                    if (!empty($matches[1])) {
-                    $fileId = $matches[1];
-                    $imageUrl = "https://drive.google.com/thumbnail?id={$fileId}&sz=s4000";
-                    }
-                    }
-                    }
-                    @endphp
-                    <img src="{{ $imageUrl }}" class="card-img-top" alt="News Image"
-                        onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5JbWFnZSBub3QgZm91bmQ8L3RleHQ+PC9zdmc+';">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">{{ $item->title }}</h5>
-                        <p class="card-text">{{ Str::limit($item->content, 100) }}</p>
-
-                        <!-- Published date pushed to bottom -->
-                        <p class="card-text mt-auto">
-                            <small class="text-muted">
-                                Published: {{ $item->published_at ? $item->published_at->format('M d, Y') : '' }}
-                            </small>
-                        </p>
-                    </div>
-
-                    <div class="card-footer">
-                        <div class="row">
-                            <div class="col-6 d-flex justify-content-start">
-                                <form method="POST" action="{{ route('admin.news.visibility', $item->id) }}"
-                                    class="me-2">
-                                    @csrf
-                                    <input type="hidden" name="is_visible" value="{{ $item->is_visible ? 0 : 1 }}">
-                                    <button type="submit"
-                                        class="btn btn-sm btn-outline-{{ $item->is_visible ? 'success' : 'secondary' }}">
-                                        <i class="fa fa-eye{{ $item->is_visible ? '' : '-slash' }}"></i>
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="col-6 d-flex justify-content-end">
-                                <button type="button" class="btn btn-sm btn-warning me-2"
-                                    onclick="openEditModal({{ $item->id }})"><i class="fa fa-edit fa-lg"></i></button>
-
-                                <!-- Delete Button -->
-                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal{{ $item->id }}">
-                                    <i class="fa fa-trash"></i>
+        <!-- Search and Filter Section -->
+        <div class="card shadow mb-3">
+            <div class="card-header bg-info text-white fw-bold">
+                <i class="fa fa-search me-2"></i>Search & Filter News
+            </div>
+            <div class="card-body">
+                <form id="searchFilterForm" method="GET" action="{{ route('admin.news.index') }}">
+                    <div class="row g-3">
+                        <!-- Search Bar -->
+                        <div class="col-12">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                <input type="text" class="form-control" id="searchInput" name="search" 
+                                    placeholder="Search by title or content..." 
+                                    value="{{ request('search') }}">
+                                <button type="button" class="btn btn-outline-secondary" id="clearSearch" title="Clear search">
+                                    <i class="fa fa-times"></i>
                                 </button>
                             </div>
                         </div>
-                        <!-- Delete Confirmation Modal -->
-                        <div class="modal fade" id="deleteModal{{ $item->id }}" tabindex="-1"
-                            aria-labelledby="deleteModalLabel{{ $item->id }}" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
 
-                                    <div class="modal-header bg-danger text-white">
-                                        <h5 class="modal-title" id="deleteModalLabel{{ $item->id }}">
-                                            <i class="fa fa-exclamation-triangle me-2"></i> Confirm Deletion
-                                        </h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
+                        <!-- Date Filter -->
+                        <div class="col-12 col-md-4">
+                            <label for="dateFilter" class="form-label small fw-bold">
+                                <i class="fa fa-calendar me-1"></i>Date Published
+                            </label>
+                            <select class="form-select form-select-sm" id="dateFilter" name="date_filter">
+                                <option value="" {{ request('date_filter') == '' ? 'selected' : '' }}>All Time</option>
+                                <option value="last_7_days" {{ request('date_filter') == 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
+                                <option value="last_30_days" {{ request('date_filter') == 'last_30_days' ? 'selected' : '' }}>Last 30 Days</option>
+                                <option value="last_6_months" {{ request('date_filter') == 'last_6_months' ? 'selected' : '' }}>Last 6 Months</option>
+                                <option value="custom" {{ request('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                            </select>
+                        </div>
 
-                                    <div class="modal-body">
-                                        Are you sure you want to delete this news item? <br>
-                                        <strong>{{ $item->title }}</strong>
-                                    </div>
+                        <!-- Status Filter -->
+                        <div class="col-12 col-md-4">
+                            <label for="statusFilter" class="form-label small fw-bold">
+                                <i class="fa fa-filter me-1"></i>Status
+                            </label>
+                            <select class="form-select form-select-sm" id="statusFilter" name="status">
+                                <option value="" {{ request('status') == '' ? 'selected' : '' }}>All Status</option>
+                                <option value="public" {{ request('status') == 'public' ? 'selected' : '' }}>Public</option>
+                                <option value="private" {{ request('status') == 'private' ? 'selected' : '' }}>Private</option>
+                            </select>
+                        </div>
 
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cancel</button>
+                        <!-- Sort By -->
+                        <div class="col-12 col-md-4">
+                            <label for="sortBy" class="form-label small fw-bold">
+                                <i class="fa fa-sort me-1"></i>Sort By
+                            </label>
+                            <select class="form-select form-select-sm" id="sortBy" name="sort">
+                                <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                                <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>A-Z</option>
+                                <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Z-A</option>
+                            </select>
+                        </div>
 
-                                        <!-- Actual Delete Form -->
-                                        <form method="POST" action="{{ route('admin.news.destroy', $item->id) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                                        </form>
-                                    </div>
-
+                        <!-- Custom Date Range (shown when Custom Range is selected) -->
+                        <div class="col-12" id="customDateRange" style="display: {{ request('date_filter') == 'custom' ? 'block' : 'none' }};">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label for="dateFrom" class="form-label small">From Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="dateFrom" name="date_from" value="{{ request('date_from') }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dateTo" class="form-label small">To Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="dateTo" name="date_to" value="{{ request('date_to') }}">
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Action Buttons -->
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary btn-sm" id="applyFiltersBtn">
+                                    <i class="fa fa-filter me-1"></i>Apply Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtn">
+                                    <i class="fa fa-redo me-1"></i>Reset All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Results Counter -->
+                <div class="mt-3 pt-3 border-top">
+                    <div id="resultsCounter" class="text-muted small">
+                        <i class="fa fa-info-circle me-1"></i>
+                        <span id="counterText">
+                            Showing {{ $news->firstItem() ?? 0 }} to {{ $news->lastItem() ?? 0 }} of {{ $totalCount ?? $news->total() }} news items
+                        </span>
+                        <span id="loadingIndicator" class="ms-2" style="display: none;">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Searching...
+                        </span>
                     </div>
                 </div>
             </div>
-            @endforeach
         </div>
-        <div class="mt-3">
+
+        <!-- News Cards Grid -->
+        <div class="row row-cols-1 row-cols-md-2 g-3" id="newsCardsContainer">
+            @include('admin.tabs.partials.news-cards', ['news' => $news])
+        </div>
+        <div class="mt-3" id="paginationContainer">
             {{ $news->links() }}
         </div>
     </div>
@@ -407,6 +415,239 @@
             }, false);
         });
     })();
+
+    // Search and Filter Functionality
+    let searchTimeout;
+    const searchInput = document.getElementById('searchInput');
+    const dateFilter = document.getElementById('dateFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const sortBy = document.getElementById('sortBy');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const customDateRange = document.getElementById('customDateRange');
+    const dateFrom = document.getElementById('dateFrom');
+    const dateTo = document.getElementById('dateTo');
+    const searchFilterForm = document.getElementById('searchFilterForm');
+
+    // Prevent form submission and use AJAX instead
+    if (searchFilterForm) {
+        searchFilterForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+            performSearch(); // Use AJAX search instead
+        });
+    }
+
+    // Real-time search as user types
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 500); // Wait 500ms after user stops typing
+        });
+    }
+
+    // Clear search button
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            performSearch();
+        });
+    }
+
+    // Apply Filters button
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', function() {
+            performSearch();
+        });
+    }
+
+    // Reset All button
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', function() {
+            // Clear all form inputs
+            if (searchInput) searchInput.value = '';
+            if (dateFilter) dateFilter.value = '';
+            if (statusFilter) statusFilter.value = '';
+            if (sortBy) sortBy.value = 'newest';
+            if (dateFrom) dateFrom.value = '';
+            if (dateTo) dateTo.value = '';
+            if (customDateRange) customDateRange.style.display = 'none';
+            
+            // Perform search with cleared filters
+            performSearch();
+        });
+    }
+
+    // Filter and sort change handlers
+    [dateFilter, statusFilter, sortBy].forEach(element => {
+        if (element) {
+            element.addEventListener('change', performSearch);
+        }
+    });
+
+    // Custom date range inputs
+    [dateFrom, dateTo].forEach(element => {
+        if (element) {
+            element.addEventListener('change', function() {
+                if (dateFilter.value === 'custom') {
+                    performSearch();
+                }
+            });
+        }
+    });
+
+    // Show/hide custom date range
+    if (dateFilter) {
+        dateFilter.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customDateRange.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+            }
+        });
+    }
+
+    // Perform AJAX search
+    function performSearch() {
+        const formData = new FormData(document.getElementById('searchFilterForm'));
+        const params = new URLSearchParams(formData);
+
+        // Remove empty parameters for cleaner URLs
+        for (let [key, value] of Array.from(params.entries())) {
+            if (!value || value.trim() === '') {
+                params.delete(key);
+            }
+        }
+
+        // Show loading indicator
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const counterText = document.getElementById('counterText');
+        if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+        const searchUrl = `{{ route('admin.news.index') }}?${params.toString()}`;
+
+        fetch(searchUrl, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update news cards
+            const newsContainer = document.getElementById('newsCardsContainer');
+            if (newsContainer && data.html) {
+                newsContainer.innerHTML = data.html;
+            }
+
+            // Update pagination
+            const paginationContainer = document.getElementById('paginationContainer');
+            if (paginationContainer && data.pagination) {
+                paginationContainer.innerHTML = data.pagination;
+            }
+
+            // Update counter
+            if (counterText) {
+                const from = data.from || 0;
+                const to = data.to || 0;
+                const total = data.totalCount || 0;
+                counterText.textContent = `Showing ${from} to ${to} of ${total} news items`;
+            }
+
+            // Update browser URL without page reload (for bookmarking/sharing)
+            const newUrl = params.toString() ? searchUrl : '{{ route('admin.news.index') }}';
+            window.history.pushState({}, '', newUrl);
+
+            // Hide loading indicator
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            
+            // Show error message
+            if (typeof Swal !== 'undefined') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    iconColor: 'white',
+                    customClass: {
+                        popup: 'colored-toast',
+                    },
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Search failed. Please try again.'
+                });
+            } else {
+                alert('Search failed. Please try again.');
+            }
+        });
+    }
+
+    // Handle pagination clicks with AJAX
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#paginationContainer a')) {
+            e.preventDefault();
+            const url = e.target.closest('a').href;
+            
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update news cards
+                const newsContainer = document.getElementById('newsCardsContainer');
+                if (newsContainer && data.html) {
+                    newsContainer.innerHTML = data.html;
+                }
+
+                // Update pagination
+                const paginationContainer = document.getElementById('paginationContainer');
+                if (paginationContainer && data.pagination) {
+                    paginationContainer.innerHTML = data.pagination;
+                }
+
+                // Update counter
+                const counterText = document.getElementById('counterText');
+                if (counterText) {
+                    const from = data.from || 0;
+                    const to = data.to || 0;
+                    const total = data.totalCount || 0;
+                    counterText.textContent = `Showing ${from} to ${to} of ${total} news items`;
+                }
+
+                // Update browser URL
+                window.history.pushState({}, '', url);
+
+                // Hide loading indicator
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+                // Scroll to top of news section
+                const newsCardsContainer = document.getElementById('newsCardsContainer');
+                if (newsCardsContainer) {
+                    newsCardsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(error => {
+                console.error('Pagination error:', error);
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            });
+        }
+    });
 
     // Edit News Modal Functions
     function openEditModal(newsId) {

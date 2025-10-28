@@ -295,6 +295,127 @@
         </div>
     </div>
     <div class="col-12 col-lg-7">
+        <!-- Search and Filter Section -->
+        <div class="card shadow mb-3">
+            <div class="card-header bg-info text-white fw-bold">
+                <i class="fa fa-search me-2"></i>Search & Filter Events
+            </div>
+            <div class="card-body">
+                <form id="searchFilterForm" method="GET" action="{{ route('admin.events.index') }}">
+                    <div class="row g-3">
+                        <!-- Search Bar -->
+                        <div class="col-12">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                <input type="text" class="form-control" id="searchInput" name="search" 
+                                    placeholder="Search by title, description, location, or organizer..." 
+                                    value="{{ request('search') }}">
+                                <button type="button" class="btn btn-outline-secondary" id="clearSearch" title="Clear search">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Time-based Quick Filters -->
+                        <div class="col-12 col-md-4">
+                            <label for="timeFilter" class="form-label small fw-bold">
+                                <i class="fa fa-clock me-1"></i>Time Period
+                            </label>
+                            <select class="form-select form-select-sm" id="timeFilter" name="time_filter">
+                                <option value="upcoming" {{ request('time_filter', 'upcoming') == 'upcoming' ? 'selected' : '' }}>Upcoming Events</option>
+                                <option value="past" {{ request('time_filter') == 'past' ? 'selected' : '' }}>Past Events</option>
+                                <option value="all" {{ request('time_filter') == 'all' ? 'selected' : '' }}>All Events</option>
+                            </select>
+                        </div>
+
+                        <!-- Visibility Filter -->
+                        <div class="col-12 col-md-4">
+                            <label for="visibilityFilter" class="form-label small fw-bold">
+                                <i class="fa fa-filter me-1"></i>Visibility
+                            </label>
+                            <select class="form-select form-select-sm" id="visibilityFilter" name="visibility">
+                                <option value="" {{ request('visibility') == '' ? 'selected' : '' }}>All Status</option>
+                                <option value="visible" {{ request('visibility') == 'visible' ? 'selected' : '' }}>Public</option>
+                                <option value="hidden" {{ request('visibility') == 'hidden' ? 'selected' : '' }}>Private</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort By -->
+                        <div class="col-12 col-md-4">
+                            <label for="sortBy" class="form-label small fw-bold">
+                                <i class="fa fa-sort me-1"></i>Sort By
+                            </label>
+                            <select class="form-select form-select-sm" id="sortBy" name="sort">
+                                <option value="auto" {{ request('sort', 'auto') == 'auto' ? 'selected' : '' }}>Auto (Smart Sort)</option>
+                                <option value="date_asc" {{ request('sort') == 'date_asc' ? 'selected' : '' }}>Date A-Z</option>
+                                <option value="date_desc" {{ request('sort') == 'date_desc' ? 'selected' : '' }}>Date Z-A</option>
+                                <option value="title_asc" {{ request('sort') == 'title_asc' ? 'selected' : '' }}>Title A-Z</option>
+                                <option value="title_desc" {{ request('sort') == 'title_desc' ? 'selected' : '' }}>Title Z-A</option>
+                            </select>
+                        </div>
+
+                        <!-- Custom Date Range -->
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">
+                                <i class="fa fa-calendar-alt me-1"></i>Custom Date Range
+                                <small class="text-muted">(overrides time period filter)</small>
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <input type="date" class="form-control form-control-sm" id="dateFrom" name="date_from" 
+                                        placeholder="From date" value="{{ request('date_from') }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="date" class="form-control form-control-sm" id="dateTo" name="date_to" 
+                                        placeholder="To date" value="{{ request('date_to') }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary btn-sm" id="applyFiltersBtn">
+                                    <i class="fa fa-filter me-1"></i>Apply Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtn">
+                                    <i class="fa fa-redo me-1"></i>Reset All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Results Counter -->
+                <div class="mt-3 pt-3 border-top">
+                    <div id="resultsCounter" class="text-muted small">
+                        <i class="fa fa-info-circle me-1"></i>
+                        <span id="counterText">
+                            Showing {{ $events->firstItem() ?? 0 }} to {{ $events->lastItem() ?? 0 }} of {{ $totalCount ?? $events->total() }} events
+                        </span>
+                        <span id="loadingIndicator" class="ms-2" style="display: none;">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Searching...
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Cards Grid -->
+        <div class="row row-cols-1 row-cols-md-2 g-3" id="eventsCardsContainer">
+            @include('admin.tabs.partials.event-cards', ['events' => $events])
+        </div>
+        <div class="mt-3" id="paginationContainer">
+            {{ $events->links() }}
+        </div>
+    </div>
+</div>
+
+<!-- Keep the original structure for backward compatibility -->
+<div style="display: none;">
+<div class="row mb-4 g-4">
+    <div class="col-12 col-lg-7">
         <div class="row row-cols-1 row-cols-md-2 g-3">
             @foreach ($events as $item)
             <div class="col">
@@ -318,20 +439,33 @@
                     }
                     }
                     @endphp
-                    <img src="{{ $imageUrl }}" class="card-img-top" alt="News Image"
+                    <img src="{{ $imageUrl }}" class="card-img-top" alt="Event Image"
                         onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5JbWFnZSBub3QgZm91bmQ8L3RleHQ+PC9zdmc+';">
-                    <div class="card h-100">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ $item->title }}</h5>
-                            <p class="card-text">{{ Str::limit($item->description, 100) }}</p>
-
-                            <!-- Push date to bottom -->
-                            <p class="card-text mt-auto">
-                                <small class="text-muted">
-                                    {{ $item->start_date ? $item->start_date->format('M d, Y H:i') : '' }}
-                                </small>
-                            </p>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ $item->title }}</h5>
+                        <p class="card-text">{{ Str::limit($item->description, 100) }}</p>
+                        
+                        <!-- Event Details -->
+                        <div class="mb-2">
+                            <small class="text-muted d-block">
+                                <i class="fa fa-map-marker-alt me-1"></i><strong>Location:</strong> {{ $item->location }}
+                            </small>
+                            <small class="text-muted d-block">
+                                <i class="fa fa-user me-1"></i><strong>Organizer:</strong> {{ $item->organizer }}
+                            </small>
+                            @if($item->end_date)
+                            <small class="text-muted d-block">
+                                <i class="fa fa-clock me-1"></i><strong>Duration:</strong> {{ $item->start_date->format('M d') }} - {{ $item->end_date->format('M d, Y') }}
+                            </small>
+                            @endif
                         </div>
+
+                        <!-- Date pushed to bottom -->
+                        <p class="card-text mt-auto">
+                            <small class="text-muted">
+                                <i class="fa fa-calendar me-1"></i>{{ $item->start_date ? $item->start_date->format('M d, Y H:i') : '' }}
+                            </small>
+                        </p>
                     </div>
 
                     <div class="card-footer">
@@ -362,21 +496,24 @@
                                     <div class="modal-dialog modal-dialog-centered">
                                         <div class="modal-content">
 
-                                            <div class="modal-header">
+                                            <div class="modal-header bg-danger text-white">
                                                 <h5 class="modal-title" id="deleteEventModalLabel{{ $item->id }}">
-                                                    Confirm Delete</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    <i class="fa fa-exclamation-triangle me-2"></i> Confirm Deletion
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
                                                     aria-label="Close"></button>
                                             </div>
 
                                             <div class="modal-body">
-                                                Are you sure you want to delete this event?
+                                                Are you sure you want to delete this event? <br>
+                                                <strong>{{ $item->title }}</strong>
                                             </div>
 
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
                                                     data-bs-dismiss="modal">Cancel</button>
 
+                                                <!-- Actual Delete Form -->
                                                 <form method="POST"
                                                     action="{{ route('admin.events.destroy', $item->id) }}">
                                                     @csrf
@@ -399,6 +536,7 @@
             {{ $events->links() }}
         </div>
     </div>
+</div>
 </div>
 
 <!-- Edit Event Modal -->
@@ -508,7 +646,253 @@
     </div>
 </div>
 
+<!-- Events Search and Filter JavaScript -->
 <script>
+    // Search and Filter Functionality for Events
+    let searchTimeout;
+    const searchInput = document.getElementById('searchInput');
+    const timeFilter = document.getElementById('timeFilter');
+    const visibilityFilter = document.getElementById('visibilityFilter');
+    const sortBy = document.getElementById('sortBy');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const dateFrom = document.getElementById('dateFrom');
+    const dateTo = document.getElementById('dateTo');
+    const searchFilterForm = document.getElementById('searchFilterForm');
+
+    // Prevent form submission and use AJAX instead
+    if (searchFilterForm) {
+        searchFilterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+
+    // Real-time search as user types
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 500);
+        });
+    }
+
+    // Clear search button
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            performSearch();
+        });
+    }
+
+    // Apply Filters button
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', function() {
+            performSearch();
+        });
+    }
+
+    // Reset All button
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', function() {
+            // Clear all form inputs
+            if (searchInput) searchInput.value = '';
+            if (timeFilter) timeFilter.value = 'upcoming';
+            if (visibilityFilter) visibilityFilter.value = '';
+            if (sortBy) sortBy.value = 'auto';
+            if (dateFrom) dateFrom.value = '';
+            if (dateTo) dateTo.value = '';
+            
+            // Perform search with cleared filters
+            performSearch();
+        });
+    }
+
+    // Filter and sort change handlers
+    [timeFilter, visibilityFilter, sortBy, dateFrom, dateTo].forEach(element => {
+        if (element) {
+            element.addEventListener('change', performSearch);
+        }
+    });
+
+    // Global function to clean up modal backdrops
+    function cleanupModalBackdrops() {
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+            backdrop.remove();
+        });
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
+        document.body.style.removeProperty('overflow');
+        document.documentElement.style.removeProperty('overflow');
+    }
+
+    // Add global error handler for uncaught modal issues
+    window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('modal')) {
+            console.warn('Modal error detected, cleaning up backdrops');
+            cleanupModalBackdrops();
+        }
+    });
+
+    // Perform AJAX search
+    function performSearch() {
+        const formData = new FormData(searchFilterForm);
+        const params = new URLSearchParams(formData);
+
+        // Remove empty parameters for cleaner URLs
+        for (let [key, value] of Array.from(params.entries())) {
+            if (!value || value.trim() === '') {
+                params.delete(key);
+            }
+        }
+
+        // Show loading indicator
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const counterText = document.getElementById('counterText');
+        if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+        const searchUrl = `{{ route('admin.events.index') }}?${params.toString()}`;
+
+        fetch(searchUrl, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Update events cards
+            const eventsContainer = document.getElementById('eventsCardsContainer');
+            if (eventsContainer && data.html) {
+                eventsContainer.innerHTML = data.html;
+            }
+
+            // Update pagination
+            const paginationContainer = document.getElementById('paginationContainer');
+            if (paginationContainer && data.pagination) {
+                paginationContainer.innerHTML = data.pagination;
+            }
+
+            // Update counter
+            if (counterText) {
+                const from = data.from || 0;
+                const to = data.to || 0;
+                const total = data.totalCount || 0;
+                counterText.textContent = `Showing ${from} to ${to} of ${total} events`;
+            }
+
+            // Update browser URL without page reload (for bookmarking/sharing)
+            const newUrl = params.toString() ? searchUrl : '{{ route('admin.events.index') }}';
+            window.history.pushState({}, '', newUrl);
+
+            // Hide loading indicator
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            
+            // Show error message
+            if (typeof Swal !== 'undefined') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    iconColor: 'white',
+                    customClass: {
+                        popup: 'colored-toast',
+                    },
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Search failed. Please try again.'
+                });
+            } else {
+                alert('Search failed. Please try again.');
+            }
+        });
+    }
+
+    // Handle pagination clicks with AJAX
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#paginationContainer a')) {
+            e.preventDefault();
+            const url = e.target.closest('a').href;
+            
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update events cards
+                const eventsContainer = document.getElementById('eventsCardsContainer');
+                if (eventsContainer && data.html) {
+                    eventsContainer.innerHTML = data.html;
+                }
+
+                // Update pagination
+                const paginationContainer = document.getElementById('paginationContainer');
+                if (paginationContainer && data.pagination) {
+                    paginationContainer.innerHTML = data.pagination;
+                }
+
+                // Update counter
+                const counterText = document.getElementById('counterText');
+                if (counterText) {
+                    const from = data.from || 0;
+                    const to = data.to || 0;
+                    const total = data.totalCount || 0;
+                    counterText.textContent = `Showing ${from} to ${to} of ${total} events`;
+                }
+
+                // Update browser URL
+                window.history.pushState({}, '', url);
+
+                // Hide loading indicator
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+                // Scroll to top of events section
+                const eventsCardsContainer = document.getElementById('eventsCardsContainer');
+                if (eventsCardsContainer) {
+                    eventsCardsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(error => {
+                console.error('Pagination error:', error);
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            });
+        }
+    });
+
+    // Emergency cleanup on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            cleanupModalBackdrops();
+        }, 500);
+    });
+
+    // Add cleanup when leaving the page
+    window.addEventListener('beforeunload', function() {
+        cleanupModalBackdrops();
+    });
+
     // Bootstrap validation
     (() => {
         'use strict';

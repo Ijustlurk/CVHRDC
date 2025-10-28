@@ -70,4 +70,60 @@ class User extends Authenticatable
         return false;
 
     }
+
+    /**
+     * Check if user is a Super Admin
+     *
+     * @return bool
+     */
+    public function isSuperAdmin()
+    {
+        return $this->hasRole('superadmin');
+    }
+
+    /**
+     * Check if user is an Admin
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Check if user is RMC (Research Management Committee)
+     *
+     * @return bool
+     */
+    public function isRMC()
+    {
+        return $this->hasRole('RMC');
+    }
+
+    /**
+     * Check if user is RUC (Research Utilization Committee)
+     *
+     * @return bool
+     */
+    public function isRUC()
+    {
+        return $this->hasRole('RUC');
+    }
+
+    /**
+     * Get all calls created by this user.
+     */
+    public function createdCalls()
+    {
+        return $this->hasMany(CallForProposal::class, 'created_by');
+    }
+
+    /**
+     * Get all calls approved by this user.
+     */
+    public function approvedCalls()
+    {
+        return $this->hasMany(CallForProposal::class, 'approved_by');
+    }
 }

@@ -17,6 +17,11 @@ use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Users\DashboardController as UserDashboardController;
+use App\Http\Controllers\RMC\DashboardController as RMCDashboardController;
+use App\Http\Controllers\RUC\DashboardController as RUCDashboardController;
+use App\Http\Controllers\RMC\CallForProposalController;
+use App\Http\Controllers\RMC\ProposalSubmissionController;
+use App\Http\Controllers\RUC\CallForProposalController as RUCallForProposalController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Users\UserResearchCTRL;
 use App\Http\Controllers\Users\UserPreprintController;
@@ -48,7 +53,13 @@ Route::get('/sample', function () {
 Route::get('/', function () {
    // return view('auth.login');
     return view('welcome');
-});
+})->name('welcome');
+
+// Public routes for calls
+Route::get('/calls', [App\Http\Controllers\Public\CallController::class, 'index'])->name('public.calls.index');
+Route::get('/calls/{id}', [App\Http\Controllers\Public\CallController::class, 'show'])->name('public.calls.show');
+Route::get('/calls/{id}/download-format', [App\Http\Controllers\Public\CallController::class, 'downloadFormat'])->name('public.calls.download-format');
+Route::get('/api/public-calls', [App\Http\Controllers\Public\CallController::class, 'getPublicCalls'])->name('api.public-calls');
 
 
 
@@ -62,6 +73,10 @@ Route::get('/dashboard', function () {
         $role = strtolower($user->roles[0]->name);
         if ($role === 'admin' || $role === 'superadmin') {
             return app(AdminDashboardController::class)->index();
+        } elseif ($role === 'rmc') {
+            return app(RMCDashboardController::class)->index();
+        } elseif ($role === 'ruc') {
+            return app(RUCDashboardController::class)->index();
         } else {
             return app(UserDashboardController::class)->index();
         }
@@ -173,6 +188,41 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 });
 
 
+// RMC (Research Management Committee) routes here
+Route::middleware(['auth', 'rmc'])->prefix('rmc')->name('rmc.')->group(function () {
+    Route::get('/dashboard', [RMCDashboardController::class, 'index'])->name('dashboard');
+
+    // Calls for Proposals Management
+    Route::resource('calls', CallForProposalController::class);
+    Route::post('calls/{id}/visibility', [CallForProposalController::class, 'updateVisibility'])->name('calls.visibility');
+    Route::get('calls/{id}/download-format', [CallForProposalController::class, 'downloadFormatFile'])->name('calls.download-format');
+
+    // General Submissions Management (all submissions for user's calls)
+    Route::get('submissions', [ProposalSubmissionController::class, 'index'])->name('submissions.index');
+
+    // Proposal Submissions Management (for specific calls)
+    Route::get('calls/{callId}/submissions', [ProposalSubmissionController::class, 'showCallSubmissions'])->name('submissions.call');
+    Route::get('calls/{callId}/submissions/{submissionId}', [ProposalSubmissionController::class, 'show'])->name('submissions.show');
+    Route::post('calls/{callId}/submissions/{submissionId}/status', [ProposalSubmissionController::class, 'updateStatus'])->name('submissions.status');
+    Route::get('calls/{callId}/submissions/{submissionId}/download', [ProposalSubmissionController::class, 'downloadDocument'])->name('submissions.download');
+});
+
+
+// RUC (Research Utilization Committee) routes here
+Route::middleware(['auth', 'ruc'])->prefix('ruc')->name('ruc.')->group(function () {
+    Route::get('/dashboard', [RUCDashboardController::class, 'index'])->name('dashboard');
+
+    // Review Calls Management
+    Route::get('calls', [RUCallForProposalController::class, 'index'])->name('calls.index');
+    Route::get('calls/{id}', [RUCallForProposalController::class, 'show'])->name('calls.show');
+    Route::post('calls/{id}/visibility', [RUCallForProposalController::class, 'updateVisibility'])->name('calls.visibility');
+    Route::post('calls/{id}/status', [RUCallForProposalController::class, 'updateStatus'])->name('calls.status');
+    Route::get('calls/{id}/download-format', [RUCallForProposalController::class, 'downloadFormatFile'])->name('calls.download-format');
+
+    // Specialized views for RUC
+    Route::get('review-calls', [RUCallForProposalController::class, 'getForReview'])->name('calls.review');
+    Route::get('published-calls', [RUCallForProposalController::class, 'getPublished'])->name('calls.published');
+});
 
 
 // users routes here

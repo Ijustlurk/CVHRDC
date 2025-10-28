@@ -313,6 +313,162 @@
         </div>
     </div>
     <div class="col-12 col-lg-7">
+        <!-- Search and Filter Section -->
+        <div class="card shadow mb-3">
+            <div class="card-header bg-info text-white fw-bold">
+                <i class="fa fa-search me-2"></i>Search & Filter Projects
+            </div>
+            <div class="card-body">
+                <form id="searchFilterForm" method="GET" action="{{ route('admin.projects.index') }}">
+                    <div class="row g-3">
+                        <!-- Search Bar -->
+                        <div class="col-12">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                <input type="text" class="form-control" id="searchInput" name="search" 
+                                    placeholder="Search by title, description, lead researcher, leader, or funding agency..." 
+                                    value="{{ request('search') }}">
+                                <button type="button" class="btn btn-outline-secondary" id="clearSearch" title="Clear search">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Date Filter -->
+                        <div class="col-12 col-md-4">
+                            <label for="dateFilter" class="form-label small fw-bold">
+                                <i class="fa fa-calendar me-1"></i>Date Range
+                            </label>
+                            <select class="form-select form-select-sm" id="dateFilter" name="date_filter">
+                                <option value="" {{ request('date_filter') == '' ? 'selected' : '' }}>All Time</option>
+                                <option value="last_7_days" {{ request('date_filter') == 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
+                                <option value="last_30_days" {{ request('date_filter') == 'last_30_days' ? 'selected' : '' }}>Last 30 Days</option>
+                                <option value="last_6_months" {{ request('date_filter') == 'last_6_months' ? 'selected' : '' }}>Last 6 Months</option>
+                                <option value="custom" {{ request('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                            </select>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="col-12 col-md-4">
+                            <label for="statusFilter" class="form-label small fw-bold">
+                                <i class="fa fa-filter me-1"></i>Status
+                            </label>
+                            <select class="form-select form-select-sm" id="statusFilter" name="visibility">
+                                <option value="" {{ request('visibility') == '' ? 'selected' : '' }}>All Status</option>
+                                <option value="visible" {{ request('visibility') == 'visible' ? 'selected' : '' }}>Public</option>
+                                <option value="hidden" {{ request('visibility') == 'hidden' ? 'selected' : '' }}>Private</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort By -->
+                        <div class="col-12 col-md-4">
+                            <label for="sortBy" class="form-label small fw-bold">
+                                <i class="fa fa-sort me-1"></i>Sort By
+                            </label>
+                            <select class="form-select form-select-sm" id="sortBy" name="sort">
+                                <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                                <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>A-Z</option>
+                                <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Z-A</option>
+                                <option value="budget_high" {{ request('sort') == 'budget_high' ? 'selected' : '' }}>Budget High-Low</option>
+                                <option value="budget_low" {{ request('sort') == 'budget_low' ? 'selected' : '' }}>Budget Low-High</option>
+                            </select>
+                        </div>
+
+                        <!-- Custom Date Range (shown when Custom Range is selected) -->
+                        <div class="col-12" id="customDateRange" style="display: {{ request('date_filter') == 'custom' ? 'block' : 'none' }};">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label for="dateFrom" class="form-label small">From Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="dateFrom" name="date_from" value="{{ request('date_from') }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dateTo" class="form-label small">To Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="dateTo" name="date_to" value="{{ request('date_to') }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Filters Row -->
+                        <div class="col-12 col-md-6">
+                            <label for="leadResearcherFilter" class="form-label small fw-bold">
+                                <i class="fa fa-user me-1"></i>Lead Researcher
+                            </label>
+                            <input type="text" class="form-control form-control-sm" id="leadResearcherFilter" name="lead_researcher_filter" 
+                                placeholder="Search by researcher name..." value="{{ request('lead_researcher_filter') }}">
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="statusFilterInput" class="form-label small fw-bold">
+                                <i class="fa fa-flag me-1"></i>Project Status
+                            </label>
+                            <input type="text" class="form-control form-control-sm" id="statusFilterInput" name="status_filter" 
+                                placeholder="Search by status..." value="{{ request('status_filter') }}">
+                        </div>
+
+                        <!-- Budget Range -->
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">
+                                <i class="fa fa-money-bill me-1"></i>Budget Range
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" class="form-control form-control-sm" id="budgetMin" name="budget_min" 
+                                        placeholder="Min budget" value="{{ request('budget_min') }}" min="0" step="1000">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" class="form-control form-control-sm" id="budgetMax" name="budget_max" 
+                                        placeholder="Max budget" value="{{ request('budget_max') }}" min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary btn-sm" id="applyFiltersBtn">
+                                    <i class="fa fa-filter me-1"></i>Apply Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtn">
+                                    <i class="fa fa-redo me-1"></i>Reset All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Results Counter -->
+                <div class="mt-3 pt-3 border-top">
+                    <div id="resultsCounter" class="text-muted small">
+                        <i class="fa fa-info-circle me-1"></i>
+                        <span id="counterText">
+                            Showing {{ $projects->firstItem() ?? 0 }} to {{ $projects->lastItem() ?? 0 }} of {{ $totalCount ?? $projects->total() }} projects
+                        </span>
+                        <span id="loadingIndicator" class="ms-2" style="display: none;">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Searching...
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Cards Grid -->
+        <div class="row row-cols-1 row-cols-md-2 g-3" id="projectsCardsContainer">
+            @include('admin.tabs.partials.project-cards', ['projects' => $projects])
+        </div>
+        <div class="mt-3" id="paginationContainer">
+            {{ $projects->links() }}
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!-- Keep the original structure for backward compatibility -->
+<div style="display: none;">
+<div class="row mb-4 g-4">
+    <div class="col-12 col-lg-7">
         <div class="row row-cols-1 row-cols-md-2 g-3">
             @foreach ($projects as $item)
             <div class="col">
@@ -420,6 +576,7 @@
             {{ $projects->links() }}
         </div>
     </div>
+</div>
 </div>
 
 <!-- Edit Project Modal -->
@@ -548,6 +705,319 @@
         </div>
     </div>
 </div>
+
+<!-- Projects Search and Filter JavaScript -->
+<script>
+    // Search and Filter Functionality for Projects
+    let searchTimeout;
+    const searchInput = document.getElementById('searchInput');
+    const dateFilter = document.getElementById('dateFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const sortBy = document.getElementById('sortBy');
+    const clearSearchBtn = document.getElementById('clearSearch');
+    const customDateRange = document.getElementById('customDateRange');
+    const dateFrom = document.getElementById('dateFrom');
+    const dateTo = document.getElementById('dateTo');
+    const searchFilterForm = document.getElementById('searchFilterForm');
+
+    // Additional filter elements (now inline)
+    const statusFilterInput = document.getElementById('statusFilterInput');
+    const leadResearcherFilter = document.getElementById('leadResearcherFilter');
+    const budgetMin = document.getElementById('budgetMin');
+    const budgetMax = document.getElementById('budgetMax');
+
+    // Prevent form submission and use AJAX instead
+    if (searchFilterForm) {
+        searchFilterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+
+    // Real-time search as user types
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 500);
+        });
+    }
+
+    // Clear search button
+    if (clearSearchBtn) {
+        clearSearchBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            performSearch();
+        });
+    }
+
+    // Apply Filters button
+    const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', function() {
+            performSearch();
+        });
+    }
+
+    // Reset All button
+    const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    if (resetFiltersBtn) {
+        resetFiltersBtn.addEventListener('click', function() {
+            // Clear all form inputs
+            if (searchInput) searchInput.value = '';
+            if (dateFilter) dateFilter.value = '';
+            if (statusFilter) statusFilter.value = '';
+            if (sortBy) sortBy.value = 'newest';
+            if (dateFrom) dateFrom.value = '';
+            if (dateTo) dateTo.value = '';
+            if (customDateRange) customDateRange.style.display = 'none';
+            
+            // Clear additional filters
+            if (statusFilterInput) statusFilterInput.value = '';
+            if (leadResearcherFilter) leadResearcherFilter.value = '';
+            if (budgetMin) budgetMin.value = '';
+            if (budgetMax) budgetMax.value = '';
+            
+            // Perform search with cleared filters
+            performSearch();
+        });
+    }
+
+    // Filter and sort change handlers
+    [dateFilter, statusFilter, sortBy, statusFilterInput, leadResearcherFilter, budgetMin, budgetMax].forEach(element => {
+        if (element) {
+            element.addEventListener('change', performSearch);
+            // Add input event for text fields for real-time filtering
+            if (element.type === 'text' || element.type === 'number') {
+                element.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        performSearch();
+                    }, 500);
+                });
+            }
+        }
+    });
+
+    // Custom date range inputs
+    [dateFrom, dateTo].forEach(element => {
+        if (element) {
+            element.addEventListener('change', function() {
+                if (dateFilter.value === 'custom') {
+                    performSearch();
+                }
+            });
+        }
+    });
+
+    // Show/hide custom date range
+    if (dateFilter) {
+        dateFilter.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customDateRange.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+            }
+        });
+    }
+
+
+    // Helper function to update hidden inputs
+    function updateHiddenInput(form, name, value) {
+        let input = form.querySelector(`input[name="${name}"]`);
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            form.appendChild(input);
+        }
+        input.value = value;
+    }
+
+    // Global function to clean up modal backdrops
+    function cleanupModalBackdrops() {
+        // Remove any lingering modal backdrops
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+            backdrop.remove();
+        });
+        
+        // Reset body classes and styles
+        document.body.classList.remove('modal-open');
+        document.body.style.removeProperty('padding-right');
+        document.body.style.removeProperty('overflow');
+        
+        // Ensure page is scrollable
+        document.documentElement.style.removeProperty('overflow');
+    }
+
+    // Add global error handler for uncaught modal issues
+    window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('modal')) {
+            console.warn('Modal error detected, cleaning up backdrops');
+            cleanupModalBackdrops();
+        }
+    });
+
+    // Perform AJAX search
+    function performSearch() {
+        const formData = new FormData(searchFilterForm);
+        const params = new URLSearchParams(formData);
+
+        // Remove empty parameters for cleaner URLs
+        for (let [key, value] of Array.from(params.entries())) {
+            if (!value || value.trim() === '') {
+                params.delete(key);
+            }
+        }
+
+        // Show loading indicator
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const counterText = document.getElementById('counterText');
+        if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+        const searchUrl = `{{ route('admin.projects.index') }}?${params.toString()}`;
+
+        fetch(searchUrl, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Update projects cards
+            const projectsContainer = document.getElementById('projectsCardsContainer');
+            if (projectsContainer && data.html) {
+                projectsContainer.innerHTML = data.html;
+            }
+
+            // Update pagination
+            const paginationContainer = document.getElementById('paginationContainer');
+            if (paginationContainer && data.pagination) {
+                paginationContainer.innerHTML = data.pagination;
+            }
+
+            // Update counter
+            if (counterText) {
+                const from = data.from || 0;
+                const to = data.to || 0;
+                const total = data.totalCount || 0;
+                counterText.textContent = `Showing ${from} to ${to} of ${total} projects`;
+            }
+
+            // Update browser URL without page reload (for bookmarking/sharing)
+            const newUrl = params.toString() ? searchUrl : '{{ route('admin.projects.index') }}';
+            window.history.pushState({}, '', newUrl);
+
+            // Hide loading indicator
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            
+            // Show error message
+            if (typeof Swal !== 'undefined') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    iconColor: 'white',
+                    customClass: {
+                        popup: 'colored-toast',
+                    },
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Search failed. Please try again.'
+                });
+            } else {
+                alert('Search failed. Please try again.');
+            }
+        });
+    }
+
+    // Handle pagination clicks with AJAX
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#paginationContainer a')) {
+            e.preventDefault();
+            const url = e.target.closest('a').href;
+            
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update projects cards
+                const projectsContainer = document.getElementById('projectsCardsContainer');
+                if (projectsContainer && data.html) {
+                    projectsContainer.innerHTML = data.html;
+                }
+
+                // Update pagination
+                const paginationContainer = document.getElementById('paginationContainer');
+                if (paginationContainer && data.pagination) {
+                    paginationContainer.innerHTML = data.pagination;
+                }
+
+                // Update counter
+                const counterText = document.getElementById('counterText');
+                if (counterText) {
+                    const from = data.from || 0;
+                    const to = data.to || 0;
+                    const total = data.totalCount || 0;
+                    counterText.textContent = `Showing ${from} to ${to} of ${total} projects`;
+                }
+
+                // Update browser URL
+                window.history.pushState({}, '', url);
+
+                // Hide loading indicator
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+                // Scroll to top of projects section
+                const projectsCardsContainer = document.getElementById('projectsCardsContainer');
+                if (projectsCardsContainer) {
+                    projectsCardsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(error => {
+                console.error('Pagination error:', error);
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            });
+        }
+    });
+
+    // Emergency cleanup on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Clean up any leftover modal backdrops from previous page loads
+        setTimeout(() => {
+            cleanupModalBackdrops();
+        }, 500);
+    });
+
+    // Add cleanup when leaving the page
+    window.addEventListener('beforeunload', function() {
+        cleanupModalBackdrops();
+    });
+
+</script>
 
 <script>
     // Bootstrap validation

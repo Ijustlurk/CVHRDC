@@ -34,10 +34,132 @@ class EventController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $events = \App\Models\Event::orderBy('id', 'desc')->paginate(8);
-        return view('admin.tabs.partials.events', compact('events'));
+        $query = Event::query();
+
+        // Search by title, description, location, or organizer
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('description', 'like', '%' . $search . '%')
+                    ->orWhere('location', 'like', '%' . $search . '%')
+                    ->orWhere('organizer', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Time-based filters
+        $timeFilter = $request->input('time_filter', 'upcoming'); // Default to upcoming
+        $today = now()->startOfDay();
+
+        switch ($timeFilter) {
+            case 'upcoming':
+                // Events where start date is today or later
+                $query->where('start_date', '>=', $today);
+                break;
+            case 'past':
+                // Events where end date is earlier than today (or start date if no end date)
+                $query->where(function ($q) use ($today) {
+                    $q->where('end_date', '<', $today)
+                        ->orWhere(function ($subQ) use ($today) {
+                            $subQ->whereNull('end_date')
+                                ->where('start_date', '<', $today);
+                        });
+                });
+                break;
+            case 'all':
+                // No time restriction
+                break;
+        }
+
+        // Custom date range (overrides time filter)
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            $dateFrom = $request->input('date_from');
+            $dateTo = $request->input('date_to');
+            
+            $query->where(function ($q) use ($dateFrom, $dateTo) {
+                // Event starts within the range OR event spans across the range
+                $q->whereBetween('start_date', [$dateFrom, $dateTo])
+                    ->orWhere(function ($subQ) use ($dateFrom, $dateTo) {
+                        $subQ->where('start_date', '<=', $dateTo)
+                            ->where(function ($endQ) use ($dateFrom) {
+                                $endQ->where('end_date', '>=', $dateFrom)
+                                    ->orWhereNull('end_date');
+                            });
+                    });
+            });
+        } elseif ($request->filled('date_from')) {
+            $query->where('start_date', '>=', $request->input('date_from'));
+        } elseif ($request->filled('date_to')) {
+            $query->where('start_date', '<=', $request->input('date_to'));
+        }
+
+        // Visibility filter
+        if ($request->filled('visibility')) {
+            $visibility = $request->input('visibility');
+            if ($visibility === 'visible') {
+                $query->where('is_visible', 1);
+            } elseif ($visibility === 'hidden') {
+                $query->where('is_visible', 0);
+            }
+        }
+
+        // Sorting logic
+        $sort = $request->input('sort', 'auto');
+        
+        if ($sort === 'auto') {
+            // Automatic sorting based on time filter
+            switch ($timeFilter) {
+                case 'upcoming':
+                    $query->orderBy('start_date', 'asc'); // Soonest first
+                    break;
+                case 'past':
+                    $query->orderBy('start_date', 'desc'); // Most recent first
+                    break;
+                case 'all':
+                default:
+                    $query->orderBy('start_date', 'desc'); // Most recent first
+                    break;
+            }
+        } else {
+            // Manual sorting
+            switch ($sort) {
+                case 'date_asc':
+                    $query->orderBy('start_date', 'asc');
+                    break;
+                case 'date_desc':
+                    $query->orderBy('start_date', 'desc');
+                    break;
+                case 'title_asc':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'title_desc':
+                    $query->orderBy('title', 'desc');
+                    break;
+                default:
+                    $query->orderBy('start_date', 'desc');
+                    break;
+            }
+        }
+
+        // Handle AJAX requests
+        if ($request->expectsJson()) {
+            $events = $query->paginate(8)->appends($request->except('page'));
+            $totalCount = $events->total();
+
+            return response()->json([
+                'html' => view('admin.tabs.partials.event-cards', compact('events'))->render(),
+                'pagination' => $events->links()->render(),
+                'totalCount' => $totalCount,
+                'currentCount' => $events->count(),
+                'from' => $events->firstItem() ?? 0,
+                'to' => $events->lastItem() ?? 0,
+            ]);
+        }
+
+        // For regular page requests (including refreshes with query params), redirect to AdminTabsController
+        return redirect()->route('admin.tabs.index', array_merge(['tab' => 'events'], $request->query()));
     }
 
     // /**
