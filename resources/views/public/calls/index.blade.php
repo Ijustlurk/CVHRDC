@@ -137,114 +137,357 @@
                 </div>
             </div>
 
-            @forelse($calls as $call)
+            <!-- Search and Filter Section -->
             <div class="row mb-4">
                 <div class="col-12">
-                    <div class="card call-card shadow-sm animate__animated animate__fadeInUp">
-                        <div class="card-body p-4">
-                            <div class="row align-items-center">
-                                <div class="col-lg-8">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <div class="flex-shrink-0">
-                                            <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                                <i class="fas fa-file-alt text-white fs-4"></i>
-                                            </div>
+                    <div class="card call-card shadow-sm">
+                        <div class="card-header bg-light border-bottom py-3" style="background-color: #f8f9fa !important;">
+                            <form id="searchFilterForm" method="GET" action="{{ route('public.calls.index') }}" class="mb-0">
+                                <!-- Search Bar -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label for="searchInput" class="form-label small fw-semibold text-muted mb-2">Search Calls</label>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                            <input type="text" class="form-control" id="searchInput" name="search"
+                                                   placeholder="Search by title, research priority area, description, or eligibility..."
+                                                   value="{{ request('search') }}">
+                                            <button type="button" class="btn btn-outline-secondary" id="clearSearch" title="Clear search">
+                                                <i class="fas fa-times"></i>
+                                            </button>
                                         </div>
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex align-items-center gap-2 mb-2">
-                                                <h4 class="card-title mb-0 text font">
-                                                    {{ $call->title }}
-                                                </h4>
-                                                <span class="badge bg-{{ $call->getStatusBadgeColor() }} status-badge">{{ $call->getStatusLabel() }}</span>
-                                            </div>
-                                            <p class="card-text text-muted mb-3">
-                                                {{ Str::limit(strip_tags($call->description), 150) }}
-                                            </p>
+                                    </div>
+                                </div>
 
-                                            <div class="row g-3 mb-3">
-                                                <div class="col-md-4">
-                                                    <div class="d-flex align-items-center">
-                                                        <i class="fas fa-money-bill-wave text-success me-2"></i>
-                                                        <div>
-                                                            <small class="text-muted d-block">Funding Limit</small>
-                                                            <strong class="text-dark">₱{{ number_format($call->funding_limit, 2) }}</strong>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <div class="d-flex align-items-center">
-                                                        <i class="fas fa-calendar-alt text-primary me-2"></i>
-                                                        <div>
-                                                            <small class="text-muted d-block">Application Period</small>
-                                                            <strong class="text-dark">
-                                                                {{ $call->start_date->format('M d') }} - {{ $call->end_date->format('M d, Y') }}
-                                                            </strong>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <div class="d-flex align-items-center">
-                                                        <i class="fas fa-users text-info me-2"></i>
-                                                        <div>
-                                                            <small class="text-muted d-block">Eligibility</small>
-                                                            <span class="badge bg-info status-badge">{{ Str::limit($call->eligibility, 20) }}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <!-- Filters Row -->
+                                <div class="row g-3 mb-3">
+                                    <!-- Status Filter -->
+                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                        <label for="statusFilter" class="form-label small fw-semibold text-muted mb-1">Filter by Status</label>
+                                        <select class="form-select form-select-sm" id="statusFilter" name="status">
+                                            <option value="" {{ request('status') == '' ? 'selected' : '' }}>All Status</option>
+                                            <option value="Open" {{ request('status') == 'Open' ? 'selected' : '' }}>Open</option>
+                                            <option value="Closed" {{ request('status') == 'Closed' ? 'selected' : '' }}>Closed</option>
+                                            <option value="Upcoming" {{ request('status') == 'Upcoming' ? 'selected' : '' }}>Upcoming</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Date Filter -->
+                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                        <label for="dateFilter" class="form-label small fw-semibold text-muted mb-1">Filter by Date</label>
+                                        <select class="form-select form-select-sm" id="dateFilter" name="date_filter">
+                                            <option value="" {{ request('date_filter') == '' ? 'selected' : '' }}>All Time</option>
+                                            <option value="last_7_days" {{ request('date_filter') == 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
+                                            <option value="last_30_days" {{ request('date_filter') == 'last_30_days' ? 'selected' : '' }}>Last 30 Days</option>
+                                            <option value="last_6_months" {{ request('date_filter') == 'last_6_months' ? 'selected' : '' }}>Last 6 Months</option>
+                                            <option value="custom" {{ request('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Sort By -->
+                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                        <label for="sortBy" class="form-label small fw-semibold text-muted mb-1">Sort By</label>
+                                        <select class="form-select form-select-sm" id="sortBy" name="sort">
+                                            <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                                            <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                                            <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>A-Z</option>
+                                            <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Z-A</option>
+                                            <option value="funding_high" {{ request('sort') == 'funding_high' ? 'selected' : '' }}>Funding High</option>
+                                            <option value="funding_low" {{ request('sort') == 'funding_low' ? 'selected' : '' }}>Funding Low</option>
+                                            <option value="deadline_soon" {{ request('sort') == 'deadline_soon' ? 'selected' : '' }}>Deadline Soon</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Apply/Reset Actions -->
+                                    <div class="col-xl-3 col-lg-12 col-md-6 col-12 d-flex align-items-end">
+                                        <div class="d-flex gap-2 w-100">
+                                            <button type="button" class="btn btn-primary btn-sm flex-fill" id="applyFiltersBtn">
+                                                <i class="fas fa-filter me-1"></i>Apply
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" id="resetFiltersBtn">
+                                                <i class="fas fa-redo me-1"></i>Reset
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-lg-4 text-lg-end text-center mt-3 mt-lg-0">
-                                    <div class="d-flex gap-2 justify-content-lg-end justify-content-center">
-                                        <a href="{{ route('public.calls.show', $call->id) }}" class="btn btn-primary btn-md px-4">
-                                            <i class="fas fa-eye me-2"></i>View Full Details
-                                        </a>
-                                        @if($call->proposal_format_file)
-                                        <a href="{{ route('public.calls.download-format', $call->id) }}" class="btn btn-outline-secondary btn-md px-4" target="_blank">
-                                            <i class="fas fa-download me-2"></i>Download Format
-                                        </a>
-                                        @endif
+
+                                <!-- Custom Date Range (shown when Custom Range is selected) -->
+                                <div class="row mb-3 g-3" id="customDateRange" style="display: {{ request('date_filter') == 'custom' ? 'flex' : 'none' }};">
+                                    <div class="col-md-6 col-12">
+                                        <label for="dateFrom" class="form-label small fw-semibold text-muted mb-1">From Date</label>
+                                        <input type="date" class="form-control form-control-sm" id="dateFrom" name="date_from" value="{{ request('date_from') }}">
                                     </div>
-                                    <div class="mt-2 text-end">
-                                        <small class="text-muted">
-                                            <i class="fas fa-clock me-1"></i>
-                                            {{ $call->created_at->diffForHumans() }}
-                                        </small>
+                                    <div class="col-md-6 col-12">
+                                        <label for="dateTo" class="form-label small fw-semibold text-muted mb-1">To Date</label>
+                                        <input type="date" class="form-control form-control-sm" id="dateTo" name="date_to" value="{{ request('date_to') }}">
                                     </div>
                                 </div>
-                            </div>
+
+                                <!-- Results Counter -->
+                                <div class="row align-items-center">
+                                    <div class="col-12 text-end">
+                                        <div id="resultsCounter" class="text-muted small">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            <span id="counterText">
+                                                {{ $calls->firstItem() ?? 0 }} - {{ $calls->lastItem() ?? 0 }} of {{ $calls->total() }}
+                                            </span>
+                                            <span id="loadingIndicator" class="ms-2" style="display: none;">
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-            @empty
-            <div class="row justify-content-center">
-                <div class="col-lg-6 text-center">
-                    <div class="card shadow-sm">
-                        <div class="card-body py-5">
-                            <i class="fas fa-search text-muted fs-1 mb-3"></i>
-                            <h4 class="text-muted">No Calls Available</h4>
-                            <p class="text-muted">There are currently no public calls for proposals available. Please check back later for new opportunities.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endforelse
 
-            <!-- Pagination -->
-            @if($calls->hasPages())
-            <div class="row justify-content-center mt-4">
-                <div class="col-auto">
-                    {{ $calls->links() }}
-                </div>
+            <!-- Calls List Container -->
+            <div id="callsContainer">
+                @include('public.calls.partials.calls-list', ['calls' => $calls])
             </div>
-            @endif
         </div>
     </section>
 
     @include('layouts.Admin.footer', ['footer' => $footer])
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    // Search and Filter Functionality
+    let searchTimeout;
+
+    function initializeFilters() {
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const sortBy = document.getElementById('sortBy');
+        const clearSearchBtn = document.getElementById('clearSearch');
+        const customDateRange = document.getElementById('customDateRange');
+        const dateFrom = document.getElementById('dateFrom');
+        const dateTo = document.getElementById('dateTo');
+        const searchFilterForm = document.getElementById('searchFilterForm');
+        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+
+        // Prevent form submission and use AJAX instead
+        if (searchFilterForm) {
+            searchFilterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                performSearch();
+            });
+        }
+
+        // Real-time search as user types
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch();
+                }, 500);
+            });
+        }
+
+        // Clear search button
+        if (clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                performSearch();
+            });
+        }
+
+        // Apply Filters button
+        if (applyFiltersBtn) {
+            applyFiltersBtn.addEventListener('click', function() {
+                performSearch();
+            });
+        }
+
+        // Reset All button
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener('click', function() {
+                // Clear all form inputs
+                if (searchInput) searchInput.value = '';
+                if (statusFilter) statusFilter.value = '';
+                if (dateFilter) dateFilter.value = '';
+                if (sortBy) sortBy.value = 'newest';
+                if (dateFrom) dateFrom.value = '';
+                if (dateTo) dateTo.value = '';
+
+                // Hide custom date range
+                if (customDateRange) {
+                    customDateRange.style.display = 'none';
+                }
+
+                // Perform search with cleared filters
+                performSearch();
+            });
+        }
+
+        // Filter and sort change handlers
+        [statusFilter, dateFilter, sortBy].forEach(element => {
+            if (element) {
+                element.addEventListener('change', performSearch);
+            }
+        });
+
+        // Custom date range inputs
+        [dateFrom, dateTo].forEach(element => {
+            if (element) {
+                element.addEventListener('change', function() {
+                    if (dateFilter && dateFilter.value === 'custom') {
+                        performSearch();
+                    }
+                });
+            }
+        });
+
+        // Show/hide custom date range
+        if (dateFilter) {
+            dateFilter.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDateRange.style.display = 'flex';
+                } else {
+                    customDateRange.style.display = 'none';
+                }
+            });
+        }
+    }
+
+    // Perform AJAX search
+    function performSearch() {
+        const formData = new FormData(document.getElementById('searchFilterForm'));
+        const params = new URLSearchParams(formData);
+
+        // Remove empty parameters for cleaner URLs
+        for (let [key, value] of Array.from(params.entries())) {
+            if (!value || value.trim() === '') {
+                params.delete(key);
+            }
+        }
+
+        // Show loading indicator
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const counterText = document.getElementById('counterText');
+        if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+        const searchUrl = `{{ route('public.calls.index') }}?${params.toString()}`;
+
+        fetch(searchUrl, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update calls container
+            const callsContainer = document.getElementById('callsContainer');
+            if (callsContainer && data.html) {
+                callsContainer.innerHTML = data.html;
+            }
+
+            // Update counter
+            if (counterText) {
+                const from = data.from || 0;
+                const to = data.to || 0;
+                const total = data.totalCount || 0;
+                counterText.textContent = `${from} - ${to} of ${total}`;
+            }
+
+            // Update browser URL
+            const newUrl = params.toString() ? searchUrl : '{{ route('public.calls.index') }}';
+            window.history.pushState({}, '', newUrl);
+
+            // Hide loading indicator
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+            // Show error message
+            if (typeof Swal !== 'undefined') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    iconColor: 'white',
+                    customClass: {
+                        popup: 'colored-toast',
+                    },
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Search failed. Please try again.'
+                });
+            } else {
+                alert('Search failed. Please try again.');
+            }
+        });
+    }
+
+    // Handle pagination clicks with AJAX
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#callsPagination a')) {
+            e.preventDefault();
+            const url = e.target.closest('a').href;
+
+            // Show loading indicator
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const counterText = document.getElementById('counterText');
+            if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update calls container
+                const callsContainer = document.getElementById('callsContainer');
+                if (callsContainer && data.html) {
+                    callsContainer.innerHTML = data.html;
+                }
+
+                // Update counter
+                if (counterText) {
+                    const from = data.from || 0;
+                    const to = data.to || 0;
+                    const total = data.totalCount || 0;
+                    counterText.textContent = `${from} - ${to} of ${total}`;
+                }
+
+                // Update browser URL
+                window.history.pushState({}, '', url);
+
+                // Hide loading indicator
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+                // Scroll to top of results
+                const callsSection = document.querySelector('#callsContainer');
+                if (callsSection) {
+                    callsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(error => {
+                console.error('Pagination error:', error);
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            });
+        }
+    });
+
+    // Initialize filters when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeFilters();
+    });
+    </script>
 
     <!-- Real-time updates for calls -->
     <script>
