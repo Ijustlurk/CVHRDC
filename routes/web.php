@@ -231,10 +231,43 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::resource('/feedback','CTRLFeedbacks',['except' => ['update','edit','destroy']]);
     Route::get('/myfeedbacks','CTRLFeedbacks@myfeedback')->name('myfeedback');
     Route::resource('/products', 'ProductsController')->only(['index']);
+    
+    // Research Management Routes
+    Route::get('/research', [UserResearchCTRL::class, 'index'])->name('research.index');
     Route::post('/research/store', [UserResearchCTRL::class, 'store'])->name('research.store');
-    Route::post('/preprint/store', [UserPreprintController::class, 'store'])->name('preprint.store');
-    Route::post('/conferencepaper/store',[UserConferencePaperController::class, 'store'])->name('conferencepaper.store');
-    Route::post('/book/store',[UserBookController::class, 'store'])->name('book.store');
+    Route::get('/research/{research}/edit', [UserResearchCTRL::class, 'edit'])->name('research.edit');
+    Route::put('/research/{research}', [UserResearchCTRL::class, 'update'])->name('research.update');
+    Route::delete('/research/{research}', [UserResearchCTRL::class, 'destroy'])->name('research.destroy');
+    Route::post('/research/{research}/visibility', [UserResearchCTRL::class, 'updateVisibility'])->name('research.visibility');
+    Route::post('/research/{id}/restore', [UserResearchCTRL::class, 'restore'])->name('research.restore');
+    Route::delete('/research/{id}/force-delete', [UserResearchCTRL::class, 'forceDelete'])->name('research.force-delete');
+    
+    // Preprint Management Routes
+    Route::post('/preprints/store', [UserPreprintController::class, 'store'])->name('preprints.store');
+    Route::get('/preprints/{preprint}/edit', [UserPreprintController::class, 'edit'])->name('preprints.edit');
+    Route::put('/preprints/{preprint}', [UserPreprintController::class, 'update'])->name('preprints.update');
+    Route::delete('/preprints/{preprint}', [UserPreprintController::class, 'destroy'])->name('preprints.destroy');
+    Route::post('/preprints/{preprint}/visibility', [UserPreprintController::class, 'updateVisibility'])->name('preprints.visibility');
+    Route::post('/preprints/{id}/restore', [UserPreprintController::class, 'restore'])->name('preprints.restore');
+    Route::delete('/preprints/{id}/force-delete', [UserPreprintController::class, 'forceDelete'])->name('preprints.force-delete');
+    
+    // Conference Paper Management Routes
+    Route::post('/conference-papers/store',[UserConferencePaperController::class, 'store'])->name('conference-papers.store');
+    Route::get('/conference-papers/{conference_paper}/edit', [UserConferencePaperController::class, 'edit'])->name('conference-papers.edit');
+    Route::put('/conference-papers/{conference_paper}', [UserConferencePaperController::class, 'update'])->name('conference-papers.update');
+    Route::delete('/conference-papers/{conference_paper}', [UserConferencePaperController::class, 'destroy'])->name('conference-papers.destroy');
+    Route::post('/conference-papers/{conference_paper}/visibility', [UserConferencePaperController::class, 'updateVisibility'])->name('conference-papers.visibility');
+    Route::post('/conference-papers/{id}/restore', [UserConferencePaperController::class, 'restore'])->name('conference-papers.restore');
+    Route::delete('/conference-papers/{id}/force-delete', [UserConferencePaperController::class, 'forceDelete'])->name('conference-papers.force-delete');
+    
+    // Book Management Routes
+    Route::post('/books/store',[UserBookController::class, 'store'])->name('books.store');
+    Route::get('/books/{book}/edit', [UserBookController::class, 'edit'])->name('books.edit');
+    Route::put('/books/{book}', [UserBookController::class, 'update'])->name('books.update');
+    Route::delete('/books/{book}', [UserBookController::class, 'destroy'])->name('books.destroy');
+    Route::post('/books/{book}/visibility', [UserBookController::class, 'updateVisibility'])->name('books.visibility');
+    Route::post('/books/{id}/restore', [UserBookController::class, 'restore'])->name('books.restore');
+    Route::delete('/books/{id}/force-delete', [UserBookController::class, 'forceDelete'])->name('books.force-delete');
     
     // File download routes
     Route::get('/download/research/{id}', function($id) {
