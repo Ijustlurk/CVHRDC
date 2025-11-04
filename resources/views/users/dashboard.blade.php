@@ -82,6 +82,10 @@
                             <span><i class="fas fa-book text-warning me-2"></i>Books</span>
                             <span class="badge bg-warning rounded-pill">Manage</span>
                         </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                            <span><i class="fas fa-file-signature text-danger me-2"></i>Proposal Submissions</span>
+                            <span class="badge bg-danger rounded-pill">Submit</span>
+                        </div>
                     </div>
             </div>
         </div>
