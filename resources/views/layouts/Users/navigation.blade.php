@@ -32,6 +32,12 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
 
                 <x-nav-link
                     class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
+                    :href="route('users.proposal-submissions.index')" :active="request()->routeIs('users.proposal-submissions.*')">
+                    Proposal Submission
+                </x-nav-link>
+
+                <x-nav-link
+                    class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
                     :href="route('users.feedback.create')" :active="request()->routeIs('users.feedback.create')">
                     {{ __('Send Feedback') }}
                 </x-nav-link>
@@ -127,6 +133,11 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
             <x-responsive-nav-link :href="route('users.research.index')" :active="request()->routeIs('users.research.*')"
                 class="text-sm hover:text-blue-600 hover:underline transition duration-150">
                 {{ __('Research Management') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('users.proposal-submissions.index')" :active="request()->routeIs('users.proposal-submissions.*')"
+                class="text-sm hover:text-blue-600 hover:underline transition duration-150">
+                {{ __('Proposal Submission') }}
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('users.feedback.create')" :active="request()->routeIs('users.feedback.create')"
