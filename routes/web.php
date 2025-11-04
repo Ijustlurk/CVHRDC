@@ -27,6 +27,7 @@ use App\Http\Controllers\Users\UserResearchCTRL;
 use App\Http\Controllers\Users\UserPreprintController;
 use App\Http\Controllers\Users\UserConferencePaperController;
 use App\Http\Controllers\Users\UserBookController;
+use App\Http\Controllers\Users\UserProposalSubmissionController;
 
 
 
@@ -268,6 +269,13 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::post('/books/{book}/visibility', [UserBookController::class, 'updateVisibility'])->name('books.visibility');
     Route::post('/books/{id}/restore', [UserBookController::class, 'restore'])->name('books.restore');
     Route::delete('/books/{id}/force-delete', [UserBookController::class, 'forceDelete'])->name('books.force-delete');
+
+    // Proposal Submission Routes
+    Route::get('/proposal-submissions', [UserProposalSubmissionController::class, 'index'])->name('proposal-submissions.index');
+    Route::get('/proposal-submissions/create', [UserProposalSubmissionController::class, 'create'])->name('proposal-submissions.create');
+    Route::post('/proposal-submissions', [UserProposalSubmissionController::class, 'store'])->name('proposal-submissions.store');
+    Route::get('/proposal-submissions/{proposalSubmission}', [UserProposalSubmissionController::class, 'show'])->name('proposal-submissions.show');
+    Route::get('/proposal-submissions/{proposalSubmission}/download', [UserProposalSubmissionController::class, 'download'])->name('proposal-submissions.download');
     
     // File download routes
     Route::get('/download/research/{id}', function($id) {
