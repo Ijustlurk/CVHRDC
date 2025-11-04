@@ -24,6 +24,7 @@ class ProposalSubmission extends Model
      */
     protected $fillable = [
         'call_id',
+        'user_id',
         'research_title',
         'proponent_name',
         'affiliation',
@@ -46,6 +47,14 @@ class ProposalSubmission extends Model
         'date_submitted' => 'datetime',
         'status' => 'string',
     ];
+
+    /**
+     * Get the user who submitted this proposal.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Get the call for proposal this submission belongs to.
