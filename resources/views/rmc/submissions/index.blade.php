@@ -69,44 +69,9 @@
                             </td>
                             <td>₱{{ number_format($submission->budget_requested, 2) }}</td>
                             <td>
-                                <div class="btn-group" role="group">
-                                    <a href="{{ route('rmc.submissions.show', [$submission->call_id, $submission->id]) }}" class="btn btn-sm btn-primary">View</a>
-
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-bs-toggle="dropdown">
-                                            <i class="fas fa-edit me-1"></i>Update Status
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li>
-                                                <form method="POST" action="{{ route('rmc.submissions.status', [$submission->call_id, $submission->id]) }}" class="d-inline">
-                                                    @csrf
-                                                    <input type="hidden" name="status" value="Under Review">
-                                                    <button type="submit" class="dropdown-item">
-                                                        <i class="fas fa-search me-2"></i>Set to Under Review
-                                                    </button>
-                                                </form>
-                                            </li>
-                                            <li>
-                                                <form method="POST" action="{{ route('rmc.submissions.status', [$submission->call_id, $submission->id]) }}" class="d-inline">
-                                                    @csrf
-                                                    <input type="hidden" name="status" value="Accepted">
-                                                    <button type="submit" class="dropdown-item">
-                                                        <i class="fas fa-check me-2"></i>Accept
-                                                    </button>
-                                                </form>
-                                            </li>
-                                            <li>
-                                                <form method="POST" action="{{ route('rmc.submissions.status', [$submission->call_id, $submission->id]) }}" class="d-inline">
-                                                    @csrf
-                                                    <input type="hidden" name="status" value="Rejected">
-                                                    <button type="submit" class="dropdown-item">
-                                                        <i class="fas fa-times me-2"></i>Reject
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
+                                <a href="{{ route('rmc.submissions.show', [$submission->call_id, $submission->id]) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
                             </td>
                         </tr>
                         @endforeach
@@ -125,69 +90,5 @@
     </div>
 </div>
 
-<script>
-// Handle status update form submission with AJAX
-document.addEventListener('DOMContentLoaded', function() {
-    const forms = document.querySelectorAll('form[data-ajax="true"]');
-
-    forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(form);
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-            submitBtn.disabled = true;
-
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert(data.message, 'success');
-                    setTimeout(() => location.reload(), 2000);
-                } else {
-                    showAlert(data.message, 'danger');
-                    if (data.errors) {
-                        Object.values(data.errors).forEach(error => {
-                            showAlert(error[0], 'danger');
-                        });
-                    }
-                }
-            })
-            .catch(error => {
-                showAlert('An error occurred. Please try again.', 'danger');
-                console.error('Error:', error);
-            })
-            .finally(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
-        });
-    });
-});
-
-function showAlert(message, type) {
-    const alertContainer = document.getElementById('alertContainer');
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type} alert-dismissible fade show`;
-    alert.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    alertContainer.appendChild(alert);
-
-    setTimeout(() => {
-        alert.remove();
-    }, 5000);
-}
-</script>
 @endsection
 
