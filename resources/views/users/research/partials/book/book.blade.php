@@ -89,8 +89,14 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
+                                                <a href="{{ route('users.books.show', data_get($book, 'id')) }}"
+                                                    class="btn btn-sm btn-info" title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
                                                 <a href="{{ route('users.books.edit', data_get($book, 'id')) }}"
-                                                    class="btn btn-sm btn-primary">Edit</a>
+                                                    class="btn btn-sm btn-primary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
                                                 <form method="POST"
                                                     action="{{ route('users.books.visibility', data_get($book, 'id')) }}"
                                                     class="ms-1">
@@ -98,7 +104,8 @@
                                                     <input type="hidden" name="is_public"
                                                         value="{{ $bookIsPublic ? 0 : 1 }}">
                                                     <button type="submit"
-                                                        class="btn btn-sm btn-outline-{{ $bookIsPublic ? 'secondary' : 'success' }}">
+                                                        class="btn btn-sm btn-outline-{{ $bookIsPublic ? 'secondary' : 'success' }}"
+                                                        title="{{ $bookIsPublic ? 'Make Private' : 'Make Public' }}">
                                                         <i class="fa fa-eye{{ $bookIsPublic ? '-slash' : '' }}"></i>
                                                     </button>
                                                 </form>
@@ -107,7 +114,9 @@
                                                     onsubmit="return confirm('Delete this book?');" class="ms-1">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
                                                 </form>
                                             </div>
                                         </td>
