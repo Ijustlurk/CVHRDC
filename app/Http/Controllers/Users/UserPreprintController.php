@@ -11,12 +11,92 @@ use Illuminate\Support\Facades\Log;
 
 class UserPreprintController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $userId = Auth::id();
         
-        // Filter all records by the currently authenticated user
-        $preprints = Preprint::where('user_id', $userId)->orderByDesc('id')->paginate(12);
+        // Start with base query filtered by user
+        $query = Preprint::where('user_id', $userId);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('abstract', 'like', "%{$search}%")
+                  ->orWhere('repository_name', 'like', "%{$search}%")
+                  ->orWhereRaw("JSON_SEARCH(authors, 'one', ?, NULL, '$[*]') IS NOT NULL", ["%{$search}%"])
+                  ->orWhereRaw("JSON_SEARCH(keywords, 'one', ?, NULL, '$[*]') IS NOT NULL", ["%{$search}%"]);
+            });
+        }
+
+        // Apply peer-reviewed filter
+        if ($request->filled('peer_reviewed')) {
+            $peerReviewed = $request->input('peer_reviewed');
+            if ($peerReviewed === 'Yes') {
+                $query->where('is_peer_reviewed', true);
+            } elseif ($peerReviewed === 'No') {
+                $query->where('is_peer_reviewed', false);
+            }
+        }
+
+        // Apply visibility filter
+        if ($request->filled('visibility')) {
+            $visibility = $request->input('visibility');
+            if ($visibility === 'Public') {
+                $query->where('is_public', true);
+            } elseif ($visibility === 'Private') {
+                $query->where('is_public', false);
+            }
+        }
+
+        // Apply date filter
+        if ($request->filled('date_filter')) {
+            $dateFilter = $request->input('date_filter');
+            
+            switch ($dateFilter) {
+                case 'last_7_days':
+                    $query->where('published_at', '>=', now()->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('published_at', '>=', now()->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('published_at', '>=', now()->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('published_at', '>=', $request->input('date_from'));
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('published_at', '<=', $request->input('date_to'));
+                    }
+                    break;
+            }
+        }
+
+        // Apply sorting
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('published_at', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('published_at', 'desc');
+                break;
+        }
+
+        // Paginate results
+        $preprints = $query->paginate(12)->appends($request->except('page'));
+        
+        // Get deleted preprints
         $deletedPreprints = Preprint::onlyTrashed()->where('user_id', $userId)->orderByDesc('deleted_at')->paginate(12);
         
         // Also load other tab data to prevent errors
@@ -26,6 +106,21 @@ class UserPreprintController extends Controller
         $deletedConferencePapers = \App\Models\ConferencePaper::onlyTrashed()->where('user_id', $userId)->orderByDesc('deleted_at')->paginate(12);
         $books = \App\Models\Book::where('user_id', $userId)->orderByDesc('id')->paginate(12);
         $deletedBooks = \App\Models\Book::onlyTrashed()->where('user_id', $userId)->orderByDesc('deleted_at')->paginate(12);
+
+        // Handle AJAX requests
+        if ($request->wantsJson() || $request->ajax()) {
+            $html = view('users.research.partials.preprint.preprint-table', compact('preprints'))->render();
+            
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'from' => $preprints->firstItem(),
+                'to' => $preprints->lastItem(),
+                'totalCount' => $preprints->total(),
+                'currentPage' => $preprints->currentPage(),
+                'lastPage' => $preprints->lastPage(),
+            ]);
+        }
         
         return view('users.research.index', compact('preprints', 'deletedPreprints', 'research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'books', 'deletedBooks'));
     }
