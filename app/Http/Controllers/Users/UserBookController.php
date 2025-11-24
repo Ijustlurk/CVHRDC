@@ -27,6 +27,16 @@ class UserBookController extends Controller
         return view('users.research.index', compact('books', 'deletedBooks', 'research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'preprints', 'deletedPreprints'));
     }
 
+    public function show(Book $book)
+    {
+        // Ensure the book belongs to the authenticated user
+        if ($book->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this book.');
+        }
+
+        return view('users.research.partials.book.show', compact('book'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
