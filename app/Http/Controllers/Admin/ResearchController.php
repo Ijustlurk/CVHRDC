@@ -11,10 +11,77 @@ use Illuminate\Support\Facades\Log;
 
 class ResearchController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $research = Research::orderByDesc('id')->paginate(12);
+        // Build query for published research
+        $query = Research::query();
+        
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('abstract', 'like', "%{$search}%")
+                  ->orWhereJsonContains('authors', $search)
+                  ->orWhereJsonContains('keywords', $search);
+            });
+        }
+        
+        // Apply category filter
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+        
+        // Apply visibility filter
+        if ($request->filled('visibility')) {
+            $isPublic = $request->visibility === 'Public' ? 1 : 0;
+            $query->where('is_public', $isPublic);
+        }
+        
+        // Apply date filter
+        if ($request->filled('date_filter')) {
+            switch ($request->date_filter) {
+                case 'last_7_days':
+                    $query->where('created_at', '>=', now()->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('created_at', '>=', now()->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('created_at', '>=', now()->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('created_at', '>=', $request->date_from);
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+                    }
+                    break;
+            }
+        }
+        
+        // Apply sorting
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+        
+        $research = $query->paginate(12)->appends($request->except('page'));
         $deletedResearch = Research::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        
         // For Conference tab to render lists when selected
         $conferencePapers = \App\Models\ConferencePaper::orderByDesc('id')->paginate(12);
         $deletedConferencePapers = \App\Models\ConferencePaper::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
@@ -24,6 +91,18 @@ class ResearchController extends Controller
         // For Book tab to render lists when selected
         $books = \App\Models\Book::orderByDesc('id')->paginate(12);
         $deletedBooks = \App\Models\Book::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        
+        // Handle AJAX requests
+        if ($request->ajax()) {
+            $html = view('admin.research.partials.research.research-table', compact('research'))->render();
+            return response()->json([
+                'html' => $html,
+                'from' => $research->firstItem(),
+                'to' => $research->lastItem(),
+                'totalCount' => $research->total()
+            ]);
+        }
+        
         return view('admin.research.index', compact('research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'preprints', 'deletedPreprints', 'books', 'deletedBooks'));
     }
 
