@@ -261,113 +261,117 @@
     </div>
 
     <div class="col-12 col-lg-7">
-        <div class="row g-3">
-            @forelse ($announcements as $item)
-            <div class="col-6">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="card-title mb-0">{{ $item->title }}</h5>
-                            <span class="badge bg-{{ $item->active ? 'success' : 'secondary' }} ms-2">
-                                {{ $item->active ? 'Active' : 'Inactive' }}
-                            </span>
-                        </div>
-                        <p class="card-text">{{ Str::limit($item->content, 150) }}</p>
-                        <div class="row text-muted small">
-                            <div class="col-6">
-                                @if ($item->start_date)
-                                <i class="fa fa-calendar-o me-1"></i>
-                                Start: {{ \Carbon\Carbon::parse($item->start_date)->format('M d, Y') }}
-                                @endif
-                            </div>
-                            <div class="col-6">
-                                @if ($item->end_date)
-                                <i class="fa fa-calendar-times-o me-1"></i>
-                                End: {{ \Carbon\Carbon::parse($item->end_date)->format('M d, Y') }}
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer d-flex justify-content-between align-items-center bg-light">
-                        <small class="text-muted">
-                            Created: {{ $item->created_at ? $item->created_at->format('M d, Y') : 'N/A' }}
-                        </small>
-                        <div class="btn-group" role="group">
-                            <form method="POST" action="{{ route('admin.announcements.visibility', $item->id) }}"
-                                class="d-inline">
-                                @csrf
-                                <input type="hidden" name="active" value="{{ $item->active ? 0 : 1 }}">
-                                <button type="submit"
-                                    class="btn btn-sm btn-outline-{{ $item->active ? 'success' : 'secondary' }}">
-                                    <i class="fa fa-eye{{ $item->active ? '' : '-slash' }}"></i>
+        <!-- Search and Filter Section -->
+        <div class="card shadow mb-3">
+            <div class="card-header bg-info text-white fw-bold">
+                <i class="fa fa-search me-2"></i>Search & Filter Announcements
+            </div>
+            <div class="card-body">
+                <form id="searchFilterFormAnnouncements" method="GET" action="{{ route('admin.announcements.index') }}">
+                    <div class="row g-3">
+                        <!-- Search Bar -->
+                        <div class="col-12">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                <input type="text" class="form-control" id="searchInputAnnouncements" name="search" 
+                                    placeholder="Search by title or content..." 
+                                    value="{{ request('search') }}">
+                                <button type="button" class="btn btn-outline-secondary" id="clearSearchAnnouncements" title="Clear search">
+                                    <i class="fa fa-times"></i>
                                 </button>
-                            </form>
-                            <button type="button" class="btn btn-sm btn-warning ms-1" title="Edit"
-                                onclick="openEditAnnouncementModal({{ $item->id }})">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                            <!-- Delete Button that triggers Modal -->
-                            <button type="button" class="btn btn-sm btn-danger ms-1" title="Delete"
-                                data-bs-toggle="modal" data-bs-target="#deleteAnnouncementModal{{ $item->id }}">
-                                <i class="fa fa-trash"></i>
-                            </button>
+                            </div>
+                        </div>
 
-                            <!-- Delete Confirmation Modal -->
-                            <div class="modal fade" id="deleteAnnouncementModal{{ $item->id }}" tabindex="-1"
-                                aria-labelledby="deleteAnnouncementModalLabel{{ $item->id }}" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
+                        <!-- Date Filter -->
+                        <div class="col-12 col-md-4">
+                            <label for="dateFilterAnnouncements" class="form-label small fw-bold">
+                                <i class="fa fa-calendar me-1"></i>Date Created
+                            </label>
+                            <select class="form-select form-select-sm" id="dateFilterAnnouncements" name="date_filter">
+                                <option value="" {{ request('date_filter') == '' ? 'selected' : '' }}>All Time</option>
+                                <option value="last_7_days" {{ request('date_filter') == 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
+                                <option value="last_30_days" {{ request('date_filter') == 'last_30_days' ? 'selected' : '' }}>Last 30 Days</option>
+                                <option value="last_6_months" {{ request('date_filter') == 'last_6_months' ? 'selected' : '' }}>Last 6 Months</option>
+                                <option value="custom" {{ request('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                            </select>
+                        </div>
 
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="deleteAnnouncementModalLabel{{ $item->id }}">
-                                                Confirm Delete</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
+                        <!-- Status Filter -->
+                        <div class="col-12 col-md-4">
+                            <label for="statusFilterAnnouncements" class="form-label small fw-bold">
+                                <i class="fa fa-filter me-1"></i>Status
+                            </label>
+                            <select class="form-select form-select-sm" id="statusFilterAnnouncements" name="status">
+                                <option value="" {{ request('status') == '' ? 'selected' : '' }}>All Status</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
 
-                                        <div class="modal-body">
-                                            Are you sure you want to delete this announcement?
-                                        </div>
+                        <!-- Sort By -->
+                        <div class="col-12 col-md-4">
+                            <label for="sortByAnnouncements" class="form-label small fw-bold">
+                                <i class="fa fa-sort me-1"></i>Sort By
+                            </label>
+                            <select class="form-select form-select-sm" id="sortByAnnouncements" name="sort">
+                                <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                                <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>A-Z</option>
+                                <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Z-A</option>
+                            </select>
+                        </div>
 
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Cancel</button>
-
-                                            <form method="POST"
-                                                action="{{ route('admin.announcements.destroy', $item->id) }}"
-                                                class="d-inline">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                                            </form>
-                                        </div>
-
-                                    </div>
+                        <!-- Custom Date Range (shown when Custom Range is selected) -->
+                        <div class="col-12" id="customDateRangeAnnouncements" style="display: {{ request('date_filter') == 'custom' ? 'block' : 'none' }};">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label for="dateFromAnnouncements" class="form-label small">From Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="dateFromAnnouncements" name="date_from" value="{{ request('date_from') }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="dateToAnnouncements" class="form-label small">To Date</label>
+                                    <input type="date" class="form-control form-control-sm" id="dateToAnnouncements" name="date_to" value="{{ request('date_to') }}">
                                 </div>
                             </div>
+                        </div>
 
+                        <!-- Action Buttons -->
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary btn-sm" id="applyFiltersBtnAnnouncements">
+                                    <i class="fa fa-filter me-1"></i>Apply Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtnAnnouncements">
+                                    <i class="fa fa-redo me-1"></i>Reset All
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            @empty
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body text-center text-muted py-5">
-                        <i class="fa fa-bullhorn fa-3x mb-3 opacity-25"></i>
-                        <h5>No Announcements Found</h5>
-                        <p class="mb-0">Create your first announcement using the form on the left.</p>
+                </form>
+
+                <!-- Results Counter -->
+                <div class="mt-3 pt-3 border-top">
+                    <div id="resultsCounterAnnouncements" class="text-muted small">
+                        <i class="fa fa-info-circle me-1"></i>
+                        <span id="counterTextAnnouncements">
+                            Showing {{ $announcements->firstItem() ?? 0 }} to {{ $announcements->lastItem() ?? 0 }} of {{ $totalCount ?? $announcements->total() }} announcements
+                        </span>
+                        <span id="loadingIndicatorAnnouncements" class="ms-2" style="display: none;">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Searching...
+                        </span>
                     </div>
                 </div>
             </div>
-            @endforelse
         </div>
 
-        @if ($announcements->hasPages())
-        <div class="mt-4 d-flex justify-content-center">
+        <!-- Announcements Cards Grid -->
+        <div class="row g-3" id="announcementsCardsContainer">
+            @include('admin.tabs.partials.announcement-cards', ['announcements' => $announcements])
+        </div>
+        <div class="mt-3" id="paginationContainerAnnouncements">
             {{ $announcements->links() }}
         </div>
-        @endif
     </div>
 </div>
 
@@ -601,6 +605,230 @@
         const form = document.getElementById('editAnnouncementForm');
         form.classList.remove('was-validated');
         form.reset();
+    });
+
+    // Announcements Search and Filter Functionality
+    let announcementsSearchTimeout;
+    const searchInputAnnouncements = document.getElementById('searchInputAnnouncements');
+    const dateFilterAnnouncements = document.getElementById('dateFilterAnnouncements');
+    const statusFilterAnnouncements = document.getElementById('statusFilterAnnouncements');
+    const sortByAnnouncements = document.getElementById('sortByAnnouncements');
+    const clearSearchBtnAnnouncements = document.getElementById('clearSearchAnnouncements');
+    const customDateRangeAnnouncements = document.getElementById('customDateRangeAnnouncements');
+    const dateFromAnnouncements = document.getElementById('dateFromAnnouncements');
+    const dateToAnnouncements = document.getElementById('dateToAnnouncements');
+    const searchFilterFormAnnouncements = document.getElementById('searchFilterFormAnnouncements');
+
+    // Prevent form submission and use AJAX instead
+    if (searchFilterFormAnnouncements) {
+        searchFilterFormAnnouncements.addEventListener('submit', function(e) {
+            e.preventDefault();
+            performAnnouncementsSearch();
+        });
+    }
+
+    // Real-time search as user types
+    if (searchInputAnnouncements) {
+        searchInputAnnouncements.addEventListener('input', function() {
+            clearTimeout(announcementsSearchTimeout);
+            announcementsSearchTimeout = setTimeout(() => {
+                performAnnouncementsSearch();
+            }, 500);
+        });
+    }
+
+    // Clear search button
+    if (clearSearchBtnAnnouncements) {
+        clearSearchBtnAnnouncements.addEventListener('click', function() {
+            searchInputAnnouncements.value = '';
+            performAnnouncementsSearch();
+        });
+    }
+
+    // Apply Filters button
+    const applyFiltersBtnAnnouncements = document.getElementById('applyFiltersBtnAnnouncements');
+    if (applyFiltersBtnAnnouncements) {
+        applyFiltersBtnAnnouncements.addEventListener('click', function() {
+            performAnnouncementsSearch();
+        });
+    }
+
+    // Reset All button
+    const resetFiltersBtnAnnouncements = document.getElementById('resetFiltersBtnAnnouncements');
+    if (resetFiltersBtnAnnouncements) {
+        resetFiltersBtnAnnouncements.addEventListener('click', function() {
+            if (searchInputAnnouncements) searchInputAnnouncements.value = '';
+            if (dateFilterAnnouncements) dateFilterAnnouncements.value = '';
+            if (statusFilterAnnouncements) statusFilterAnnouncements.value = '';
+            if (sortByAnnouncements) sortByAnnouncements.value = 'newest';
+            if (dateFromAnnouncements) dateFromAnnouncements.value = '';
+            if (dateToAnnouncements) dateToAnnouncements.value = '';
+            if (customDateRangeAnnouncements) customDateRangeAnnouncements.style.display = 'none';
+            
+            performAnnouncementsSearch();
+        });
+    }
+
+    // Filter and sort change handlers
+    [dateFilterAnnouncements, statusFilterAnnouncements, sortByAnnouncements].forEach(element => {
+        if (element) {
+            element.addEventListener('change', performAnnouncementsSearch);
+        }
+    });
+
+    // Custom date range inputs
+    [dateFromAnnouncements, dateToAnnouncements].forEach(element => {
+        if (element) {
+            element.addEventListener('change', function() {
+                if (dateFilterAnnouncements.value === 'custom') {
+                    performAnnouncementsSearch();
+                }
+            });
+        }
+    });
+
+    // Show/hide custom date range
+    if (dateFilterAnnouncements) {
+        dateFilterAnnouncements.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customDateRangeAnnouncements.style.display = 'block';
+            } else {
+                customDateRangeAnnouncements.style.display = 'none';
+            }
+        });
+    }
+
+    // Perform AJAX search for Announcements
+    function performAnnouncementsSearch() {
+        const formData = new FormData(document.getElementById('searchFilterFormAnnouncements'));
+        const params = new URLSearchParams(formData);
+
+        // Remove empty parameters for cleaner URLs
+        for (let [key, value] of Array.from(params.entries())) {
+            if (!value || value.trim() === '') {
+                params.delete(key);
+            }
+        }
+
+        // Show loading indicator
+        const loadingIndicator = document.getElementById('loadingIndicatorAnnouncements');
+        const counterText = document.getElementById('counterTextAnnouncements');
+        if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+        const searchUrl = `{{ route('admin.announcements.index') }}?${params.toString()}`;
+
+        fetch(searchUrl, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update announcements cards
+            const announcementsContainer = document.getElementById('announcementsCardsContainer');
+            if (announcementsContainer && data.html) {
+                announcementsContainer.innerHTML = data.html;
+            }
+
+            // Update pagination
+            const paginationContainer = document.getElementById('paginationContainerAnnouncements');
+            if (paginationContainer && data.pagination) {
+                paginationContainer.innerHTML = data.pagination;
+            }
+
+            // Update counter
+            if (counterText) {
+                const from = data.from || 0;
+                const to = data.to || 0;
+                const total = data.totalCount || 0;
+                counterText.textContent = `Showing ${from} to ${to} of ${total} announcements`;
+            }
+
+            // Update browser URL without page reload
+            const newUrl = params.toString() ? searchUrl : '{{ route('admin.announcements.index') }}';
+            window.history.pushState({}, '', newUrl);
+
+            // Hide loading indicator
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Announcements search error:', error);
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            
+            if (typeof Swal !== 'undefined') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    iconColor: 'white',
+                    customClass: {
+                        popup: 'colored-toast',
+                    },
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Search failed. Please try again.'
+                });
+            } else {
+                alert('Search failed. Please try again.');
+            }
+        });
+    }
+
+    // Handle pagination clicks with AJAX
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#paginationContainerAnnouncements a')) {
+            e.preventDefault();
+            const url = e.target.closest('a').href;
+            
+            const loadingIndicator = document.getElementById('loadingIndicatorAnnouncements');
+            if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const announcementsContainer = document.getElementById('announcementsCardsContainer');
+                if (announcementsContainer && data.html) {
+                    announcementsContainer.innerHTML = data.html;
+                }
+
+                const paginationContainer = document.getElementById('paginationContainerAnnouncements');
+                if (paginationContainer && data.pagination) {
+                    paginationContainer.innerHTML = data.pagination;
+                }
+
+                const counterText = document.getElementById('counterTextAnnouncements');
+                if (counterText) {
+                    const from = data.from || 0;
+                    const to = data.to || 0;
+                    const total = data.totalCount || 0;
+                    counterText.textContent = `Showing ${from} to ${to} of ${total} announcements`;
+                }
+
+                window.history.pushState({}, '', url);
+
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+                const announcementsCardsContainer = document.getElementById('announcementsCardsContainer');
+                if (announcementsCardsContainer) {
+                    announcementsCardsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(error => {
+                console.error('Pagination error:', error);
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            });
+        }
     });
 
 </script>
