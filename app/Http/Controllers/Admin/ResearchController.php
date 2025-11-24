@@ -27,6 +27,11 @@ class ResearchController extends Controller
         return view('admin.research.index', compact('research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'preprints', 'deletedPreprints', 'books', 'deletedBooks'));
     }
 
+    public function show(Research $research)
+    {
+        return view('admin.research.partials.research.show', compact('research'));
+    }
+
     public function store(Request $request)
     {
         // Check for duplicate submission using submission ID
