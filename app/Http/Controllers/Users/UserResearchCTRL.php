@@ -14,7 +14,7 @@ class UserResearchCTRL extends Controller
     public function index()
     {
         $userId = Auth::id();
-        
+
         // Filter all records by the currently authenticated user
         $research = Research::where('user_id', $userId)->orderByDesc('id')->paginate(12);
         $deletedResearch = Research::onlyTrashed()->where('user_id', $userId)->orderByDesc('deleted_at')->paginate(12);
@@ -28,6 +28,16 @@ class UserResearchCTRL extends Controller
         $books = \App\Models\Book::where('user_id', $userId)->orderByDesc('id')->paginate(12);
         $deletedBooks = \App\Models\Book::onlyTrashed()->where('user_id', $userId)->orderByDesc('deleted_at')->paginate(12);
         return view('users.research.index', compact('research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'preprints', 'deletedPreprints', 'books', 'deletedBooks'));
+    }
+
+    public function show(Research $research)
+    {
+        // Ensure the research belongs to the authenticated user
+        if ($research->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this research.');
+        }
+
+        return view('users.research.partials.research.show', compact('research'));
     }
 
     public function store(Request $request)
