@@ -11,10 +11,75 @@ use Illuminate\Support\Facades\Log;
 
 class ConferencePaperController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $conferencePapers = ConferencePaper::orderByDesc('id')->paginate(12);
+        // Build query for published conference papers
+        $query = ConferencePaper::query();
+        
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('abstract', 'like', "%{$search}%")
+                  ->orWhere('conference_name', 'like', "%{$search}%")
+                  ->orWhere('conference_location', 'like', "%{$search}%")
+                  ->orWhere('publisher', 'like', "%{$search}%")
+                  ->orWhereJsonContains('authors', $search)
+                  ->orWhereJsonContains('keywords', $search);
+            });
+        }
+        
+        // Apply visibility filter
+        if ($request->filled('visibility')) {
+            $isPublic = $request->visibility === 'Public' ? 1 : 0;
+            $query->where('is_public', $isPublic);
+        }
+        
+        // Apply date filter
+        if ($request->filled('date_filter')) {
+            switch ($request->date_filter) {
+                case 'last_7_days':
+                    $query->where('created_at', '>=', now()->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('created_at', '>=', now()->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('created_at', '>=', now()->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('created_at', '>=', $request->date_from);
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+                    }
+                    break;
+            }
+        }
+        
+        // Apply sorting
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+        
+        $conferencePapers = $query->paginate(12)->appends($request->except('page'));
         $deletedConferencePapers = ConferencePaper::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        
         // Load other tab data to prevent errors
         $research = \App\Models\Research::orderByDesc('id')->paginate(12);
         $deletedResearch = \App\Models\Research::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
@@ -22,6 +87,18 @@ class ConferencePaperController extends Controller
         $deletedPreprints = \App\Models\Preprint::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
         $books = \App\Models\Book::orderByDesc('id')->paginate(12);
         $deletedBooks = \App\Models\Book::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        
+        // Handle AJAX requests
+        if ($request->ajax()) {
+            $html = view('admin.research.partials.conference.conference-table', compact('conferencePapers'))->render();
+            return response()->json([
+                'html' => $html,
+                'from' => $conferencePapers->firstItem(),
+                'to' => $conferencePapers->lastItem(),
+                'totalCount' => $conferencePapers->total()
+            ]);
+        }
+        
         return view('admin.research.index', compact('conferencePapers', 'deletedConferencePapers', 'research', 'deletedResearch', 'preprints', 'deletedPreprints', 'books', 'deletedBooks'));
     }
 
