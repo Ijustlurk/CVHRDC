@@ -25,6 +25,11 @@ class ConferencePaperController extends Controller
         return view('admin.research.index', compact('conferencePapers', 'deletedConferencePapers', 'research', 'deletedResearch', 'preprints', 'deletedPreprints', 'books', 'deletedBooks'));
     }
 
+    public function show(ConferencePaper $conference_paper)
+    {
+        return view('admin.research.partials.conference.show', ['conferencePaper' => $conference_paper]);
+    }
+
     public function store(Request $request)
     {
         // Check for duplicate submission using submission ID
