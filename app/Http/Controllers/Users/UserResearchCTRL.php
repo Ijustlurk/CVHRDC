@@ -11,13 +11,88 @@ use Illuminate\Support\Facades\Log;
 
 class UserResearchCTRL extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $userId = Auth::id();
 
-        // Filter all records by the currently authenticated user
-        $research = Research::where('user_id', $userId)->orderByDesc('id')->paginate(12);
+        // Start with base query filtered by user
+        $query = Research::where('user_id', $userId);
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('abstract', 'like', "%{$search}%")
+                  ->orWhereRaw("JSON_SEARCH(authors, 'one', ?, NULL, '$[*]') IS NOT NULL", ["%{$search}%"])
+                  ->orWhereRaw("JSON_SEARCH(keywords, 'one', ?, NULL, '$[*]') IS NOT NULL", ["%{$search}%"]);
+            });
+        }
+
+        // Apply category filter
+        if ($request->filled('category')) {
+            $query->where('category', $request->input('category'));
+        }
+
+        // Apply visibility filter
+        if ($request->filled('visibility')) {
+            $visibility = $request->input('visibility');
+            if ($visibility === 'Public') {
+                $query->where('is_public', true);
+            } elseif ($visibility === 'Private') {
+                $query->where('is_public', false);
+            }
+        }
+
+        // Apply date filter
+        if ($request->filled('date_filter')) {
+            $dateFilter = $request->input('date_filter');
+            
+            switch ($dateFilter) {
+                case 'last_7_days':
+                    $query->where('published_at', '>=', now()->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('published_at', '>=', now()->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('published_at', '>=', now()->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('published_at', '>=', $request->input('date_from'));
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('published_at', '<=', $request->input('date_to'));
+                    }
+                    break;
+            }
+        }
+
+        // Apply sorting
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('published_at', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('published_at', 'desc');
+                break;
+        }
+
+        // Paginate results
+        $research = $query->paginate(12)->appends($request->except('page'));
+        
+        // Get deleted research
         $deletedResearch = Research::onlyTrashed()->where('user_id', $userId)->orderByDesc('deleted_at')->paginate(12);
+        
         // For Conference tab to render lists when selected
         $conferencePapers = \App\Models\ConferencePaper::where('user_id', $userId)->orderByDesc('id')->paginate(12);
         $deletedConferencePapers = \App\Models\ConferencePaper::onlyTrashed()->where('user_id', $userId)->orderByDesc('deleted_at')->paginate(12);
@@ -27,6 +102,22 @@ class UserResearchCTRL extends Controller
         // For Book tab to render lists when selected
         $books = \App\Models\Book::where('user_id', $userId)->orderByDesc('id')->paginate(12);
         $deletedBooks = \App\Models\Book::onlyTrashed()->where('user_id', $userId)->orderByDesc('deleted_at')->paginate(12);
+
+        // Handle AJAX requests
+        if ($request->wantsJson() || $request->ajax()) {
+            $html = view('users.research.partials.research.research-table', compact('research'))->render();
+            
+            return response()->json([
+                'success' => true,
+                'html' => $html,
+                'from' => $research->firstItem(),
+                'to' => $research->lastItem(),
+                'totalCount' => $research->total(),
+                'currentPage' => $research->currentPage(),
+                'lastPage' => $research->lastPage(),
+            ]);
+        }
+
         return view('users.research.index', compact('research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'preprints', 'deletedPreprints', 'books', 'deletedBooks'));
     }
 
