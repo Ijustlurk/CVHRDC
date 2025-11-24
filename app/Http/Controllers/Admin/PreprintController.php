@@ -11,9 +11,77 @@ use Illuminate\Support\Facades\Log;
 
 class PreprintController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $preprints = Preprint::orderByDesc('id')->paginate(12);
+        // Build query for published preprints
+        $query = Preprint::query();
+        
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('abstract', 'like', "%{$search}%")
+                  ->orWhere('repository_name', 'like', "%{$search}%")
+                  ->orWhereJsonContains('authors', $search)
+                  ->orWhereJsonContains('keywords', $search);
+            });
+        }
+        
+        // Apply peer-reviewed filter
+        if ($request->filled('peer_reviewed')) {
+            $isPeerReviewed = $request->peer_reviewed === 'Yes' ? 1 : 0;
+            $query->where('is_peer_reviewed', $isPeerReviewed);
+        }
+        
+        // Apply visibility filter
+        if ($request->filled('visibility')) {
+            $isPublic = $request->visibility === 'Public' ? 1 : 0;
+            $query->where('is_public', $isPublic);
+        }
+        
+        // Apply date filter
+        if ($request->filled('date_filter')) {
+            switch ($request->date_filter) {
+                case 'last_7_days':
+                    $query->where('created_at', '>=', now()->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('created_at', '>=', now()->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('created_at', '>=', now()->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('created_at', '>=', $request->date_from);
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('created_at', '<=', $request->date_to . ' 23:59:59');
+                    }
+                    break;
+            }
+        }
+        
+        // Apply sorting
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+        
+        $preprints = $query->paginate(12)->appends($request->except('page'));
         $deletedPreprints = Preprint::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
         
         // Also load other tab data to prevent errors
@@ -23,6 +91,17 @@ class PreprintController extends Controller
         $deletedConferencePapers = \App\Models\ConferencePaper::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
         $books = \App\Models\Book::orderByDesc('id')->paginate(12);
         $deletedBooks = \App\Models\Book::onlyTrashed()->orderByDesc('deleted_at')->paginate(12);
+        
+        // Handle AJAX requests
+        if ($request->ajax()) {
+            $html = view('admin.research.partials.preprint.preprint-table', compact('preprints'))->render();
+            return response()->json([
+                'html' => $html,
+                'from' => $preprints->firstItem(),
+                'to' => $preprints->lastItem(),
+                'totalCount' => $preprints->total()
+            ]);
+        }
         
         return view('admin.research.index', compact('preprints', 'deletedPreprints', 'research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'books', 'deletedBooks'));
     }
