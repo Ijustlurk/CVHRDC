@@ -15,14 +15,98 @@ class UserProposalSubmissionController extends Controller
     /**
      * Display a listing of the user's proposal submissions.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $submissions = ProposalSubmission::where('user_id', Auth::id())
-            ->with('callForProposal')
-            ->orderByDesc('created_at')
-            ->paginate(12);
+        $query = ProposalSubmission::where('user_id', Auth::id())
+            ->with('callForProposal');
 
-        return view('users.proposal-submissions.index', compact('submissions'));
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('research_title', 'like', "%{$search}%")
+                  ->orWhere('proponent_name', 'like', "%{$search}%")
+                  ->orWhere('affiliation', 'like', "%{$search}%")
+                  ->orWhereHas('callForProposal', function($q) use ($search) {
+                      $q->where('title', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Apply status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        // Apply date filter
+        if ($request->filled('date_filter')) {
+            $dateFilter = $request->input('date_filter');
+            $now = now();
+
+            switch ($dateFilter) {
+                case 'last_7_days':
+                    $query->where('date_submitted', '>=', $now->copy()->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('date_submitted', '>=', $now->copy()->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('date_submitted', '>=', $now->copy()->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('date_submitted', '>=', $request->input('date_from'));
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('date_submitted', '<=', $request->input('date_to'));
+                    }
+                    break;
+            }
+        }
+
+        // Apply sorting
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('date_submitted', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('research_title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('research_title', 'desc');
+                break;
+            case 'budget_high':
+                $query->orderBy('budget_requested', 'desc');
+                break;
+            case 'budget_low':
+                $query->orderBy('budget_requested', 'asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('date_submitted', 'desc');
+                break;
+        }
+
+        $submissions = $query->paginate(12)->appends($request->except('page'));
+        $totalCount = $submissions->total();
+
+        // Handle AJAX requests
+        if ($request->expectsJson()) {
+            $html = view('users.proposal-submissions.submissions-table', compact('submissions'))->render();
+            $pagination = $submissions->links()->render();
+
+            return response()->json([
+                'html' => $html,
+                'pagination' => $pagination,
+                'totalCount' => $totalCount,
+                'currentCount' => $submissions->count(),
+                'from' => $submissions->firstItem() ?? 0,
+                'to' => $submissions->lastItem() ?? 0,
+            ]);
+        }
+
+        return view('users.proposal-submissions.index', compact('submissions', 'totalCount'));
     }
 
     /**
