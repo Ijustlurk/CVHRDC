@@ -28,6 +28,16 @@ class UserConferencePaperController extends Controller
         return view('users.research.index', compact('conferencePapers', 'deletedConferencePapers', 'research', 'deletedResearch', 'preprints', 'deletedPreprints', 'books', 'deletedBooks'));
     }
 
+    public function show(ConferencePaper $conference_paper)
+    {
+        // Ensure the conference paper belongs to the authenticated user
+        if ($conference_paper->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this conference paper.');
+        }
+
+        return view('users.research.partials.conference.show', ['conferencePaper' => $conference_paper]);
+    }
+
     public function store(Request $request)
     {
         // Check for duplicate submission using submission ID
