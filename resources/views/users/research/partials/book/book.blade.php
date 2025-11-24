@@ -126,7 +126,7 @@
                                     </button>
                                     <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtnBook">
                                         <i class="fas fa-redo me-1"></i>Reset
-                                    </button>
+                                                    </button>
                                 </div>
                             </div>
                             <div class="col-lg-4 col-md-5 text-md-end">
@@ -141,13 +141,13 @@
                                 </div>
                             </div>
                         </div>
-                    </form>
-                </div>
+                                                </form>
+                                            </div>
 
                 <div id="bookTableContainer">
                     @include('users.research.partials.book.book-table', ['books' => $books])
                 </div>
-            </div>
+                </div>
 
                 <div class="tab-pane fade" id="book-deleted" role="tabpanel">
                     <div class="table-responsive">
