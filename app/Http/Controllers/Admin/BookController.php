@@ -24,6 +24,11 @@ class BookController extends Controller
         return view('admin.research.index', compact('books', 'deletedBooks', 'research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'preprints', 'deletedPreprints'));
     }
 
+    public function show(Book $book)
+    {
+        return view('admin.research.partials.book.show', compact('book'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
