@@ -105,7 +105,7 @@
                                     </button>
                                     <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtn">
                                         <i class="fas fa-redo me-1"></i>Reset
-                                    </button>
+                                            </button>
                                 </div>
                             </div>
                             <div class="col-lg-4 col-md-5 text-md-end">
@@ -120,8 +120,8 @@
                                 </div>
                             </div>
                         </div>
-                    </form>
-                </div>
+                                        </form>
+                                    </div>
 
                 <div id="researchTableContainer">
                     @include('admin.research.partials.research.research-table', ['research' => $research])
