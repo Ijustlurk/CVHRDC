@@ -27,6 +27,11 @@ class PreprintController extends Controller
         return view('admin.research.index', compact('preprints', 'deletedPreprints', 'research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'books', 'deletedBooks'));
     }
 
+    public function show(Preprint $preprint)
+    {
+        return view('admin.research.partials.preprint.show', compact('preprint'));
+    }
+
     public function store(Request $request)
     {
         try {
