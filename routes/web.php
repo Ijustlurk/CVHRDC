@@ -122,24 +122,28 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('events', EventController::class);
     Route::resource('publications', PublicationController::class);
     // Research Management
+    Route::get('research/{research}', [ResearchController::class, 'show'])->name('research.show');
     Route::post('research/{research}/visibility', [ResearchController::class, 'updateVisibility'])->name('research.visibility');
     Route::post('research/{id}/restore', [ResearchController::class, 'restore'])->name('research.restore');
     Route::delete('research/{id}/force-delete', [ResearchController::class, 'forceDelete'])->name('research.force-delete');
     Route::resource('research', ResearchController::class)->except(['create', 'show']);
 
     // Conference Papers Management
+    Route::get('conference-papers/{conference_paper}', [ConferencePaperController::class, 'show'])->name('conference-papers.show');
     Route::post('conference-papers/{conference_paper}/visibility', [ConferencePaperController::class, 'updateVisibility'])->name('conference-papers.visibility');
     Route::post('conference-papers/{id}/restore', [ConferencePaperController::class, 'restore'])->name('conference-papers.restore');
     Route::delete('conference-papers/{id}/force-delete', [ConferencePaperController::class, 'forceDelete'])->name('conference-papers.force-delete');
     Route::resource('conference-papers', ConferencePaperController::class)->except(['create', 'show']);
 
     // Preprints Management
+    Route::get('preprints/{preprint}', [PreprintController::class, 'show'])->name('preprints.show');
     Route::post('preprints/{preprint}/visibility', [PreprintController::class, 'updateVisibility'])->name('preprints.visibility');
     Route::post('preprints/{id}/restore', [PreprintController::class, 'restore'])->name('preprints.restore');
     Route::delete('preprints/{id}/force-delete', [PreprintController::class, 'forceDelete'])->name('preprints.force-delete');
     Route::resource('preprints', PreprintController::class)->except(['create', 'show']);
 
     // Books Management
+    Route::get('books/{book}', [BookController::class, 'show'])->name('books.show');
     Route::post('books/{book}/visibility', [BookController::class, 'updateVisibility'])->name('books.visibility');
     Route::post('books/{id}/restore', [BookController::class, 'restore'])->name('books.restore');
     Route::delete('books/{id}/force-delete', [BookController::class, 'forceDelete'])->name('books.force-delete');
@@ -235,6 +239,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     
     // Research Management Routes
     Route::get('/research', [UserResearchCTRL::class, 'index'])->name('research.index');
+    Route::get('/research/{research}', [UserResearchCTRL::class, 'show'])->name('research.show');
     Route::post('/research/store', [UserResearchCTRL::class, 'store'])->name('research.store');
     Route::get('/research/{research}/edit', [UserResearchCTRL::class, 'edit'])->name('research.edit');
     Route::put('/research/{research}', [UserResearchCTRL::class, 'update'])->name('research.update');
@@ -244,6 +249,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::delete('/research/{id}/force-delete', [UserResearchCTRL::class, 'forceDelete'])->name('research.force-delete');
     
     // Preprint Management Routes
+    Route::get('/preprints/{preprint}', [UserPreprintController::class, 'show'])->name('preprints.show');
     Route::post('/preprints/store', [UserPreprintController::class, 'store'])->name('preprints.store');
     Route::get('/preprints/{preprint}/edit', [UserPreprintController::class, 'edit'])->name('preprints.edit');
     Route::put('/preprints/{preprint}', [UserPreprintController::class, 'update'])->name('preprints.update');
@@ -253,6 +259,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::delete('/preprints/{id}/force-delete', [UserPreprintController::class, 'forceDelete'])->name('preprints.force-delete');
     
     // Conference Paper Management Routes
+    Route::get('/conference-papers/{conference_paper}', [UserConferencePaperController::class, 'show'])->name('conference-papers.show');
     Route::post('/conference-papers/store',[UserConferencePaperController::class, 'store'])->name('conference-papers.store');
     Route::get('/conference-papers/{conference_paper}/edit', [UserConferencePaperController::class, 'edit'])->name('conference-papers.edit');
     Route::put('/conference-papers/{conference_paper}', [UserConferencePaperController::class, 'update'])->name('conference-papers.update');
@@ -262,6 +269,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::delete('/conference-papers/{id}/force-delete', [UserConferencePaperController::class, 'forceDelete'])->name('conference-papers.force-delete');
     
     // Book Management Routes
+    Route::get('/books/{book}', [UserBookController::class, 'show'])->name('books.show');
     Route::post('/books/store',[UserBookController::class, 'store'])->name('books.store');
     Route::get('/books/{book}/edit', [UserBookController::class, 'edit'])->name('books.edit');
     Route::put('/books/{book}', [UserBookController::class, 'update'])->name('books.update');
