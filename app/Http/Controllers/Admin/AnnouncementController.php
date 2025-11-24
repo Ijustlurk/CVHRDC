@@ -11,10 +11,91 @@ class AnnouncementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $announcements = Announcement::orderBy('id', 'desc')->paginate(8);
-        return view('admin.tabs.partials.announcement', compact('announcements'));
+        $query = Announcement::query();
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply status filter
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            if ($status === 'active') {
+                $query->where('active', true);
+            } elseif ($status === 'inactive') {
+                $query->where('active', false);
+            }
+        }
+
+        // Apply date filter
+        if ($request->filled('date_filter')) {
+            $dateFilter = $request->input('date_filter');
+            $now = now();
+
+            switch ($dateFilter) {
+                case 'last_7_days':
+                    $query->where('created_at', '>=', $now->subDays(7));
+                    break;
+                case 'last_30_days':
+                    $query->where('created_at', '>=', $now->subDays(30));
+                    break;
+                case 'last_6_months':
+                    $query->where('created_at', '>=', $now->subMonths(6));
+                    break;
+                case 'custom':
+                    if ($request->filled('date_from')) {
+                        $query->where('created_at', '>=', $request->input('date_from'));
+                    }
+                    if ($request->filled('date_to')) {
+                        $query->where('created_at', '<=', $request->input('date_to'));
+                    }
+                    break;
+            }
+        }
+
+        // Apply sorting
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('title', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('title', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        // Handle different request types
+        if ($request->expectsJson()) {
+            // For AJAX search requests, paginate and return JSON
+            $announcements = $query->paginate(8)->appends($request->except('page'));
+            $totalCount = $announcements->total();
+
+            return response()->json([
+                'html' => view('admin.tabs.partials.announcement-cards', compact('announcements'))->render(),
+                'pagination' => $announcements->links()->render(),
+                'totalCount' => $totalCount,
+                'currentCount' => $announcements->count(),
+                'from' => $announcements->firstItem() ?? 0,
+                'to' => $announcements->lastItem() ?? 0,
+            ]);
+        }
+
+        // For regular page requests (including refreshes with query params), redirect to AdminTabsController
+        return redirect()->route('admin.tabs.index', array_merge(['tab' => 'announcements'], $request->query()));
     }
 
     /**
