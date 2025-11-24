@@ -30,6 +30,16 @@ class UserPreprintController extends Controller
         return view('users.research.index', compact('preprints', 'deletedPreprints', 'research', 'deletedResearch', 'conferencePapers', 'deletedConferencePapers', 'books', 'deletedBooks'));
     }
 
+    public function show(Preprint $preprint)
+    {
+        // Ensure the preprint belongs to the authenticated user
+        if ($preprint->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to this preprint.');
+        }
+
+        return view('users.research.partials.preprint.show', compact('preprint'));
+    }
+
     public function store(Request $request)
     {
         try {
