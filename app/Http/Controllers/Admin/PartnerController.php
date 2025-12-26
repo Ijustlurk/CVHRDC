@@ -12,10 +12,69 @@ class PartnerController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $partners = \App\Models\Partner::orderBy('id', 'desc')->paginate(8);
-        return view('admin.tabs.partials.partners', compact('partners'));
+        $query = \App\Models\Partner::query();
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('organization', 'like', "%{$search}%")
+                  ->orWhere('contact_email', 'like', "%{$search}%")
+                  ->orWhere('contact_phone', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%")
+                  ->orWhere('website', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply status filter
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            if ($status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($status === 'inactive') {
+                $query->where('is_active', false);
+            }
+        }
+
+        // Apply sorting
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'a_z':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'z_a':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        // Handle different request types
+        if ($request->expectsJson()) {
+            // For AJAX search requests, paginate and return JSON
+            $partners = $query->paginate(8)->appends($request->except('page'));
+            $totalCount = $partners->total();
+
+            return response()->json([
+                'html' => view('admin.tabs.partials.partners-cards', compact('partners'))->render(),
+                'pagination' => $partners->links()->render(),
+                'totalCount' => $totalCount,
+                'currentCount' => $partners->count(),
+                'from' => $partners->firstItem() ?? 0,
+                'to' => $partners->lastItem() ?? 0,
+            ]);
+        }
+
+        // For regular page requests (including refreshes with query params), redirect to AdminTabsController
+        return redirect()->route('admin.tabs.index', array_merge(['tab' => 'partners'], $request->query()));
     }
 
     /**

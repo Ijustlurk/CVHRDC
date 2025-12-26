@@ -137,33 +137,6 @@ class CallForProposalController extends Controller
         return view('ruc.calls.show', compact('call'));
     }
 
-    /**
-     * Update the visibility status of a call for proposal.
-     * This is the main function RUC users can perform - publish/unpublish calls.
-     */
-    public function updateVisibility(Request $request, $id)
-    {
-        $call = CallForProposal::findOrFail($id);
-
-        $validator = Validator::make($request->all(), [
-            'visibility_status' => 'required|in:Private,Public',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->with('error', 'Invalid visibility status. Please try again.');
-        }
-
-        $call->update([
-            'visibility_status' => $request->visibility_status,
-            'approved_by' => $request->visibility_status === 'Public' ? Auth::id() : null,
-        ]);
-
-        $action = $request->visibility_status === 'Public' ? 'posted publicly' : 'removed from public view';
-        $message = "Call for proposal has been {$action} successfully.";
-
-        return redirect()->back()->with('success', $message);
-    }
 
     /**
      * Update the status of a call for proposal (for review workflow).
@@ -174,7 +147,7 @@ class CallForProposalController extends Controller
 
         $validator = Validator::make($request->all(), [
             'status' => 'required|in:Draft,For Review,Open,Closed',
-            'action' => 'nullable|in:approve,withdraw,close',
+            'action' => 'nullable|in:approve,withdraw,close,reopen',
         ]);
 
         if ($validator->fails()) {
@@ -196,14 +169,23 @@ class CallForProposalController extends Controller
 
             $message = 'Call approved and published successfully.';
         } elseif ($action === 'withdraw' && $status === 'Closed') {
-            // Withdraw/Close call: Set to Closed and Private
+            // Withdraw/Close call: Set to Closed and maintain Public visibility
             $call->update([
                 'status' => 'Closed',
+                'visibility_status' => 'Public',
+                'approved_by' => Auth::id(),
+            ]);
+
+            $message = 'Call withdrawn and closed successfully.';
+        } elseif ($action === 'reopen' && $status === 'For Review') {
+            // Reopen call for review: Set to For Review and Private
+            $call->update([
+                'status' => 'For Review',
                 'visibility_status' => 'Private',
                 'approved_by' => Auth::id(),
             ]);
 
-            $message = 'Call withdrawn and removed from public view.';
+            $message = 'Call reopened for review successfully.';
         } else {
             // Standard status update
             $call->update([

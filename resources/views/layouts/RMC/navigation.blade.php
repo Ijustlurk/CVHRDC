@@ -33,7 +33,7 @@ $userRole = $user && $user->roles->isNotEmpty() ? $user->roles[0]->name : 'No Ro
                 <x-nav-link
                     class="text-decoration-none text-xs md:text-sm lg:text-base hover:underline transition duration-150"
                     :href="route('rmc.submissions.index')" :active="request()->routeIs('rmc.submissions.*')">
-                    Submissions
+                    Proposal Submissions
                 </x-nav-link>
             </div>
 

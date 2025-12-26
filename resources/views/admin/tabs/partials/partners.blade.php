@@ -304,95 +304,87 @@
         </div>
     </div>
     <div class="col-12 col-lg-7">
-        <div class="row row-cols-1 row-cols-md-2 g-3">
-            @foreach ($partners as $item)
-            <div class="col">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $item->name }}</h5>
-                        <p class="card-text"><strong>Organization:</strong> {{ $item->organization ?? '-' }}</p>
-                        @if ($item->contact_email)
-                        <p class="card-text"><strong>Email:</strong> {{ $item->contact_email }}</p>
-                        @endif
-                        @if ($item->contact_phone)
-                        <p class="card-text"><strong>Phone:</strong> {{ $item->contact_phone }}</p>
-                        @endif
-                        @if ($item->address)
-                        <p class="card-text"><strong>Address:</strong> {{ Str::limit($item->address, 50) }}</p>
-                        @endif
-                        @if ($item->website)
-                        <p class="card-text"><strong>Website:</strong> <a href="{{ $item->website }}" target="_blank"
-                                class="text-decoration-none">{{ Str::limit($item->website, 30) }}</a></p>
-                        @endif
-                        <div class="mt-2">
-                            <span class="badge bg-{{ $item->is_active ? 'success' : 'secondary' }}">
-                                {{ $item->is_active ? 'Active' : 'Inactive' }}
-                            </span>
+        <!-- Search and Filter Section -->
+        <div class="card shadow mb-3">
+            <div class="card-header bg-info text-white fw-bold">
+                <i class="fa fa-search me-2"></i>Search & Filter Partners
+            </div>
+            <div class="card-body">
+                <form id="searchFilterFormPartners" method="GET" action="{{ route('admin.partners.index') }}">
+                    <div class="row g-3">
+                        <!-- Search Bar -->
+                        <div class="col-12">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                <input type="text" class="form-control" id="searchInputPartners" name="search" 
+                                    placeholder="Search by name, organization, email, phone, address, or website..." 
+                                    value="{{ request('search') }}">
+                                <button type="button" class="btn btn-outline-secondary" id="clearSearchPartners" title="Clear search">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="col-12 col-md-6">
+                            <label for="statusFilterPartners" class="form-label small fw-bold">
+                                <i class="fa fa-filter me-1"></i>Status
+                            </label>
+                            <select class="form-select form-select-sm" id="statusFilterPartners" name="status">
+                                <option value="" {{ request('status') == '' ? 'selected' : '' }}>All Status</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort By -->
+                        <div class="col-12 col-md-6">
+                            <label for="sortByPartners" class="form-label small fw-bold">
+                                <i class="fa fa-sort me-1"></i>Sort By
+                            </label>
+                            <select class="form-select form-select-sm" id="sortByPartners" name="sort">
+                                <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                                <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                                <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>A-Z</option>
+                                <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Z-A</option>
+                            </select>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-primary btn-sm" id="applyFiltersBtnPartners">
+                                    <i class="fa fa-filter me-1"></i>Apply Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtnPartners">
+                                    <i class="fa fa-redo me-1"></i>Reset All
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-footer">
-                        <div class="row">
-                            <div class="col-6 d-flex justify-content-start">
-                                <form method="POST" action="{{ route('admin.partners.visibility', $item->id) }}"
-                                    class="me-2">
-                                    @csrf
-                                    <input type="hidden" name="is_active" value="{{ $item->is_active ? 0 : 1 }}">
-                                    <button type="submit"
-                                        class="btn btn-sm btn-outline-{{ $item->is_active ? 'success' : 'secondary' }}"
-                                        title="{{ $item->is_active ? 'Deactivate' : 'Activate' }}">
-                                        <i class="fa fa-eye mt-1{{ $item->is_active ? '' : '-slash' }}"></i>
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="col-6 d-flex justify-content-end">
-                                <button type="button" class="btn btn-sm btn-warning me-2"
-                                    onclick="openEditPartnerModal({{ $item->id }})"><i class="fa fa-edit"></i></button>
-                                <!-- Delete Button that triggers Modal -->
-                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal"
-                                    data-bs-target="#deletePartnerModal{{ $item->id }}">
-                                    <i class="fa fa-trash mt-1"></i>
-                                </button>
+                </form>
 
-                                <!-- Delete Confirmation Modal -->
-                                <div class="modal fade" id="deletePartnerModal{{ $item->id }}" tabindex="-1"
-                                    aria-labelledby="deletePartnerModalLabel{{ $item->id }}" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="deletePartnerModalLabel{{ $item->id }}">
-                                                    Confirm
-                                                    Delete</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-
-                                            <div class="modal-body">
-                                                Are you sure you want to delete this partner?
-                                            </div>
-
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Cancel</button>
-
-                                                <form method="POST"
-                                                    action="{{ route('admin.partners.destroy', $item->id) }}">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Results Counter -->
+                <div class="mt-3 pt-3 border-top">
+                    <div id="resultsCounterPartners" class="text-muted small">
+                        <i class="fa fa-info-circle me-1"></i>
+                        <span id="counterTextPartners">
+                            Showing {{ $partners->firstItem() ?? 0 }} to {{ $partners->lastItem() ?? 0 }} of {{ $totalCount ?? $partners->total() }} partners
+                        </span>
+                        <span id="loadingIndicatorPartners" class="ms-2" style="display: none;">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Searching...
+                        </span>
                     </div>
                 </div>
             </div>
-            @endforeach
         </div>
-        <div class="mt-3">
+
+        <!-- Partners Cards Grid -->
+        <div class="row row-cols-1 row-cols-md-2 g-3" id="partnersCardsContainer">
+            @include('admin.tabs.partials.partners-cards', ['partners' => $partners])
+        </div>
+        <div class="mt-3" id="paginationContainerPartners">
             {{ $partners->links() }}
         </div>
     </div>
@@ -606,6 +598,209 @@
         const form = document.getElementById('editPartnerForm');
         form.classList.remove('was-validated');
         form.reset();
+    });
+
+    // Partners Search and Filter Functionality
+    let partnersSearchTimeout;
+    const searchInputPartners = document.getElementById('searchInputPartners');
+    const statusFilterPartners = document.getElementById('statusFilterPartners');
+    const sortByPartners = document.getElementById('sortByPartners');
+    const clearSearchBtnPartners = document.getElementById('clearSearchPartners');
+    const searchFilterFormPartners = document.getElementById('searchFilterFormPartners');
+
+    // Prevent form submission and use AJAX instead
+    if (searchFilterFormPartners) {
+        searchFilterFormPartners.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+            performPartnersSearch(); // Use AJAX search instead
+        });
+    }
+
+    // Real-time search as user types
+    if (searchInputPartners) {
+        searchInputPartners.addEventListener('input', function() {
+            clearTimeout(partnersSearchTimeout);
+            partnersSearchTimeout = setTimeout(() => {
+                performPartnersSearch();
+            }, 500); // Wait 500ms after user stops typing
+        });
+    }
+
+    // Clear search button
+    if (clearSearchBtnPartners) {
+        clearSearchBtnPartners.addEventListener('click', function() {
+            searchInputPartners.value = '';
+            performPartnersSearch();
+        });
+    }
+
+    // Apply Filters button
+    const applyFiltersBtnPartners = document.getElementById('applyFiltersBtnPartners');
+    if (applyFiltersBtnPartners) {
+        applyFiltersBtnPartners.addEventListener('click', function() {
+            performPartnersSearch();
+        });
+    }
+
+    // Reset All button
+    const resetFiltersBtnPartners = document.getElementById('resetFiltersBtnPartners');
+    if (resetFiltersBtnPartners) {
+        resetFiltersBtnPartners.addEventListener('click', function() {
+            // Clear all form inputs
+            if (searchInputPartners) searchInputPartners.value = '';
+            if (statusFilterPartners) statusFilterPartners.value = '';
+            if (sortByPartners) sortByPartners.value = 'newest';
+            
+            // Perform search with cleared filters
+            performPartnersSearch();
+        });
+    }
+
+    // Filter and sort change handlers
+    [statusFilterPartners, sortByPartners].forEach(element => {
+        if (element) {
+            element.addEventListener('change', performPartnersSearch);
+        }
+    });
+
+    // Perform AJAX search for Partners
+    function performPartnersSearch() {
+        const formData = new FormData(document.getElementById('searchFilterFormPartners'));
+        const params = new URLSearchParams(formData);
+
+        // Remove empty parameters for cleaner URLs
+        for (let [key, value] of Array.from(params.entries())) {
+            if (!value || value.trim() === '') {
+                params.delete(key);
+            }
+        }
+
+        // Show loading indicator
+        const loadingIndicator = document.getElementById('loadingIndicatorPartners');
+        const counterText = document.getElementById('counterTextPartners');
+        if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+        const searchUrl = `{{ route('admin.partners.index') }}?${params.toString()}`;
+
+        fetch(searchUrl, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update partners cards
+            const partnersContainer = document.getElementById('partnersCardsContainer');
+            if (partnersContainer && data.html) {
+                partnersContainer.innerHTML = data.html;
+            }
+
+            // Update pagination
+            const paginationContainer = document.getElementById('paginationContainerPartners');
+            if (paginationContainer && data.pagination) {
+                paginationContainer.innerHTML = data.pagination;
+            }
+
+            // Update counter
+            if (counterText) {
+                const from = data.from || 0;
+                const to = data.to || 0;
+                const total = data.totalCount || 0;
+                counterText.textContent = `Showing ${from} to ${to} of ${total} partners`;
+            }
+
+            // Update browser URL without page reload (for bookmarking/sharing)
+            const newUrl = params.toString() ? searchUrl : '{{ route('admin.partners.index') }}';
+            window.history.pushState({}, '', newUrl);
+
+            // Hide loading indicator
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Partners search error:', error);
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            
+            // Show error message
+            if (typeof Swal !== 'undefined') {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    iconColor: 'white',
+                    customClass: {
+                        popup: 'colored-toast',
+                    },
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                });
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Search failed. Please try again.'
+                });
+            } else {
+                alert('Search failed. Please try again.');
+            }
+        });
+    }
+
+    // Handle pagination clicks with AJAX
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('#paginationContainerPartners a')) {
+            e.preventDefault();
+            const url = e.target.closest('a').href;
+            
+            const loadingIndicator = document.getElementById('loadingIndicatorPartners');
+            if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update partners cards
+                const partnersContainer = document.getElementById('partnersCardsContainer');
+                if (partnersContainer && data.html) {
+                    partnersContainer.innerHTML = data.html;
+                }
+
+                // Update pagination
+                const paginationContainer = document.getElementById('paginationContainerPartners');
+                if (paginationContainer && data.pagination) {
+                    paginationContainer.innerHTML = data.pagination;
+                }
+
+                // Update counter
+                const counterText = document.getElementById('counterTextPartners');
+                if (counterText) {
+                    const from = data.from || 0;
+                    const to = data.to || 0;
+                    const total = data.totalCount || 0;
+                    counterText.textContent = `Showing ${from} to ${to} of ${total} partners`;
+                }
+
+                // Update browser URL
+                window.history.pushState({}, '', url);
+
+                // Hide loading indicator
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+                // Scroll to top of partners section
+                const partnersCardsContainer = document.getElementById('partnersCardsContainer');
+                if (partnersCardsContainer) {
+                    partnersCardsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(error => {
+                console.error('Pagination error:', error);
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            });
+        }
     });
 
 </script>

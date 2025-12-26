@@ -160,7 +160,10 @@
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <h1 class="card-title mb-3 text font">{{ $call->title }}</h1>
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <h1 class="card-title mb-0 text font">{{ $call->title }}</h1>
+                                        <span class="badge bg-{{ $call->getStatusBadgeColor() }} status-badge fs-6">{{ $call->getStatusLabel() }}</span>
+                                    </div>
                                     <div class="row g-3">
                                         <div class="col-md-3">
                                             <div class="text-center p-3 bg-light rounded">
@@ -252,25 +255,44 @@
                             <h5 class="m-0 font-weight-bold"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
                         </div>
                         <div class="card-body">
-                            @if($call->proposal_format_file)
+                            @if($call->proposal_format_file && ($call->isAcceptingSubmissions() || $call->display_status === 'Closed'))
                             <a href="{{ route('public.calls.download-format', $call->id) }}" class="btn btn-outline-primary btn-md w-100 mb-3" target="_blank">
                                 <i class="fas fa-download me-2"></i>Download Proposal Format
                             </a>
                             @endif
 
-                            @auth
-                            <a href="{{ route('rmc.calls.create') }}" class="btn btn-primary btn-md w-100">
-                                <i class="fas fa-paper-plane me-2"></i>Submit Proposal
-                            </a>
+                            @if($call->isAcceptingSubmissions())
+                                @auth
+                                <a href="{{ route('rmc.calls.create') }}" class="btn btn-primary btn-md w-100">
+                                    <i class="fas fa-paper-plane me-2"></i>Submit Proposal
+                                </a>
+                                @else
+                                <p class="text-muted text-center mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Login to submit a proposal for this call.
+                                </p>
+                                <a href="{{ route('login') }}" class="btn btn-outline-primary btn-md w-100">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login to Submit
+                                </a>
+                                @endauth
                             @else
-                            <p class="text-muted text-center mb-3">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Login to submit a proposal for this call.
-                            </p>
-                            <a href="{{ route('login') }}" class="btn btn-outline-primary btn-md w-100">
-                                <i class="fas fa-sign-in-alt me-2"></i>Login to Submit
-                            </a>
-                            @endauth
+                                @if($call->display_status === 'Closed')
+                                <div class="alert alert-secondary text-center mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    This call has ended. The proposal format is available for reference only.
+                                </div>
+                                @elseif($call->display_status === 'Upcoming')
+                                <div class="alert alert-warning text-center mb-0">
+                                    <i class="fas fa-clock me-2"></i>
+                                    This call is not yet open for submissions. Check back after {{ $call->start_date->format('M d, Y') }}.
+                                </div>
+                                @else
+                                <div class="alert alert-secondary text-center mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Submissions are not available for this call.
+                                </div>
+                                @endif
+                            @endif
                         </div>
                     </div>
 

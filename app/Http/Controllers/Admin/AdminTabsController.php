@@ -302,10 +302,120 @@ class AdminTabsController extends Controller
                 $data['researchers'] = \App\Models\Researcher::orderBy('id', 'desc')->paginate(8);
                 break;
             case 'partners':
-                $data['partners'] = \App\Models\Partner::orderBy('id', 'desc')->paginate(8);
+                $data['partners'] = \App\Models\Partner::query();
+
+                // Apply the same filtering logic as PartnerController
+                if (request()->filled('search')) {
+                    $search = request()->input('search');
+                    $data['partners']->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                          ->orWhere('organization', 'like', "%{$search}%")
+                          ->orWhere('contact_email', 'like', "%{$search}%")
+                          ->orWhere('contact_phone', 'like', "%{$search}%")
+                          ->orWhere('address', 'like', "%{$search}%")
+                          ->orWhere('website', 'like', "%{$search}%");
+                    });
+                }
+
+                // Apply status filter
+                if (request()->filled('status')) {
+                    $status = request()->input('status');
+                    if ($status === 'active') {
+                        $data['partners']->where('is_active', true);
+                    } elseif ($status === 'inactive') {
+                        $data['partners']->where('is_active', false);
+                    }
+                }
+
+                // Apply sorting
+                $sort = request()->input('sort', 'newest');
+                switch ($sort) {
+                    case 'oldest':
+                        $data['partners']->orderBy('created_at', 'asc');
+                        break;
+                    case 'a_z':
+                        $data['partners']->orderBy('name', 'asc');
+                        break;
+                    case 'z_a':
+                        $data['partners']->orderBy('name', 'desc');
+                        break;
+                    case 'newest':
+                    default:
+                        $data['partners']->orderBy('created_at', 'desc');
+                        break;
+                }
+
+                $data['partners'] = $data['partners']->paginate(8)->appends(request()->except('page'));
+                $data['totalCount'] = $data['partners']->total();
                 break;
             case 'announcements':
-                $data['announcements'] = \App\Models\Announcement::orderBy('id', 'desc')->paginate(8);
+                $data['announcements'] = \App\Models\Announcement::query();
+
+                // Apply the same filtering logic as AnnouncementController
+                if (request()->filled('search')) {
+                    $search = request()->input('search');
+                    $data['announcements']->where(function ($q) use ($search) {
+                        $q->where('title', 'like', "%{$search}%")
+                          ->orWhere('content', 'like', "%{$search}%");
+                    });
+                }
+
+                // Apply status filter
+                if (request()->filled('status')) {
+                    $status = request()->input('status');
+                    if ($status === 'active') {
+                        $data['announcements']->where('active', true);
+                    } elseif ($status === 'inactive') {
+                        $data['announcements']->where('active', false);
+                    }
+                }
+
+                // Apply date filter
+                if (request()->filled('date_filter')) {
+                    $dateFilter = request()->input('date_filter');
+                    $now = now();
+
+                    switch ($dateFilter) {
+                        case 'last_7_days':
+                            $data['announcements']->where('created_at', '>=', $now->subDays(7));
+                            break;
+                        case 'last_30_days':
+                            $data['announcements']->where('created_at', '>=', $now->subDays(30));
+                            break;
+                        case 'last_6_months':
+                            $data['announcements']->where('created_at', '>=', $now->subMonths(6));
+                            break;
+                        case 'custom':
+                            if (request()->filled('date_from')) {
+                                $data['announcements']->where('created_at', '>=', request()->input('date_from'));
+                            }
+                            if (request()->filled('date_to')) {
+                                $data['announcements']->where('created_at', '<=', request()->input('date_to'));
+                            }
+                            break;
+                    }
+                }
+
+                // Apply sorting
+                $sort = request()->input('sort', 'newest');
+                switch ($sort) {
+                    case 'oldest':
+                        $data['announcements']->orderBy('created_at', 'asc');
+                        break;
+                    case 'a_z':
+                        $data['announcements']->orderBy('title', 'asc');
+                        break;
+                    case 'z_a':
+                        $data['announcements']->orderBy('title', 'desc');
+                        break;
+                    case 'newest':
+                    default:
+                        $data['announcements']->orderBy('created_at', 'desc');
+                        break;
+                }
+
+                $data['announcements'] = $data['announcements']->paginate(8)->appends(request()->except('page'));
+                $data['totalCount'] = $data['announcements']->total();
                 break;
         }
         return view('admin.tabs.index', $data);

@@ -52,78 +52,110 @@
 
         <div class="tab-content" id="preprintTabContent">
             <div class="tab-pane fade show active" id="preprint-published" role="tabpanel">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover" id="preprintPublishedTable">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Title</th>
-                                <th>Authors</th>
-                                <th>Repository</th>
-                                <th>Published At</th>
-                                <th>Peer-reviewed</th>
-                                <th>Visibility</th>
-                                <th width="200">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($preprints ?? [] as $preprint)
-                                @if ($preprint)
-                                    <tr>
-                                        <td>{{ $preprint->title ?? 'N/A' }}</td>
-                                        <td>{{ implode(', ', $preprint->authors ?? []) }}</td>
-                                        <td>{{ $preprint->repository_name ?? 'N/A' }}</td>
-                                        <td>{{ optional($preprint->published_at)->format('M d, Y') }}</td>
-                                        <td>
-                                            <span
-                                                class="badge bg-{{ $preprint->is_peer_reviewed ?? false ? 'success' : 'warning' }}">
-                                                {{ $preprint->is_peer_reviewed ?? false ? 'Yes' : 'No' }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge bg-{{ $preprint->is_public ?? false ? 'success' : 'secondary' }}">{{ $preprint->is_public ?? false ? 'Public' : 'Private' }}</span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('admin.preprints.edit', $preprint->id) }}"
-                                                    class="btn btn-sm btn-primary">Edit</a>
-                                                <form method="POST"
-                                                    action="{{ route('admin.preprints.visibility', $preprint->id) }}"
-                                                    class="ms-1">
-                                                    @csrf
-                                                    <input type="hidden" name="is_public"
-                                                        value="{{ $preprint->is_public ?? false ? 0 : 1 }}">
+                <!-- Search and Filter Section -->
+                <div class="card-header bg-light border-bottom py-2 mb-3" style="background-color: #f8f9fa !important;">
+                    <form id="searchFilterFormPreprint" method="GET" action="{{ route('admin.research.index') }}" class="mb-0">
+                        <input type="hidden" name="type" value="preprint">
+                        
+                        <!-- Search Bar -->
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control" id="searchInputPreprint" name="search"
+                                           placeholder="Search by title, authors, repository, abstract, or keywords..."
+                                           value="{{ request('search') }}">
+                                    <button type="button" class="btn btn-outline-secondary" id="clearSearchPreprint" title="Clear search">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
-                                                    <button type="submit"
-                                                        class="btn btn-sm btn-outline-{{ $preprint->is_public ?? false ? 'secondary' : 'success' }}">
-                                                        <i
-                                                            class="fa fa-eye{{ $preprint->is_public ?? false ? '-slash' : '' }}"></i>
+                        <!-- Filters Row -->
+                        <div class="row g-2 mb-2">
+                            <!-- Peer-reviewed Filter -->
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+                                <select class="form-select form-select-sm" id="peerReviewedFilter" name="peer_reviewed">
+                                    <option value="" {{ request('peer_reviewed') == '' ? 'selected' : '' }}>All Peer-reviewed Status</option>
+                                    <option value="Yes" {{ request('peer_reviewed') == 'Yes' ? 'selected' : '' }}>Peer-reviewed</option>
+                                    <option value="No" {{ request('peer_reviewed') == 'No' ? 'selected' : '' }}>Not Peer-reviewed</option>
+                                </select>
+                            </div>
+
+                            <!-- Visibility Filter -->
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+                                <select class="form-select form-select-sm" id="visibilityFilterPreprint" name="visibility">
+                                    <option value="" {{ request('visibility') == '' ? 'selected' : '' }}>All Visibility</option>
+                                    <option value="Private" {{ request('visibility') == 'Private' ? 'selected' : '' }}>Private</option>
+                                    <option value="Public" {{ request('visibility') == 'Public' ? 'selected' : '' }}>Public</option>
+                                </select>
+                            </div>
+
+                            <!-- Date Filter -->
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+                                <select class="form-select form-select-sm" id="dateFilterPreprint" name="date_filter">
+                                    <option value="" {{ request('date_filter') == '' ? 'selected' : '' }}>All Time</option>
+                                    <option value="last_7_days" {{ request('date_filter') == 'last_7_days' ? 'selected' : '' }}>Last 7 Days</option>
+                                    <option value="last_30_days" {{ request('date_filter') == 'last_30_days' ? 'selected' : '' }}>Last 30 Days</option>
+                                    <option value="last_6_months" {{ request('date_filter') == 'last_6_months' ? 'selected' : '' }}>Last 6 Months</option>
+                                    <option value="custom" {{ request('date_filter') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                                </select>
+                            </div>
+
+                            <!-- Sort By -->
+                            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
+                                <select class="form-select form-select-sm" id="sortByPreprint" name="sort">
+                                    <option value="newest" {{ request('sort', 'newest') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                                    <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>A-Z</option>
+                                    <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Z-A</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Custom Date Range (shown when Custom Range is selected) -->
+                        <div class="row mb-2 g-2" id="customDateRangePreprint" style="display: {{ request('date_filter') == 'custom' ? 'flex' : 'none' }};">
+                            <div class="col-6">
+                                <label for="dateFromPreprint" class="form-label small text-muted mb-1">From Date</label>
+                                <input type="date" class="form-control form-control-sm" id="dateFromPreprint" name="date_from" value="{{ request('date_from') }}">
+                            </div>
+                            <div class="col-6">
+                                <label for="dateToPreprint" class="form-label small text-muted mb-1">To Date</label>
+                                <input type="date" class="form-control form-control-sm" id="dateToPreprint" name="date_to" value="{{ request('date_to') }}">
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons and Results Counter -->
+                        <div class="row align-items-center pt-1">
+                            <div class="col-lg-8 col-md-7">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-primary btn-sm" id="applyFiltersBtnPreprint">
+                                        <i class="fas fa-filter me-1"></i>Apply
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFiltersBtnPreprint">
+                                        <i class="fas fa-redo me-1"></i>Reset
                                                     </button>
-                                                </form>
-                                                <form method="POST"
-                                                    action="{{ route('admin.preprints.destroy', $preprint->id) }}"
-                                                    onsubmit="return confirm('Delete this preprint?');" class="ms-1">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-5 text-md-end">
+                                <div id="resultsCounterPreprint" class="text-muted small">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <span id="counterTextPreprint">
+                                        {{ $preprints->firstItem() ?? 0 }} - {{ $preprints->lastItem() ?? 0 }} of {{ $preprints->total() }}
+                                    </span>
+                                    <span id="loadingIndicatorPreprint" class="ms-2" style="display: none;">
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                                                 </form>
                                             </div>
-                                        </td>
-                                    </tr>
-                                @endif
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center py-4">
-                                        <i class="fas fa-file-lines fa-3x text-muted mb-3"></i>
-                                        <p class="text-muted mb-0">No preprints found. Click "Create New Preprint" to
-                                            get started!</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+
+                <div id="preprintTableContainer">
+                    @include('admin.research.partials.preprint.preprint-table', ['preprints' => $preprints])
                 </div>
-                <div class="mt-2">{{ isset($preprints) ? $preprints->links() : '' }}</div>
             </div>
 
             <div class="tab-pane fade" id="preprint-deleted" role="tabpanel">
@@ -290,7 +322,7 @@
             const preprintAuthorsChips = document.getElementById('preprint-authors-chips');
             const preprintAuthorsInput = document.getElementById('preprint-authors-input');
 
-            if (!preprintAuthorsChips || !preprintAuthorsInput) return; // Exit if elements not found
+            if (!preprintAuthorsChips || !preprintAuthorsInput) return;
 
             function preprintCreateChip(label, container, hiddenName) {
                 const chip = document.createElement('span');
@@ -317,7 +349,6 @@
                 input.value = '';
             }
 
-            // Remove existing listeners to prevent duplicates
             preprintAuthorsInput.removeEventListener('keydown', preprintAuthorsInput.chipHandler);
             preprintAuthorsInput.chipHandler = (e) => {
                 if (e.key === 'Enter' || e.key === ',') {
@@ -358,7 +389,6 @@
                     input.value = '';
                 }
 
-                // Remove existing listeners to prevent duplicates
                 preprintKeywordsInput.removeEventListener('keydown', preprintKeywordsInput.chipHandler);
                 preprintKeywordsInput.chipHandler = (e) => {
                     if (e.key === 'Enter' || e.key === ',') {
@@ -371,20 +401,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof $ !== 'undefined' && $.fn.DataTable) {
-                $('#preprintPublishedTable, #preprintDeletedTable').DataTable({
-                    order: [
-                        [3, 'desc']
-                    ],
-                    pageLength: 10,
-                    language: {
-                        search: "<i class='fas fa-search'></i> Search:",
-                        lengthMenu: "_MENU_ records per page"
-                    },
-                    dom: '<"row"<"col-md-6"l><"col-md-6"f>>rtip',
-                    retrieve: true
-                });
-            }
+            // Initialize search and filter functionality
+            initializePreprintFilters();
 
             // Initialize chips
             initPreprintChips();
@@ -393,11 +411,9 @@
             const preprintModal = document.getElementById('createPreprintModal');
             if (preprintModal) {
                 preprintModal.addEventListener('shown.bs.modal', function() {
-                    // Reset form when modal opens
                     const form = document.getElementById('createPreprintForm');
                     if (form) {
                         form.reset();
-                        // Clear existing chips
                         const authorsChips = document.getElementById('preprint-authors-chips');
                         const keywordsChips = document.getElementById('preprint-keywords-chips');
                         if (authorsChips) authorsChips.innerHTML = '';
@@ -406,11 +422,9 @@
 
                     setTimeout(() => {
                         initPreprintChips();
-                        // Also ensure current user is added if not already present
                         const authorsChips = document.getElementById('preprint-authors-chips');
                         const currentUser = @json(Auth::user()?->name ?? '');
-                        if (currentUser && authorsChips && !authorsChips.querySelector(
-                                'input[value="' + currentUser + '"]')) {
+                        if (currentUser && authorsChips && !authorsChips.querySelector('input[value="' + currentUser + '"]')) {
                             const chip = document.createElement('span');
                             chip.className = 'badge bg-secondary d-inline-flex align-items-center';
                             chip.style.gap = '6px';
@@ -444,26 +458,276 @@
             // Submit create preprint form
             const createPreprintForm = document.getElementById('createPreprintForm');
             createPreprintForm?.addEventListener('submit', function(e) {
-                // Check if we have authors before submitting
-                const authorsChips = this.querySelectorAll(
-                    '#preprint-authors-chips input[name="authors[]"]');
+                const authorsChips = this.querySelectorAll('#preprint-authors-chips input[name="authors[]"]');
                 if (authorsChips.length === 0) {
                     e.preventDefault();
                     alert('Please add at least one author.');
                     return false;
                 }
 
-                // Debug: Check form action and CSRF token
                 console.log('Form action:', this.action);
                 console.log('CSRF token:', this.querySelector('input[name="_token"]')?.value);
                 console.log('Form submitting with', authorsChips.length, 'authors');
-
-                // Let the form submit normally (no e.preventDefault())
-                // This will handle the form submission server-side and redirect properly
             });
         });
 
-        // Make initPreprintChips available globally so it can be called from other scripts
         window.initPreprintChips = initPreprintChips;
+
+        // Preprint Search and Filter Functionality
+        let preprintSearchTimeout;
+
+        function initializePreprintFilters() {
+            const searchInput = document.getElementById('searchInputPreprint');
+            const peerReviewedFilter = document.getElementById('peerReviewedFilter');
+            const visibilityFilter = document.getElementById('visibilityFilterPreprint');
+            const dateFilter = document.getElementById('dateFilterPreprint');
+            const sortBy = document.getElementById('sortByPreprint');
+            const clearSearchBtn = document.getElementById('clearSearchPreprint');
+            const customDateRange = document.getElementById('customDateRangePreprint');
+            const dateFrom = document.getElementById('dateFromPreprint');
+            const dateTo = document.getElementById('dateToPreprint');
+            const searchFilterForm = document.getElementById('searchFilterFormPreprint');
+            const applyFiltersBtn = document.getElementById('applyFiltersBtnPreprint');
+            const resetFiltersBtn = document.getElementById('resetFiltersBtnPreprint');
+
+            if (searchFilterForm) {
+                searchFilterForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    performPreprintSearch();
+                });
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(preprintSearchTimeout);
+                    preprintSearchTimeout = setTimeout(() => {
+                        performPreprintSearch();
+                    }, 500);
+                });
+            }
+
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    performPreprintSearch();
+                });
+            }
+
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener('click', function() {
+                    performPreprintSearch();
+                });
+            }
+
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener('click', function() {
+                    if (searchInput) searchInput.value = '';
+                    if (peerReviewedFilter) peerReviewedFilter.value = '';
+                    if (visibilityFilter) visibilityFilter.value = '';
+                    if (dateFilter) dateFilter.value = '';
+                    if (sortBy) sortBy.value = 'newest';
+                    if (dateFrom) dateFrom.value = '';
+                    if (dateTo) dateTo.value = '';
+
+                    if (customDateRange) {
+                        customDateRange.style.display = 'none';
+                    }
+
+                    performPreprintSearch();
+                });
+            }
+
+            [peerReviewedFilter, visibilityFilter, dateFilter, sortBy].forEach(element => {
+                if (element) {
+                    element.addEventListener('change', performPreprintSearch);
+                }
+            });
+
+            [dateFrom, dateTo].forEach(element => {
+                if (element) {
+                    element.addEventListener('change', function() {
+                        if (dateFilter && dateFilter.value === 'custom') {
+                            performPreprintSearch();
+                        }
+                    });
+                }
+            });
+
+            if (dateFilter) {
+                dateFilter.addEventListener('change', function() {
+                    if (this.value === 'custom') {
+                        customDateRange.style.display = 'flex';
+                    } else {
+                        customDateRange.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        function performPreprintSearch() {
+            const formData = new FormData(document.getElementById('searchFilterFormPreprint'));
+            const params = new URLSearchParams(formData);
+
+            for (let [key, value] of Array.from(params.entries())) {
+                if (!value || value.trim() === '') {
+                    params.delete(key);
+                }
+            }
+
+            const loadingIndicator = document.getElementById('loadingIndicatorPreprint');
+            const counterText = document.getElementById('counterTextPreprint');
+            if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+            const searchUrl = `{{ route('admin.research.index') }}?${params.toString()}`;
+
+            fetch(searchUrl, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tableContainer = document.getElementById('preprintTableContainer');
+                if (tableContainer && data.html) {
+                    tableContainer.innerHTML = data.html;
+                }
+
+                if (counterText) {
+                    const from = data.from || 0;
+                    const to = data.to || 0;
+                    const total = data.totalCount || 0;
+                    counterText.textContent = `${from} - ${to} of ${total}`;
+                }
+
+                const newUrl = params.toString() ? searchUrl : '{{ route('admin.research.index') }}?type=preprint';
+                window.history.pushState({}, '', newUrl);
+
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Preprint search error:', error);
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+                alert('Search failed. Please try again.');
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('#preprintTableContainer #preprintPagination a')) {
+                e.preventDefault();
+                const url = e.target.closest('a').href;
+
+                const loadingIndicator = document.getElementById('loadingIndicatorPreprint');
+                const counterText = document.getElementById('counterTextPreprint');
+
+                if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
+
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const tableContainer = document.getElementById('preprintTableContainer');
+                    if (tableContainer && data.html) {
+                        tableContainer.innerHTML = data.html;
+                    }
+
+                    if (counterText) {
+                        const from = data.from || 0;
+                        const to = data.to || 0;
+                        const total = data.totalCount || 0;
+                        counterText.textContent = `${from} - ${to} of ${total}`;
+                    }
+
+                    window.history.pushState({}, '', url);
+
+                    if (loadingIndicator) loadingIndicator.style.display = 'none';
+
+                    const tableSection = document.querySelector('#preprint-published');
+                    if (tableSection) {
+                        tableSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                })
+                .catch(error => {
+                    console.error('Pagination error:', error);
+                    if (loadingIndicator) loadingIndicator.style.display = 'none';
+                });
+            }
+        });
     </script>
+
+    <style>
+    /* Embedded Search and Filter Layout */
+    .card-header.bg-light {
+        background-color: #f8f9fa !important;
+        border-bottom: 1px solid #dee2e6 !important;
+        padding: 0.5rem 1rem !important;
+    }
+
+    .card-header.bg-light .form-select-sm {
+        font-size: 0.875rem !important;
+        padding: 0.25rem 0.5rem !important;
+        border-radius: 0.25rem !important;
+    }
+
+    .card-header.bg-light .input-group-text {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.875rem !important;
+        background-color: #e9ecef !important;
+        border-color: #ced4da !important;
+    }
+
+    .card-header.bg-light #searchInputPreprint {
+        font-size: 0.875rem !important;
+        padding: 0.25rem 0.5rem !important;
+        border-radius: 0.25rem !important;
+    }
+
+    .card-header.bg-light .btn-sm {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.875rem !important;
+    }
+
+    .card-header.bg-light .btn-outline-secondary {
+        border-left: 0 !important;
+        border-radius: 0 0.25rem 0.25rem 0 !important;
+    }
+
+    .card-header.bg-light .row.mb-2 {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .card-header.bg-light .row.g-2 {
+        --bs-gutter-x: 0.4rem !important;
+        --bs-gutter-y: 0.4rem !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .card-header.bg-light {
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        .card-header.bg-light .text-md-end {
+            text-align: center !important;
+            margin-top: 0.4rem;
+        }
+    }
+
+    /* Focus states */
+    .card-header.bg-light .form-control:focus {
+        border-color: #80bdff !important;
+        box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.15) !important;
+    }
+
+    .card-header.bg-light .form-select:focus {
+        border-color: #80bdff !important;
+        box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.15) !important;
+    }
+    </style>
 @endpush

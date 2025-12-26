@@ -212,21 +212,14 @@
                         </form>
                         @endif
 
-                        <!-- Post/Unpost Toggle Button -->
-                        @if($call->visibility_status === 'Private' && $call->status !== 'Closed')
-                        <form method="POST" action="{{ route('ruc.calls.visibility', $call->id) }}" onsubmit="return confirmPostCall(event, '{{ addslashes($call->title) }}')">
+                        @if($call->status === 'Closed' && $call->visibility_status === 'Public')
+                        <!-- Reopen for Review -->
+                        <form method="POST" action="{{ route('ruc.calls.status', $call->id) }}" onsubmit="return confirmReopenCall(event, '{{ addslashes($call->title) }}')">
                             @csrf
-                            <input type="hidden" name="visibility_status" value="Public">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-eye me-2"></i>Post as Public
-                            </button>
-                        </form>
-                        @elseif($call->visibility_status === 'Public' && $call->status !== 'Open')
-                        <form method="POST" action="{{ route('ruc.calls.visibility', $call->id) }}" onsubmit="return confirmUnpostCall(event, '{{ addslashes($call->title) }}')">
-                            @csrf
-                            <input type="hidden" name="visibility_status" value="Private">
-                            <button type="submit" class="btn btn-outline-secondary w-100">
-                                <i class="fas fa-eye-slash me-2"></i>Unpost from Public
+                            <input type="hidden" name="status" value="For Review">
+                            <input type="hidden" name="action" value="reopen">
+                            <button type="submit" class="btn btn-info w-100">
+                                <i class="fas fa-redo me-2"></i>Reopen for Review
                             </button>
                         </form>
                         @endif
@@ -340,10 +333,10 @@ function confirmWithdrawCall(event, callTitle) {
 
     Swal.fire({
         title: 'Withdraw & Close Call?',
-        html: `<p class="mb-0">Are you sure you want to withdraw "<strong>${callTitle}</strong>"? This will close the call and remove it from public view.</p>`,
+        html: `<p class="mb-0">Are you sure you want to withdraw "<strong>${callTitle}</strong>"? This will close the call but maintain its public visibility, signaling that the call has ended.</p>`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: '<i class="fas fa-times-circle me-2"></i>Yes, Withdraw Call',
+        confirmButtonText: '<i class="fas fa-times-circle me-2"></i>Yes, Withdraw & Close',
         cancelButtonText: '<i class="fas fa-ban me-2"></i>Cancel',
         reverseButtons: true,
         customClass: {
@@ -377,21 +370,21 @@ function confirmWithdrawCall(event, callTitle) {
     return false;
 }
 
-// SweetAlert confirmation for posting a call as public
-function confirmPostCall(event, callTitle) {
+// SweetAlert confirmation for reopening a call for review
+function confirmReopenCall(event, callTitle) {
     event.preventDefault();
 
     Swal.fire({
-        title: 'Post Call as Public?',
-        html: `<p class="mb-0">Are you sure you want to post "<strong>${callTitle}</strong>" as public? This will make it visible to all website visitors.</p>`,
+        title: 'Reopen Call for Review?',
+        html: `<p class="mb-0">Are you sure you want to reopen "<strong>${callTitle}</strong>" for review? This will set the status back to "For Review" and visibility to "Private."</p>`,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: '<i class="fas fa-eye me-2"></i>Yes, Post as Public',
+        confirmButtonText: '<i class="fas fa-redo me-2"></i>Yes, Reopen for Review',
         cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
         reverseButtons: true,
         customClass: {
             popup: 'swal-wide',
-            confirmButton: 'btn btn-primary btn-lg px-4 me-2',
+            confirmButton: 'btn btn-info btn-lg px-4 me-2',
             cancelButton: 'btn btn-secondary btn-lg px-4'
         },
         buttonsStyling: false
@@ -399,51 +392,8 @@ function confirmPostCall(event, callTitle) {
         if (result.isConfirmed) {
             // Show loading
             Swal.fire({
-                title: 'Posting Call...',
-                html: '<p class="mb-0">Please wait while we post the call publicly.</p>',
-                icon: 'info',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                customClass: {
-                    popup: 'swal-wide'
-                },
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            // Submit the form
-            event.target.submit();
-        }
-    });
-
-    return false;
-}
-
-// SweetAlert confirmation for unposting a call
-function confirmUnpostCall(event, callTitle) {
-    event.preventDefault();
-
-    Swal.fire({
-        title: 'Unpost Call from Public View?',
-        html: `<p class="mb-0">Are you sure you want to unpost "<strong>${callTitle}</strong>"? This will remove it from public view but keep it active internally.</p>`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: '<i class="fas fa-eye-slash me-2"></i>Yes, Unpost Call',
-        cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
-        reverseButtons: true,
-        customClass: {
-            popup: 'swal-wide',
-            confirmButton: 'btn btn-secondary btn-lg px-4 me-2',
-            cancelButton: 'btn btn-outline-secondary btn-lg px-4'
-        },
-        buttonsStyling: false
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Show loading
-            Swal.fire({
-                title: 'Unposting Call...',
-                html: '<p class="mb-0">Please wait while we remove the call from public view.</p>',
+                title: 'Reopening Call...',
+                html: '<p class="mb-0">Please wait while we reopen the call for review.</p>',
                 icon: 'info',
                 allowOutsideClick: false,
                 showConfirmButton: false,

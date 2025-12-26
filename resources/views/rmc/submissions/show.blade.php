@@ -195,7 +195,7 @@
 </div>
 
 <script>
-// Handle form submission with AJAX
+// Handle form submission with SweetAlert confirmation and AJAX
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form[data-ajax="true"]');
 
@@ -204,40 +204,135 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
 
             const formData = new FormData(form);
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
+            const statusValue = formData.get('status');
+            const remarksValue = formData.get('remarks') || '';
 
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-            submitBtn.disabled = true;
+            // Get status display name
+            let statusDisplay = statusValue;
+            switch(statusValue) {
+                case 'Under Review':
+                    statusDisplay = 'Under Review';
+                    break;
+                case 'Accepted':
+                    statusDisplay = 'Accepted';
+                    break;
+                case 'Rejected':
+                    statusDisplay = 'Rejected';
+                    break;
+                case 'Submitted':
+                    statusDisplay = 'Submitted';
+                    break;
+            }
 
-            fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showAlert(data.message, 'success');
-                    setTimeout(() => location.reload(), 2000);
-                } else {
-                    showAlert(data.message, 'danger');
-                    if (data.errors) {
-                        Object.values(data.errors).forEach(error => {
-                            showAlert(error[0], 'danger');
+            // Show SweetAlert confirmation
+            Swal.fire({
+                title: 'Update Submission Status?',
+                html: `<p class="mb-2">Are you sure you want to change the status to <strong>"${statusDisplay}"</strong>?</p>
+                       ${remarksValue ? `<p class="mb-0 text-muted small">Remarks: ${remarksValue}</p>` : ''}`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-save me-2"></i>Yes, Update Status',
+                cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+                reverseButtons: true,
+                customClass: {
+                    popup: 'swal-wide',
+                    confirmButton: 'btn btn-success btn-lg px-4 me-2',
+                    cancelButton: 'btn btn-secondary btn-lg px-4'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Updating Status...',
+                        html: '<p class="mb-0">Please wait while we update the submission status.</p>',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        showConfirmButton: false,
+                        customClass: {
+                            popup: 'swal-wide'
+                        },
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+                    submitBtn.disabled = true;
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.close(); // Close loading
+
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Status Updated!',
+                                html: '<p class="mb-0">The submission status has been updated successfully.</p>',
+                                icon: 'success',
+                                confirmButtonText: '<i class="fas fa-check me-2"></i>OK',
+                                customClass: {
+                                    popup: 'swal-wide',
+                                    confirmButton: 'btn btn-success btn-lg px-4'
+                                },
+                                buttonsStyling: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Update Failed',
+                                html: `<p class="mb-0">${data.message || 'An error occurred while updating the status.'}</p>`,
+                                icon: 'error',
+                                confirmButtonText: '<i class="fas fa-times me-2"></i>OK',
+                                customClass: {
+                                    popup: 'swal-wide',
+                                    confirmButton: 'btn btn-danger btn-lg px-4'
+                                },
+                                buttonsStyling: false
+                            });
+
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+
+                            if (data.errors) {
+                                setTimeout(() => {
+                                    Object.values(data.errors).forEach(error => {
+                                        showAlert(error[0], 'danger');
+                                    });
+                                }, 1000);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        Swal.close(); // Close loading
+
+                        Swal.fire({
+                            title: 'Error',
+                            html: '<p class="mb-0">An error occurred. Please try again.</p>',
+                            icon: 'error',
+                            confirmButtonText: '<i class="fas fa-times me-2"></i>OK',
+                            customClass: {
+                                popup: 'swal-wide',
+                                confirmButton: 'btn btn-danger btn-lg px-4'
+                            },
+                            buttonsStyling: false
                         });
-                    }
+
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                        console.error('Error:', error);
+                    });
                 }
-            })
-            .catch(error => {
-                showAlert('An error occurred. Please try again.', 'danger');
-                console.error('Error:', error);
-            })
-            .finally(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
             });
         });
     }
@@ -266,5 +361,108 @@ function createAlertContainer() {
     return container;
 }
 </script>
+
+<style>
+/* Enhanced SweetAlert Styling */
+.swal2-popup {
+    font-size: 1rem !important;
+    padding: 2rem !important;
+}
+
+.swal2-title {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 1rem !important;
+}
+
+.swal2-html-container {
+    font-size: 1rem !important;
+    color: #5a6c7d !important;
+    margin: 1rem 0 !important;
+}
+
+.swal2-actions {
+    margin-top: 1.5rem !important;
+    gap: 0.5rem !important;
+}
+
+/* Success Button Styling */
+.swal2-popup .btn-success {
+    background-color: #28a745 !important;
+    border: 2px solid #28a745 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 2rem !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3) !important;
+}
+
+.swal2-popup .btn-success:hover {
+    background-color: #218838 !important;
+    border-color: #1e7e34 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4) !important;
+}
+
+.swal2-popup .btn-success:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.5) !important;
+}
+
+/* Danger Button Styling */
+.swal2-popup .btn-danger {
+    background-color: #dc3545 !important;
+    border: 2px solid #dc3545 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 2rem !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 6px rgba(220, 53, 69, 0.3) !important;
+}
+
+.swal2-popup .btn-danger:hover {
+    background-color: #c82333 !important;
+    border-color: #bd2130 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4) !important;
+}
+
+.swal2-popup .btn-danger:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5) !important;
+}
+
+/* Secondary/Cancel Button Styling */
+.swal2-popup .btn-secondary {
+    background-color: #6c757d !important;
+    border: 2px solid #6c757d !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 2rem !important;
+    border-radius: 0.5rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 6px rgba(108, 117, 125, 0.3) !important;
+}
+
+.swal2-popup .btn-secondary:hover {
+    background-color: #5a6268 !important;
+    border-color: #545b62 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 12px rgba(108, 117, 125, 0.4) !important;
+}
+
+.swal2-popup .btn-secondary:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.5) !important;
+}
+
+.swal-wide {
+    width: 35rem !important;
+    max-width: 90vw !important;
+}
+</style>
 @endsection
 

@@ -75,5 +75,95 @@ class CallForProposal extends Model
     {
         return $this->hasMany(ProposalSubmission::class, 'call_id');
     }
+
+    /**
+     * Get the display status of the call based on dates and current status.
+     * This determines how the call should be presented to the public.
+     */
+    public function getDisplayStatusAttribute(): string
+    {
+        $now = now();
+
+        // If the call is not public, don't show it
+        if ($this->visibility_status !== 'Public') {
+            return 'Private';
+        }
+
+        // Check date-based status first
+        if ($now->isBefore($this->start_date)) {
+            return 'Upcoming';
+        }
+
+        if ($now->isAfter($this->end_date)) {
+            return 'Closed';
+        }
+
+        // Then check explicit status
+        return match($this->status) {
+            'Open' => 'Open',
+            'Closed' => 'Closed',
+            'For Review', 'Draft' => 'Upcoming',
+            default => 'Closed'
+        };
+    }
+
+    /**
+     * Check if the call is currently accepting submissions.
+     */
+    public function isAcceptingSubmissions(): bool
+    {
+        return $this->display_status === 'Open' && $this->visibility_status === 'Public';
+    }
+
+    /**
+     * Get the badge color for the display status.
+     */
+    public function getStatusBadgeColor(): string
+    {
+        return match($this->display_status) {
+            'Open' => 'success',
+            'Closed' => 'secondary',
+            'Upcoming' => 'warning',
+            default => 'light'
+        };
+    }
+
+    /**
+     * Get the status label for display.
+     */
+    public function getStatusLabel(): string
+    {
+        return match($this->display_status) {
+            'Open' => 'Open',
+            'Closed' => 'Closed',
+            'Upcoming' => 'Upcoming',
+            default => 'Not Available'
+        };
+    }
+
+    /**
+     * Automatically update call status based on dates.
+     * This should be called periodically or on access.
+     */
+    public function updateStatusBasedOnDates(): bool
+    {
+        $now = now();
+        $updated = false;
+
+        // If end date has passed and call is still Open, close it
+        if ($now->isAfter($this->end_date) && $this->status === 'Open') {
+            $this->status = 'Closed';
+            $updated = true;
+        }
+
+        // If start date hasn't arrived and call is Open, keep it as is
+        // (status should be managed by RUC, not automatically changed)
+
+        if ($updated) {
+            $this->save();
+        }
+
+        return $updated;
+    }
 }
 

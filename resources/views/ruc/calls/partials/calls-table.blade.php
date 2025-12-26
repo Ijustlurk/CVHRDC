@@ -49,7 +49,7 @@
                             <input type="hidden" name="status" value="Open">
                             <input type="hidden" name="action" value="approve">
                             <button type="submit" class="btn btn-sm btn-success">
-                                <i class="fas fa-check me-1"></i>Approve
+                                <i class="fas fa-check me-1"></i>Approve & Publish
                             </button>
                         </form>
                         @elseif($call->status === 'Open' && $call->visibility_status === 'Public')
@@ -59,16 +59,17 @@
                             <input type="hidden" name="status" value="Closed">
                             <input type="hidden" name="action" value="withdraw">
                             <button type="submit" class="btn btn-sm btn-warning">
-                                <i class="fas fa-times me-1"></i>Withdraw
+                                <i class="fas fa-times me-1"></i>Withdraw & Close
                             </button>
                         </form>
-                        @elseif($call->visibility_status === 'Public')
-                        <!-- Make Private -->
-                        <form method="POST" action="{{ route('ruc.calls.visibility', $call->id) }}" class="d-inline" onsubmit="return confirmUnpostCall(event, '{{ addslashes($call->title) }}')">
+                        @elseif($call->status === 'Closed' && $call->visibility_status === 'Public')
+                        <!-- Reopen for Review -->
+                        <form method="POST" action="{{ route('ruc.calls.status', $call->id) }}" class="d-inline" onsubmit="return confirmReopenCall(event, '{{ addslashes($call->title) }}')">
                             @csrf
-                            <input type="hidden" name="visibility_status" value="Private">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-eye-slash"></i> Unpost
+                            <input type="hidden" name="status" value="For Review">
+                            <input type="hidden" name="action" value="reopen">
+                            <button type="submit" class="btn btn-sm btn-info">
+                                <i class="fas fa-redo me-1"></i>Reopen for Review
                             </button>
                         </form>
                         @endif
