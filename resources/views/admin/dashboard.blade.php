@@ -5,7 +5,7 @@
     <div class="mt-2">
         <h5 class="mb-4 font-medium site-logo"><i class="fa-solid fa-caret-right me-4"></i>Analytics Dashboard</h5>
     </div>
-    <hr>
+  
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="card h-100 border-0 shadow-sm rounded-4 card-animated card-blue">

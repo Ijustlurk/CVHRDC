@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('address')->nullable();
             $table->string('campus')->nullable();
+            $table->datetime('deleted_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
