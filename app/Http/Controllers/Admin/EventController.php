@@ -188,7 +188,7 @@ class EventController extends Controller
             'image_url' => 'required|url',
             'is_visible' => 'nullable|boolean',
         ]);
-        $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+        $validated['is_visible'] = $request->boolean('is_visible') ? 1 : 0;
         $validated['added_by'] = auth()->user() ? auth()->user()->name : 'Unknown';
         $validated['image_url'] = $this->convertGoogleDriveUrl($validated['image_url']);
         $event = \App\Models\Event::create($validated);
@@ -266,7 +266,7 @@ class EventController extends Controller
             // Convert Google Drive URL to direct image URL
             $validated['image_url'] = $this->convertGoogleDriveUrl($validated['image_url']);
 
-            $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+            $validated['is_visible'] = $request->boolean('is_visible') ? 1 : 0;
 
             $event->update($validated);
 
