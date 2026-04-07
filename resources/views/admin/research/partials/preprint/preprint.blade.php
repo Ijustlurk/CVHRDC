@@ -54,7 +54,7 @@
             <div class="tab-pane fade show active" id="preprint-published" role="tabpanel">
                 <!-- Search and Filter Section -->
                 <div class="card-header bg-light border-bottom py-2 mb-3" style="background-color: #f8f9fa !important;">
-                    <form id="searchFilterFormPreprint" method="GET" action="{{ route('admin.research.index') }}" class="mb-0">
+                    <form id="searchFilterFormPreprint" method="GET" action="{{ route('admin.preprints.index') }}" class="mb-0">
                         <input type="hidden" name="type" value="preprint">
                         
                         <!-- Search Bar -->
@@ -578,7 +578,7 @@
             const counterText = document.getElementById('counterTextPreprint');
             if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
 
-            const searchUrl = `{{ route('admin.research.index') }}?${params.toString()}`;
+            const searchUrl = `{{ route('admin.preprints.index') }}?${params.toString()}`;
 
             fetch(searchUrl, {
                 method: 'GET',

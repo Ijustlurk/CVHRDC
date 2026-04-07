@@ -13,7 +13,7 @@
         <!-- Research Management Tabs -->
         <ul class="nav nav-tabs mb-4">
             <li class="nav-item">
-                <a class="nav-link{{ request('type', 'research') !== 'conference' ? ' active' : '' }}"
+                <a class="nav-link{{ request('type', 'research') === 'research' ? ' active' : '' }}"
                     href="{{ route('users.research.index', ['type' => 'research']) }}">
                     <i class="fas fa-book me-2"></i>Research
                 </a>
@@ -42,7 +42,7 @@
               @include('users.research.partials.preprint.preprint')
           @elseif (request('type') === 'book')
               @include('users.research.partials.book.book')
-          @elseif (request('type', 'research') !== 'conference')
+          @elseif (request('type', 'research') === 'research')
               @include('users.research.partials.research.research')
           @else
             @include('users.research.partials.conference.conference')

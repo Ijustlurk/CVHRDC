@@ -25,7 +25,7 @@
             <div class="tab-pane fade show active" id="conf-published" role="tabpanel">
                 <!-- Search and Filter Section -->
                 <div class="card-header bg-light border-bottom py-2 mb-3" style="background-color: #f8f9fa !important;">
-                    <form id="searchFilterFormConference" method="GET" action="{{ route('admin.research.index') }}" class="mb-0">
+                    <form id="searchFilterFormConference" method="GET" action="{{ route('admin.conference-papers.index') }}" class="mb-0">
                         <input type="hidden" name="type" value="conference">
                         
                         <!-- Search Bar -->
@@ -764,7 +764,7 @@ function performConferenceSearch() {
     const counterText = document.getElementById('counterTextConference');
     if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
 
-    const searchUrl = `{{ route('admin.research.index') }}?${params.toString()}`;
+    const searchUrl = `{{ route('admin.conference-papers.index') }}?${params.toString()}`;
 
     fetch(searchUrl, {
         method: 'GET',
@@ -787,7 +787,7 @@ function performConferenceSearch() {
             counterText.textContent = `${from} - ${to} of ${total}`;
         }
 
-        const newUrl = params.toString() ? searchUrl : '{{ route('admin.research.index') }}?type=conference';
+        const newUrl = params.toString() ? `{{ route('admin.research.index') }}?${params.toString()}` : '{{ route('admin.research.index') }}?type=conference';
         window.history.pushState({}, '', newUrl);
 
         if (loadingIndicator) loadingIndicator.style.display = 'none';
