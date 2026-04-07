@@ -299,8 +299,6 @@
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- DataTables -->
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
@@ -588,71 +586,94 @@
                     });
             });
 
-            // Delete User
-            document.querySelectorAll('.delete-user-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const userId = this.dataset.id;
-                    const userName = this.dataset.name;
+            // Delete User (event delegation to handle DataTables re-rendered DOM)
+            document.addEventListener('click', function(e) {
+                const deleteBtn = e.target.closest('.delete-user-btn');
+                if (deleteBtn) {
+                    const userId = deleteBtn.dataset.id;
+                    const userName = deleteBtn.dataset.name;
 
-                    if (confirm(`Are you sure you want to delete user "${userName}"?`)) {
-                        fetch(`/admin/users/${userId}`, {
-                                method: 'DELETE',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector(
-                                        'meta[name="csrf-token"]').content
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    window.alert(
-                                    'Success: User has been deleted successfully!');
-                                    window.location.reload();
-                                } else {
-                                    window.alert('Error: ' + (data.message ||
-                                        'Failed to delete user'));
-                                }
-                            })
-                            .catch(error => {
-                                window.alert('Error: ' + error.message);
-                            });
-                    }
-                });
+                    Swal.fire({
+                        title: `Delete "${userName}"?`,
+                        text: 'This will deactivate the account. The user record will be preserved and can be restored later.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, delete',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`/admin/users/${userId}`, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content
+                                    }
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire('Deleted!', `User "${userName}" has been deleted.`, 'success')
+                                            .then(() => window.location.reload());
+                                    } else {
+                                        Swal.fire('Error', data.message || 'Failed to delete user', 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    Swal.fire('Error', error.message, 'error');
+                                });
+                        }
+                    });
+                }
             });
 
-            // Restore User
-            document.querySelectorAll('.restore-user-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const userId = this.dataset.id;
-                    const userName = this.dataset.name;
+            // Restore User (event delegation to handle DataTables re-rendered DOM)
+            document.addEventListener('click', function(e) {
+                const restoreBtn = e.target.closest('.restore-user-btn');
+                if (restoreBtn) {
+                    const userId = restoreBtn.dataset.id;
+                    const userName = restoreBtn.dataset.name;
 
-                    if (confirm(`Are you sure you want to restore user "${userName}"?`)) {
-                        fetch(`/admin/users/${userId}/restore`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector(
-                                        'meta[name="csrf-token"]').content
-                                }
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    window.alert(
-                                        'Success: User has been restored successfully!');
-                                    window.location.reload();
-                                } else {
-                                    window.alert('Error: ' + (data.message ||
-                                        'Failed to restore user'));
-                                }
-                            })
-                            .catch(error => {
-                                window.alert('Error: ' + error.message);
-                            });
-                    }
-                });
+                    Swal.fire({
+                        title: `Restore "${userName}"?`,
+                        text: 'This will reactivate the user account.',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#198754',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, restore',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch(`/admin/users/${userId}/restore`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector(
+                                            'meta[name="csrf-token"]').content
+                                    }
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.success) {
+                                        Swal.fire('Restored!', `User "${userName}" has been restored.`, 'success')
+                                            .then(() => window.location.reload());
+                                    } else {
+                                        Swal.fire('Error', data.message || 'Failed to restore user', 'error');
+                                    }
+                                })
+                                .catch(error => {
+                                    Swal.fire('Error', error.message, 'error');
+                                });
+                        }
+                    });
+                }
             });
+
 
             // Clear form validation on modal close
             document.querySelectorAll('.modal').forEach(modal => {

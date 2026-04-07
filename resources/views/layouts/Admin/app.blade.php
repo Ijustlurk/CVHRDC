@@ -46,6 +46,30 @@
             letter-spacing: 0.2px;
         }
 
+        /* Fix SweetAlert2 + Bootstrap CSS conflict:
+           Bootstrap's .btn sets background-color: transparent which bleeds into Swal buttons */
+        .swal2-confirm,
+        .swal2-cancel {
+            display: inline-block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+
+        .swal2-confirm {
+            background-color: var(--swal2-confirm-button-background-color, #3085d6) !important;
+            color: #fff !important;
+            border: none !important;
+        }
+
+        .swal2-cancel {
+            background-color: var(--swal2-cancel-button-background-color, #6c757d) !important;
+            color: #fff !important;
+            border: none !important;
+        }
+
+        .swal2-actions button:focus {
+            box-shadow: none !important;
+        }
     </style>
 
 </head>
@@ -82,8 +106,6 @@
     @endphp
     @include('layouts.Admin.footer', ['footer' => $footer])
 
-    @stack('scripts')
-
     <!-- jQuery (required for some Bootstrap functionality) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -92,6 +114,8 @@
 
     <!-- SweetALert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @stack('scripts')
 
 </body>
 
