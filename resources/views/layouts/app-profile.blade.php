@@ -101,17 +101,18 @@
     <div class="mt-3 mx-lg-5 mx-3 shadow-sm">
         @php
             $user = Auth::user();
-            $isAdmin = false;
+            $roleName = '';
             if ($user && $user->roles->isNotEmpty()) {
                 $roleName = strtolower($user->roles[0]->name);
-                if (in_array($roleName, ['superadmin', 'admin', 'rmc', 'ruc'])) {
-                    $isAdmin = true;
-                }
             }
         @endphp
 
-        @if($isAdmin)
+        @if($roleName === 'superadmin' || $roleName === 'admin' || $roleName === 'rmc' || $roleName === 'ruc')
             @include('layouts.Admin.navigation')
+        @elseif($roleName === 'peer review coordinator')
+            @include('layouts.Coordinator.navigation')
+        @elseif($roleName === 'reviewer')
+            @include('layouts.Reviewer.navigation')
         @else
             @include('layouts.Users.navigation')
         @endif
@@ -130,8 +131,12 @@
         $footer = \App\Models\Footer::first();
     @endphp
 
-    @if($isAdmin)
+    @if($roleName === 'superadmin' || $roleName === 'admin' || $roleName === 'rmc' || $roleName === 'ruc')
         @include('layouts.Admin.footer', ['footer' => $footer])
+    @elseif($roleName === 'peer review coordinator')
+        @include('layouts.Admin.footer', ['footer' => $footer])
+    @elseif($roleName === 'reviewer')
+        @include('layouts.Users.footer', ['footer' => $footer])
     @else
         @include('layouts.Users.footer', ['footer' => $footer])
     @endif

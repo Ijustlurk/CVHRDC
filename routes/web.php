@@ -78,6 +78,8 @@ Route::get('/dashboard', function () {
             return app(RMCDashboardController::class)->index();
         } elseif ($role === 'ruc') {
             return app(RUCDashboardController::class)->index();
+        } elseif ($role === 'peer review coordinator') {
+            return redirect()->route('coordinator.dashboard');
         } else {
             return app(UserDashboardController::class)->index();
         }
@@ -210,6 +212,24 @@ Route::middleware(['auth', 'rmc'])->prefix('rmc')->name('rmc.')->group(function 
     Route::get('calls/{callId}/submissions/{submissionId}', [ProposalSubmissionController::class, 'show'])->name('submissions.show');
     Route::post('calls/{callId}/submissions/{submissionId}/status', [ProposalSubmissionController::class, 'updateStatus'])->name('submissions.status');
     Route::get('calls/{callId}/submissions/{submissionId}/download', [ProposalSubmissionController::class, 'downloadDocument'])->name('submissions.download');
+});
+
+
+// Peer Review Coordinator routes here
+Route::middleware(['auth', 'coordinator'])->prefix('coordinator')->name('coordinator.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Coordinator\PeerReviewCoordinatorController::class, 'index'])->name('dashboard');
+    Route::get('/submissions', [App\Http\Controllers\Coordinator\PeerReviewCoordinatorController::class, 'submissions'])->name('submissions.index');
+    Route::get('/submissions/{id}', [App\Http\Controllers\Coordinator\PeerReviewCoordinatorController::class, 'show'])->name('submissions.show');
+    Route::get('/submissions/{id}/download', [App\Http\Controllers\Coordinator\PeerReviewCoordinatorController::class, 'download'])->name('submissions.download');
+    Route::post('/submissions/assign', [App\Http\Controllers\Coordinator\PeerReviewCoordinatorController::class, 'assignReviewer'])->name('submissions.assign');
+    Route::delete('/submissions/{submissionId}/unassign/{reviewId}', [App\Http\Controllers\Coordinator\PeerReviewCoordinatorController::class, 'unassignReviewer'])->name('submissions.unassign');
+});
+
+Route::middleware(['auth', 'reviewer'])->prefix('reviewer')->name('reviewer.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'index'])->name('dashboard');
+    Route::get('/reviews', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/reviews/{id}/accept', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'accept'])->name('reviews.accept');
+    Route::post('/reviews/{id}/decline', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'decline'])->name('reviews.decline');
 });
 
 

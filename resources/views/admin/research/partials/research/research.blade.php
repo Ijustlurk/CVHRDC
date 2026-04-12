@@ -701,6 +701,8 @@ function performResearchSearch() {
         const tableContainer = document.getElementById('researchTableContainer');
         if (tableContainer && data.html) {
             tableContainer.innerHTML = data.html;
+            // Re-initialize DataTables after AJAX update
+            if (typeof initTables === 'function') initTables();
         }
 
         // Update counter
@@ -750,6 +752,8 @@ document.addEventListener('click', function(e) {
             const tableContainer = document.getElementById('researchTableContainer');
             if (tableContainer && data.html) {
                 tableContainer.innerHTML = data.html;
+                // Re-initialize DataTables after AJAX update
+                if (typeof initTables === 'function') initTables();
             }
 
             // Update counter

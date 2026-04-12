@@ -68,5 +68,7 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminAccessMiddleware::class,
         'rmc' => \App\Http\Middleware\RMCAccessMiddleware::class,
         'ruc' => \App\Http\Middleware\RUCAccessMiddleware::class,
+        'coordinator' => \App\Http\Middleware\CoordinatorAccessMiddleware::class,
+        'reviewer' => \App\Http\Middleware\ReviewerAccessMiddleware::class,
     ];
 }

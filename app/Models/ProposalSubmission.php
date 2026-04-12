@@ -63,5 +63,13 @@ class ProposalSubmission extends Model
     {
         return $this->belongsTo(CallForProposal::class, 'call_id');
     }
+
+    /**
+     * Get the peer reviews for this submission.
+     */
+    public function peerReviews()
+    {
+        return $this->hasMany(PeerReview::class, 'proposal_submission_id');
+    }
 }
 

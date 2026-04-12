@@ -126,4 +126,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(CallForProposal::class, 'approved_by');
     }
+
+    /**
+     * Get reviews assigned to this user (for Reviewer role).
+     */
+    public function assignedReviews()
+    {
+        return $this->hasMany(PeerReview::class, 'reviewer_id');
+    }
+
+    /**
+     * Get reviews managed by this user (for Coordinator role).
+     */
+    public function managedReviews()
+    {
+        return $this->hasMany(PeerReview::class, 'assigned_by');
+    }
 }
