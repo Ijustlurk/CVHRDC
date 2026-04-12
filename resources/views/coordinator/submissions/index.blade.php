@@ -7,7 +7,7 @@
 @section('content')
 <div class="container py-4">
     <div class="d-flex align-items-center mb-4 gap-3">
-        <h4 class="mb-0">Peer Review Management</h4>
+        <h4 class="mb-0 fw-bold">Peer Review Management</h4>
         <div class="alert alert-info mb-0 py-2 px-3 border-0 shadow-sm d-none d-md-block">
             <i class="fas fa-tasks me-2"></i>Assign reviewers and monitor evaluation progress.
         </div>
@@ -56,7 +56,7 @@
     </ul>
 
     <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
-        <div class="card-header bg-primary bg-gradient text-white py-3 border-0">
+        <div class="card-header py-3 border-0" style="background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);">
             <div class="d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold">
                     <i class="fas fa-list-ul me-2"></i>{{ ucfirst($type) }} Submissions

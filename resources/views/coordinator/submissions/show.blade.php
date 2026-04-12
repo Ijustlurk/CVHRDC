@@ -3,35 +3,39 @@
 @section('content')
 <div class="container py-4">
     <div class="d-flex align-items-center justify-content-between mb-4">
-        <h4 class="mb-0">Submission Details</h4>
-        <a href="{{ route('coordinator.submissions.index') }}" class="btn btn-light">
+        <div class="d-flex align-items-center gap-3">
+            <h4 class="mb-0 fw-bold">Submission Details</h4>
+        </div>
+        <a href="{{ route('coordinator.submissions.index') }}" class="btn btn-outline-secondary rounded-3 shadow-sm">
             <i class="fas fa-arrow-left me-2"></i>Back to List
         </a>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4 rounded-3" role="alert">
             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4 rounded-3" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    <div class="row">
+    <div class="row g-4">
+        {{-- Left Column --}}
         <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white py-3">
-                    <h6 class="m-0 font-weight-bold"><i class="fas fa-info-circle me-2"></i>Research Information</h6>
+            {{-- Research Info Card --}}
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);">
+                    <h6 class="m-0 fw-bold text-white"><i class="fas fa-info-circle me-2"></i>Research Information</h6>
                 </div>
-                <div class="card-body">
-                    <h5 class="text-primary mb-4">{{ $submission->research_title }}</h5>
-                    
+                <div class="card-body p-4">
+                    <h5 class="text-primary fw-bold mb-4">{{ $submission->research_title }}</h5>
+
                     <div class="row g-4">
                         <div class="col-md-6">
                             <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Proponent</label>
@@ -57,112 +61,121 @@
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small text-uppercase fw-bold mb-1 d-block">Current Status</label>
-                            <span class="badge bg-{{ $submission->status === 'Accepted' ? 'success' : ($submission->status === 'Rejected' ? 'danger' : ($submission->status === 'Under Review' ? 'warning' : 'info')) }}">
-                                {{ $submission->status }}
-                            </span>
+                            @php
+                                $statusColors = [
+                                    'Submitted'    => 'info',
+                                    'Under Review' => 'warning',
+                                    'Accepted'     => 'success',
+                                    'Rejected'     => 'danger',
+                                ];
+                                $sc = $statusColors[$submission->status] ?? 'secondary';
+                            @endphp
+                            <span class="badge rounded-pill bg-{{ $sc }} px-3 py-2">{{ $submission->status }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card shadow">
-                <div class="card-header bg-info text-white py-3">
-                    <h6 class="m-0 font-weight-bold"><i class="fas fa-file-pdf me-2"></i>Submitted Document</h6>
+            {{-- Document Card --}}
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #0dcaf0 0%, #0baac7 100%);">
+                    <h6 class="m-0 fw-bold text-white"><i class="fas fa-file-pdf me-2"></i>Submitted Document</h6>
                 </div>
-                <div class="card-body py-4">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-light p-3 rounded me-3">
-                            <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center" style="width:56px;height:56px;flex-shrink:0;">
+                            <i class="fas fa-file-pdf fa-lg"></i>
                         </div>
-                        <div>
-                            <h6 class="mb-1 text-dark fw-bold">Review the full proposal document</h6>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 fw-bold text-dark">Review the full proposal document</h6>
                             <p class="text-muted small mb-0">PDF, DOC, or DOCX format</p>
                         </div>
-                        <div class="ms-auto">
-                             <a href="{{ route('coordinator.submissions.download', $submission->id) }}" class="btn btn-primary">
-                                <i class="fas fa-download me-2"></i>Download File
-                            </a>
-                        </div>
+                        <a href="{{ route('coordinator.submissions.download', $submission->id) }}" class="btn btn-primary rounded-3 shadow-sm flex-shrink-0">
+                            <i class="fas fa-download me-2"></i>Download File
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
+        {{-- Right Column --}}
         <div class="col-lg-4">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-dark text-white py-3">
-                    <h6 class="m-0 font-weight-bold"><i class="fas fa-users-cog me-2"></i>Review Assignments</h6>
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header border-0 py-3" style="background: linear-gradient(135deg, #343a40 0%, #212529 100%);">
+                    <h6 class="m-0 fw-bold text-white"><i class="fas fa-users-cog me-2"></i>Review Assignments</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-3">
                     @if($submission->peerReviews->count() > 0)
-                        <div class="list-group list-group-flush mb-3">
+                        <div class="mb-3">
                             @foreach($submission->peerReviews as $review)
-                                <div class="list-group-item px-0 border-0 mb-3">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="avatar-sm bg-primary-soft text-primary rounded-circle me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(13, 110, 253, 0.1);">
-                                            <i class="fas fa-user-edit small"></i>
-                                        </div>
-                                        <div>
-                                            <span class="fw-bold d-block">{{ $review->reviewer->name }}</span>
-                                            <span class="badge bg-{{ $review->status === 'Completed' ? 'success' : ($review->status === 'Under Review' ? 'info' : ($review->status === 'Pending' ? 'warning' : 'secondary')) }} rounded-pill x-small">
-                                                {{ $review->status }}
-                                            </span>
-                                        </div>
-                                        <div class="ms-auto d-flex align-items-center">
-                                            <form action="{{ route('coordinator.submissions.unassign', [$submission->id, $review->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this reviewer?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Remove Reviewer">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </form>
-                                        </div>
+                                <div class="d-flex align-items-center gap-2 p-3 rounded-3 bg-light mb-2">
+                                    <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;">
+                                        <i class="fas fa-user-edit small"></i>
                                     </div>
-                                    <div class="ps-5 small text-muted">
-                                        Assigned: {{ $review->created_at->format('M d, Y') }}
+                                    <div class="flex-grow-1 min-w-0">
+                                        <span class="fw-bold d-block text-dark" style="font-size:0.85rem;">{{ $review->reviewer->name }}</span>
+                                        @php
+                                            $rc = ['Completed' => 'success', 'Under Review' => 'info', 'Pending' => 'warning', 'Cancelled' => 'secondary'];
+                                        @endphp
+                                        <span class="badge rounded-pill bg-{{ $rc[$review->status] ?? 'secondary' }} mt-1" style="font-size:0.65rem;">{{ $review->status }}</span>
+                                        <div class="text-muted mt-1" style="font-size:0.72rem;">Assigned {{ $review->created_at->format('M d, Y') }}</div>
+                                    </div>
+                                    <div class="flex-shrink-0">
+                                        <form action="{{ route('coordinator.submissions.unassign', [$submission->id, $review->id]) }}" method="POST" onsubmit="return confirm('Remove this reviewer?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Remove Reviewer">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-4 bg-light rounded mb-3">
-                            <i class="fas fa-user-slash text-muted mb-2 d-block"></i>
-                            <p class="text-muted small mb-0">No reviewers assigned to this submission yet.</p>
+                        <div class="text-center py-4 mb-3">
+                            <div class="rounded-circle bg-secondary bg-opacity-10 text-muted d-flex align-items-center justify-content-center mx-auto mb-3" style="width:52px;height:52px;">
+                                <i class="fas fa-user-slash fa-lg"></i>
+                            </div>
+                            <p class="text-muted small mb-0">No reviewers assigned yet.</p>
                         </div>
                     @endif
 
+                    {{-- Pre-Assignment Checklist --}}
                     @if($submission->peerReviews->count() === 0)
-                        <div class="mb-4 bg-light p-3 rounded border" id="preAssignmentChecklist">
-                            <h6 class="small fw-bold text-uppercase text-muted mb-3"><i class="fas fa-clipboard-list me-2"></i>Pre-Assignment Checklist</h6>
-                            
-                            <div class="form-check mb-3">
+                        <div class="mb-3 p-3 rounded-3 border bg-light" id="preAssignmentChecklist">
+                            <h6 class="small fw-bold text-uppercase text-muted mb-3">
+                                <i class="fas fa-clipboard-list me-2 text-primary"></i>Pre-Assignment Checklist
+                            </h6>
+
+                            <div class="form-check mb-2">
                                 <input class="form-check-input checklist-item" type="checkbox" id="check1">
                                 <label class="form-check-label small" for="check1">
                                     <span class="fw-bold d-block">1. Integrity & Anonymity</span>
-                                    <span class="text-muted" style="font-size: 0.75rem;">Is the manuscript technically sound and properly anonymized? (Names/Affiliations removed, files OK, metadata cleared)</span>
+                                    <span class="text-muted" style="font-size: 0.72rem;">Manuscript anonymized, metadata cleared, files intact.</span>
                                 </label>
                             </div>
-                            
-                            <div class="form-check mb-3">
+
+                            <div class="form-check mb-2">
                                 <input class="form-check-input checklist-item" type="checkbox" id="check2">
                                 <label class="form-check-label small" for="check2">
                                     <span class="fw-bold d-block">2. Scope & Ethics</span>
-                                    <span class="text-muted" style="font-size: 0.75rem;">Does this submission meet scope and ethical standards? (Topic fit, plagiarism score OK, ethics approvals cited)</span>
+                                    <span class="text-muted" style="font-size: 0.72rem;">Topic fit, plagiarism score acceptable, ethics approvals cited.</span>
                                 </label>
                             </div>
-                            
-                            <div class="form-check mb-3">
+
+                            <div class="form-check">
                                 <input class="form-check-input checklist-item" type="checkbox" id="check3">
                                 <label class="form-check-label small" for="check3">
                                     <span class="fw-bold d-block">3. Structural Completeness</span>
-                                    <span class="text-muted" style="font-size: 0.75rem;">Are all essential submission components present? (Abstract, figures/tables, and full reference list included)</span>
+                                    <span class="text-muted" style="font-size: 0.72rem;">Abstract, figures/tables, and references all present.</span>
                                 </label>
                             </div>
                         </div>
                     @endif
 
-                    <button class="btn btn-primary w-100 {{ $submission->peerReviews->count() === 0 ? 'disabled' : '' }}" 
-                        id="assignReviewerBtn" data-bs-toggle="modal" data-bs-target="#assignModal" 
+                    <button class="btn btn-primary w-100 rounded-3 shadow-sm {{ $submission->peerReviews->count() === 0 ? 'disabled' : '' }}"
+                        id="assignReviewerBtn" data-bs-toggle="modal" data-bs-target="#assignModal"
                         data-submission-id="{{ $submission->id }}" data-submission-title="{{ $submission->research_title }}"
                         {{ $submission->peerReviews->count() === 0 ? 'disabled' : '' }}>
                         <i class="fas fa-{{ $submission->peerReviews->count() > 0 ? 'user-plus' : 'plus' }} me-2"></i>
@@ -179,18 +192,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         const checkboxes = document.querySelectorAll('.checklist-item');
         const assignBtn = document.getElementById('assignReviewerBtn');
-
         if (checkboxes.length > 0) {
-            checkboxes.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', function() {
                     const allChecked = Array.from(checkboxes).every(c => c.checked);
-                    if (allChecked) {
-                        assignBtn.classList.remove('disabled');
-                        assignBtn.removeAttribute('disabled');
-                    } else {
-                        assignBtn.classList.add('disabled');
-                        assignBtn.setAttribute('disabled', 'disabled');
-                    }
+                    allChecked ? (assignBtn.classList.remove('disabled'), assignBtn.removeAttribute('disabled'))
+                               : (assignBtn.classList.add('disabled'), assignBtn.setAttribute('disabled', 'disabled'));
                 });
             });
         }
@@ -200,3 +207,10 @@
 
 @include('coordinator.submissions.partials.assign-modal')
 @endsection
+
+@push('styles')
+<style>
+    .rounded-4 { border-radius: 1rem !important; }
+    .card { transition: box-shadow 0.2s ease; }
+</style>
+@endpush

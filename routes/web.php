@@ -226,7 +226,7 @@ Route::middleware(['auth', 'coordinator'])->prefix('coordinator')->name('coordin
 });
 
 Route::middleware(['auth', 'reviewer'])->prefix('reviewer')->name('reviewer.')->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'dashboard'])->name('dashboard');
     Route::get('/reviews', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'index'])->name('reviews.index');
     Route::post('/reviews/{id}/accept', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'accept'])->name('reviews.accept');
     Route::post('/reviews/{id}/decline', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'decline'])->name('reviews.decline');

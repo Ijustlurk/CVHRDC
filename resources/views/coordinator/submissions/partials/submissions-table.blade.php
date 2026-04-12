@@ -4,13 +4,13 @@
 
 <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
-        <thead class="bg-light text-dark text-uppercase small" style="font-size: 0.7rem; letter-spacing: 0.05rem;">
+        <thead class="bg-light text-muted text-uppercase" style="font-size: 0.72rem;">
             <tr>
                 <th class="px-4 py-3 border-0">Research Details</th>
-                <th class="py-3 border-0 text-center">Call/Date</th>
+                <th class="py-3 border-0 text-center">Call / Date</th>
                 <th class="py-3 border-0 text-center">Status</th>
                 <th class="py-3 border-0">Reviewers</th>
-                <th class="px-4 py-3 border-0 text-center" style="width: 150px;">Actions</th>
+                <th class="px-4 py-3 border-0 text-center" style="width: 140px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -65,13 +65,13 @@
             @empty
             <tr>
                 <td colspan="5" class="text-center py-5">
-                    <div class="py-4">
-                        <i class="fas fa-search fa-3x text-light mb-3"></i>
-                        <h6 class="text-muted fw-normal">No submissions found matching your criteria.</h6>
-                        <button type="button" class="btn btn-sm btn-link text-decoration-none mt-2" onclick="document.getElementById('resetFiltersBtn').click()">
-                            <i class="fas fa-redo me-1"></i>Reset all filters
-                        </button>
+                    <div class="opacity-40 mb-3">
+                        <i class="fas fa-folder-open fa-3x"></i>
                     </div>
+                    <h6 class="text-muted">No submissions found matching your criteria.</h6>
+                    <button type="button" class="btn btn-sm btn-link text-decoration-none" onclick="document.getElementById('resetFiltersBtn').click()">
+                        <i class="fas fa-undo me-1"></i>Reset all filters
+                    </button>
                 </td>
             </tr>
             @endforelse
@@ -80,7 +80,7 @@
 </div>
 
 @if($submissions->hasPages())
-<div class="card-footer bg-white border-0 py-3 mt-auto" id="submissionsPagination">
+<div class="d-flex justify-content-end px-3 py-3 border-top bg-light" id="submissionsPagination">
     {{ $submissions->links() }}
 </div>
 @endif
