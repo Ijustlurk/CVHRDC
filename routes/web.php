@@ -80,6 +80,8 @@ Route::get('/dashboard', function () {
             return app(RUCDashboardController::class)->index();
         } elseif ($role === 'peer review coordinator') {
             return redirect()->route('coordinator.dashboard');
+        } elseif ($role === 'reviewer') {
+            return redirect()->route('reviewer.dashboard');
         } else {
             return app(UserDashboardController::class)->index();
         }
