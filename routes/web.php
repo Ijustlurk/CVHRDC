@@ -230,6 +230,9 @@ Route::middleware(['auth', 'coordinator'])->prefix('coordinator')->name('coordin
 Route::middleware(['auth', 'reviewer'])->prefix('reviewer')->name('reviewer.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'dashboard'])->name('dashboard');
     Route::get('/reviews', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'index'])->name('reviews.index');
+    Route::get('/reviews/{id}', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'show'])->name('reviews.show');
+    Route::post('/reviews/{id}/verdict', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'submitVerdict'])->name('reviews.verdict');
+    Route::get('/reviews/{id}/download', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'downloadDocument'])->name('reviews.download');
     Route::post('/reviews/{id}/accept', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'accept'])->name('reviews.accept');
     Route::post('/reviews/{id}/decline', [App\Http\Controllers\Reviewer\PeerReviewController::class, 'decline'])->name('reviews.decline');
 });

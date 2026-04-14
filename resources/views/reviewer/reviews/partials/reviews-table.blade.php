@@ -9,6 +9,8 @@
                 <th class="py-3 text-center">Status</th>
                 @if($tab === 'invitations')
                     <th class="px-4 py-3 text-center">Actions</th>
+                @else
+                    <th class="px-4 py-3 text-center">Actions</th>
                 @endif
             </tr>
         </thead>
@@ -61,6 +63,20 @@
                             </button>
                         </form>
                     </div>
+                </td>
+                @else
+                <td class="px-4 py-3 text-center">
+                    @if($review->status === 'Under Review')
+                        <a href="{{ route('reviewer.reviews.show', $review->id) }}" class="btn btn-sm btn-primary shadow-sm px-3">
+                            <i class="fas fa-eye me-1"></i>View & Review
+                        </a>
+                    @elseif($review->status === 'Completed')
+                        <a href="{{ route('reviewer.reviews.show', $review->id) }}" class="btn btn-sm btn-outline-secondary shadow-sm px-3">
+                            <i class="fas fa-eye me-1"></i>View Verdict
+                        </a>
+                    @else
+                        <span class="text-muted small">—</span>
+                    @endif
                 </td>
                 @endif
             </tr>

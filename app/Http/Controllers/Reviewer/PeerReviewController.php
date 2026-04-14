@@ -8,6 +8,7 @@ use App\Models\ProposalSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class PeerReviewController extends Controller
 {
@@ -177,5 +178,102 @@ class PeerReviewController extends Controller
 
         $review->update(['status' => 'Cancelled']);
         return back()->with('success', 'Review invitation declined.');
+    }
+    /**
+     * Show double-blind submission detail for reviewer
+     */
+    public function show($id)
+    {
+        $review = PeerReview::where('reviewer_id', Auth::id())
+            ->where('id', $id)
+            ->with('submission')
+            ->firstOrFail();
+
+        if (!in_array($review->status, ['Under Review', 'Completed'])) {
+            return redirect()->route('reviewer.reviews.index')
+                ->with('error', 'You can only view submissions you have accepted to review.');
+        }
+
+        $verdicts = [
+            'Accept Submission',
+            'Revisions Required (Minor)',
+            'Resubmit for Review',
+            'Resubmit Elsewhere',
+            'Decline Submission',
+        ];
+
+        return view('reviewer.reviews.show', compact('review', 'verdicts'));
+    }
+
+    /**
+     * Submit a final verdict and comments for a review
+     */
+    public function submitVerdict(Request $request, $id)
+    {
+        $review = PeerReview::where('reviewer_id', Auth::id())
+            ->where('id', $id)
+            ->firstOrFail();
+
+        if ($review->status !== 'Under Review') {
+            return back()->with('error', 'You can only submit a verdict for an active review.');
+        }
+
+        $request->validate([
+            'recommendation' => 'required|in:Accept Submission,Revisions Required (Minor),Resubmit for Review,Resubmit Elsewhere,Decline Submission',
+            'comments'       => 'required|string|min:20|max:5000',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $review->update([
+                'recommendation' => $request->recommendation,
+                'comments'       => $request->comments,
+                'status'         => 'Completed',
+            ]);
+
+            // If all reviewers for this submission have completed, reflect on submission status
+            $submission = $review->submission;
+            $allCompleted = $submission->peerReviews()
+                ->where('status', '!=', 'Completed')
+                ->where('status', '!=', 'Cancelled')
+                ->doesntExist();
+
+            if ($allCompleted) {
+                $submission->update(['status' => 'Accepted']);
+            }
+
+            DB::commit();
+            return redirect()->route('reviewer.reviews.index', ['tab' => 'assignments'])
+                ->with('success', 'Your review verdict has been submitted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Securely download the submission document (double-blind: reviewer access only)
+     */
+    public function downloadDocument($id)
+    {
+        $review = PeerReview::where('reviewer_id', Auth::id())
+            ->where('id', $id)
+            ->with('submission')
+            ->firstOrFail();
+
+        if (!in_array($review->status, ['Under Review', 'Completed'])) {
+            abort(403, 'Access denied.');
+        }
+
+        $submission = $review->submission;
+
+        if (!$submission->proposal_document || !Storage::disk('public')->exists($submission->proposal_document)) {
+            return back()->with('error', 'Document not found.');
+        }
+
+        // Strip author-identifying filename for double-blind
+        $blindName = 'submission_' . $review->id . '_' . now()->format('Ymd') . '.pdf';
+
+        return Storage::disk('public')->download($submission->proposal_document, $blindName);
     }
 }
