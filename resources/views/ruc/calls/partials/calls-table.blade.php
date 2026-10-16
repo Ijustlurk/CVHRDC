@@ -73,6 +73,15 @@
                             </button>
                         </form>
                         @endif
+                        
+                        <!-- Toggle Visibility -->
+                        <form method="POST" action="{{ route('ruc.calls.status', $call->id) }}" class="d-inline" onsubmit="return confirmToggleVisibility(event, '{{ addslashes($call->title) }}', '{{ $call->visibility_status === 'Public' ? 'Private' : 'Public' }}')">
+                            @csrf
+                            <input type="hidden" name="action" value="toggle_visibility">
+                            <button type="submit" class="btn btn-sm btn-{{ $call->visibility_status === 'Public' ? 'secondary' : 'success' }}" title="Set to {{ $call->visibility_status === 'Public' ? 'Private' : 'Public' }}">
+                                <i class="fas fa-{{ $call->visibility_status === 'Public' ? 'eye-slash' : 'eye' }}"></i>
+                            </button>
+                        </form>
                     </div>
                 </td>
             </tr>

@@ -151,7 +151,7 @@ class PeerReviewController extends Controller
             $review->update(['status' => 'Under Review']);
 
             $submission = $review->submission;
-            if ($submission && $submission->status === 'Submitted') {
+            if ($submission && !in_array($submission->status, ['Accepted', 'Rejected'])) {
                 $submission->update(['status' => 'Under Review']);
             }
 

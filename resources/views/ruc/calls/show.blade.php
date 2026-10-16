@@ -224,6 +224,15 @@
                         </form>
                         @endif
 
+                        <!-- Toggle Visibility -->
+                        <form method="POST" action="{{ route('ruc.calls.status', $call->id) }}" onsubmit="return confirmToggleVisibility(event, '{{ addslashes($call->title) }}', '{{ $call->visibility_status === 'Public' ? 'Private' : 'Public' }}')">
+                            @csrf
+                            <input type="hidden" name="action" value="toggle_visibility">
+                            <button type="submit" class="btn btn-{{ $call->visibility_status === 'Public' ? 'secondary' : 'success' }} w-100">
+                                <i class="fas fa-{{ $call->visibility_status === 'Public' ? 'eye-slash' : 'eye' }} me-2"></i>Set to {{ $call->visibility_status === 'Public' ? 'Private' : 'Public' }}
+                            </button>
+                        </form>
+
                         <a href="{{ route('ruc.calls.index') }}" class="btn btn-outline-primary">
                             <i class="fas fa-arrow-left me-2"></i>Back to All Calls
                         </a>
@@ -406,6 +415,50 @@ function confirmReopenCall(event, callTitle) {
             });
 
             // Submit the form
+            event.target.submit();
+        }
+    });
+
+    return false;
+}
+
+// SweetAlert confirmation for toggling visibility
+function confirmToggleVisibility(event, callTitle, newVisibility) {
+    event.preventDefault();
+
+    let actionText = newVisibility === 'Public' ? 'make public' : 'make private';
+    let iconType = newVisibility === 'Public' ? 'info' : 'warning';
+    
+    Swal.fire({
+        title: 'Change Visibility?',
+        html: `<p class="mb-0">Are you sure you want to ${actionText} "<strong>${callTitle}</strong>"?</p>`,
+        icon: iconType,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-check me-2"></i>Yes, Change it',
+        cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+        reverseButtons: true,
+        customClass: {
+            popup: 'swal-wide',
+            confirmButton: 'btn btn-primary btn-lg px-4 me-2',
+            cancelButton: 'btn btn-secondary btn-lg px-4'
+        },
+        buttonsStyling: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Updating Visibility...',
+                html: '<p class="mb-0">Please wait.</p>',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'swal-wide'
+                },
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             event.target.submit();
         }
     });

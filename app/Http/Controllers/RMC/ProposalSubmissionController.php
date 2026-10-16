@@ -89,6 +89,19 @@ class ProposalSubmissionController extends Controller
 
         $submission = $call->proposalSubmissions()->findOrFail($submissionId);
 
+        // Validation: Only let RMC update if review has finished
+        // Check if there are any ongoing (Pending or Under Review) peer reviews
+        $hasOngoingReviews = $submission->peerReviews()
+            ->whereIn('status', ['Pending', 'Under Review'])
+            ->exists();
+
+        if ($hasOngoingReviews) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot update status. The proposal still has ongoing peer reviews.'
+            ], 422);
+        }
+
         $validator = Validator::make($request->all(), [
             'status' => 'required|in:Submitted,Under Review,Accepted,Rejected',
             'remarks' => 'nullable|string',

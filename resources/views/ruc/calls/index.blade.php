@@ -554,6 +554,50 @@ function confirmReopenCall(event, callTitle) {
 
     return false;
 }
+
+// SweetAlert confirmation for toggling visibility
+function confirmToggleVisibility(event, callTitle, newVisibility) {
+    event.preventDefault();
+
+    let actionText = newVisibility === 'Public' ? 'make public' : 'make private';
+    let iconType = newVisibility === 'Public' ? 'info' : 'warning';
+    
+    Swal.fire({
+        title: 'Change Visibility?',
+        html: `<p class="mb-0">Are you sure you want to ${actionText} "<strong>${callTitle}</strong>"?</p>`,
+        icon: iconType,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-check me-2"></i>Yes, Change it',
+        cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+        reverseButtons: true,
+        customClass: {
+            popup: 'swal-wide',
+            confirmButton: 'btn btn-primary btn-lg px-4 me-2',
+            cancelButton: 'btn btn-secondary btn-lg px-4'
+        },
+        buttonsStyling: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Updating Visibility...',
+                html: '<p class="mb-0">Please wait.</p>',
+                icon: 'info',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'swal-wide'
+                },
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            event.target.submit();
+        }
+    });
+
+    return false;
+}
 </script>
 
 <style>

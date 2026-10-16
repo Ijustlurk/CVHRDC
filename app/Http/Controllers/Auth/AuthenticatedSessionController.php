@@ -40,10 +40,6 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('coordinator.dashboard');
         }
 
-        if (in_array($roleName, ['superadmin', 'admin', 'rmc', 'ruc', 'editor-in-chief', 'publishing coordinator'])) {
-            return redirect()->route('admin.tabs.index');
-        }
-
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
