@@ -3,7 +3,7 @@
 @section('content')
 <div class="container px-4 py-5">
     <div class="d-flex align-items-center mb-4 gap-3">
-        <h4 class="mb-0">CVHRMC User Management System</h4>
+        <h4 class="mb-0">CVHRDC User Management System</h4>
         <div class="alert alert-info mb-0 py-2 px-3">
             Welcome to the User Management section. You can manage users and roles here.
         </div>

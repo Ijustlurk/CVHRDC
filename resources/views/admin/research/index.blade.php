@@ -266,21 +266,56 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        function initTables() {
             if (typeof $ !== 'undefined' && $.fn.DataTable) {
-                $('#publishedTable, #deletedTable, #conferencePublishedTable, #conferenceDeletedTable, #bookPublishedTable, #bookDeletedTable').DataTable({
-                    order: [
-                        [3, 'desc']
-                    ],
-                    pageLength: 10,
-                    language: {
-                        search: "<i class='fas fa-search'></i> Search:",
-                        lengthMenu: "_MENU_ records per page"
-                    },
-                    dom: '<"row"<"col-md-6"l><"col-md-6"f>>rtip',
-                    retrieve: true
-                });
+                const publishedTables = [
+                    '#publishedTable', 
+                    '#conferencePublishedTable', 
+                    '#bookPublishedTable', 
+                    '#preprintPublishedTable'
+                ];
+                const deletedTables = [
+                    '#deletedTable', 
+                    '#conferenceDeletedTable', 
+                    '#bookDeletedTable',
+                    '#preprintDeletedTable'
+                ];
+                
+                const initGenericTable = (id, sortCol) => {
+                    const $table = $(id);
+                    if ($table.length) {
+                        // Check if the table has an empty state row (one td spanning multiple columns)
+                        // DataTables crashes if tbody has cells with colspan during initialization
+                        const hasEmptyRow = $table.find('tbody tr td[colspan]').length > 0;
+                        
+                        if (hasEmptyRow) {
+                            // If it's already a DataTables instance, destroy it so it becomes a plain table
+                            if ($.fn.DataTable.isDataTable(id)) {
+                                $table.DataTable().destroy();
+                            }
+                            return;
+                        }
+
+                        $table.DataTable({
+                            order: [[sortCol, 'desc']],
+                            pageLength: 10,
+                            language: {
+                                lengthMenu: "_MENU_ records per page"
+                            },
+                            dom: '<"row"<"col-md-12"l>>rtip',
+                            retrieve: true,
+                            destroy: true
+                        });
+                    }
+                };
+
+                publishedTables.forEach(id => initGenericTable(id, 3));
+                deletedTables.forEach(id => initGenericTable(id, 1));
             }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initTables();
 
             // Ensure conference modal opens even if data attributes are ignored
             document.querySelectorAll('[data-bs-target="#createConferenceModal"]').forEach(btn => {

@@ -29,6 +29,17 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+        $roleName = $user->roles->isNotEmpty() ? strtolower($user->roles[0]->name) : '';
+
+        if ($roleName === 'reviewer') {
+            return redirect()->route('reviewer.dashboard');
+        }
+
+        if ($roleName === 'peer review coordinator') {
+            return redirect()->route('coordinator.dashboard');
+        }
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 

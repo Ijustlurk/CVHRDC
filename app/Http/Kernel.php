@@ -14,7 +14,7 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected $middleware = [
-        // \App\Http\Middleware\TrustHosts::class,
+        \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
         \Illuminate\Http\Middleware\HandleCors::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
@@ -68,5 +68,7 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminAccessMiddleware::class,
         'rmc' => \App\Http\Middleware\RMCAccessMiddleware::class,
         'ruc' => \App\Http\Middleware\RUCAccessMiddleware::class,
+        'coordinator' => \App\Http\Middleware\CoordinatorAccessMiddleware::class,
+        'reviewer' => \App\Http\Middleware\ReviewerAccessMiddleware::class,
     ];
 }

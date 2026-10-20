@@ -267,13 +267,8 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof $ !== 'undefined' && $.fn.DataTable) {
-        $('#conferencePublishedTable, #conferenceDeletedTable').DataTable({
-            order: [[3, 'desc']], pageLength: 10,
-            language: { search: "<i class='fas fa-search'></i> Search:", lengthMenu: "_MENU_ records per page" },
-            dom: '<"row"<"col-md-6"l><"col-md-6"f>>rtip',
-            retrieve: true
-        });
+    if (typeof initTables === 'function') {
+        initTables();
     }
 
     // Conference authors chips functionality
@@ -778,6 +773,8 @@ function performConferenceSearch() {
         const tableContainer = document.getElementById('conferenceTableContainer');
         if (tableContainer && data.html) {
             tableContainer.innerHTML = data.html;
+            // Re-initialize DataTables after AJAX update
+            if (typeof initTables === 'function') initTables();
         }
 
         if (counterText) {
@@ -821,6 +818,8 @@ document.addEventListener('click', function(e) {
             const tableContainer = document.getElementById('conferenceTableContainer');
             if (tableContainer && data.html) {
                 tableContainer.innerHTML = data.html;
+                // Re-initialize DataTables after AJAX update
+                if (typeof initTables === 'function') initTables();
             }
 
             if (counterText) {

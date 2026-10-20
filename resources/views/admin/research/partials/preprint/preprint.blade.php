@@ -592,6 +592,8 @@
                 const tableContainer = document.getElementById('preprintTableContainer');
                 if (tableContainer && data.html) {
                     tableContainer.innerHTML = data.html;
+                    // Re-initialize DataTables after AJAX update
+                    if (typeof initTables === 'function') initTables();
                 }
 
                 if (counterText) {
@@ -635,6 +637,8 @@
                     const tableContainer = document.getElementById('preprintTableContainer');
                     if (tableContainer && data.html) {
                         tableContainer.innerHTML = data.html;
+                        // Re-initialize DataTables after AJAX update
+                        if (typeof initTables === 'function') initTables();
                     }
 
                     if (counterText) {

@@ -146,8 +146,8 @@ class CallForProposalController extends Controller
         $call = CallForProposal::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'status' => 'required|in:Draft,For Review,Open,Closed',
-            'action' => 'nullable|in:approve,withdraw,close,reopen',
+            'status' => 'nullable|in:Draft,For Review,Open,Closed',
+            'action' => 'nullable|in:approve,withdraw,close,reopen,toggle_visibility',
         ]);
 
         if ($validator->fails()) {
@@ -159,7 +159,14 @@ class CallForProposalController extends Controller
         $action = $request->action;
 
         // Handle workflow actions
-        if ($action === 'approve' && $status === 'Open') {
+        if ($action === 'toggle_visibility') {
+            $newVisibility = $call->visibility_status === 'Public' ? 'Private' : 'Public';
+            $call->update([
+                'visibility_status' => $newVisibility,
+                'approved_by' => Auth::id(),
+            ]);
+            $message = 'Call visibility updated to ' . $newVisibility . ' successfully.';
+        } elseif ($action === 'approve' && $status === 'Open') {
             // Approve call: Set to Open and Public
             $call->update([
                 'status' => 'Open',
