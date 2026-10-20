@@ -119,7 +119,7 @@ class AnnouncementController extends Controller
             'active' => 'nullable|boolean',
         ]);
 
-        $validated['active'] = $request->has('active') ? 1 : 0;
+        $validated['active'] = $request->boolean('active') ? 1 : 0;
 
         $announcement = Announcement::create($validated);
         return redirect()->back()->with('success', 'Announcement added successfully!');
@@ -155,7 +155,7 @@ class AnnouncementController extends Controller
                 'active' => 'nullable|boolean',
             ]);
 
-            $validated['active'] = $request->has('active') ? 1 : 0;
+            $validated['active'] = $request->boolean('active') ? 1 : 0;
 
             $announcement->update($validated);
 

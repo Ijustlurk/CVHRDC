@@ -118,6 +118,15 @@ class UserManagementController extends Controller
         if ($request->filled('password')) {
             $rules['password'] = ['confirmed', Password::defaults()];
             $messages['password.confirmed'] = 'Password confirmation does not match.';
+
+            // Ensure the new password is not the same as the current password
+            if (Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed. Please check the form and try again.',
+                    'errors' => ['password' => ['New password cannot be the same as the current password.']]
+                ], 422);
+            }
         }
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -146,7 +155,8 @@ class UserManagementController extends Controller
             ];
 
             if ($request->filled('password')) {
-                $updateData['password'] = Hash::make($request->password);
+                // The User model automatically hashes the password via $casts
+                $updateData['password'] = $request->password;
             }
 
             $user->update($updateData);

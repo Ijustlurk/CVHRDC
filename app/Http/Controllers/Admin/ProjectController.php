@@ -200,7 +200,8 @@ class ProjectController extends Controller
 
             // Add the authenticated user's name
             $validated['added_by'] = auth()->user() ? auth()->user()->name : 'Unknown';
-            $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+            $validated['is_active'] = $request->boolean('is_active') ? 1 : 0;
+            $validated['is_visible'] = $request->boolean('is_visible') ? 1 : 0;
             // Convert Google Drive URL to direct image URL
             $validated['image'] = $this->convertGoogleDriveUrl($validated['image']);
             $project = Project::create($validated);
@@ -310,8 +311,8 @@ class ProjectController extends Controller
             // Convert Google Drive URL to direct image URL
             $validated['image'] = $this->convertGoogleDriveUrl($validated['image']);
 
-            $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-            $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+            $validated['is_active'] = $request->boolean('is_active') ? 1 : 0;
+            $validated['is_visible'] = $request->boolean('is_visible') ? 1 : 0;
 
             $project->update($validated);
 

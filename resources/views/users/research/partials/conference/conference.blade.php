@@ -25,7 +25,7 @@
             <div class="tab-pane fade show active" id="conf-published" role="tabpanel">
                 <!-- Search and Filter Section -->
                 <div class="card-header bg-light border-bottom py-2 mb-3" style="background-color: #f8f9fa !important;">
-                    <form id="searchFilterFormConference" method="GET" action="{{ route('users.research.index') }}" class="mb-0">
+                    <form id="searchFilterFormConference" method="GET" action="{{ route('users.conference-papers.index') }}" class="mb-0">
                         <input type="hidden" name="type" value="conference">
                         
                         <!-- Search Bar -->
@@ -769,7 +769,7 @@ function performConferenceSearch() {
     const counterText = document.getElementById('counterTextConference');
     if (loadingIndicator) loadingIndicator.style.display = 'inline-block';
 
-    const searchUrl = `{{ route('users.research.index') }}?${params.toString()}`;
+    const searchUrl = `{{ route('users.conference-papers.index') }}?${params.toString()}`;
 
     fetch(searchUrl, {
         method: 'GET',

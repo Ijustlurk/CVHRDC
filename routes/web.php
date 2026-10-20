@@ -249,6 +249,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::delete('/research/{id}/force-delete', [UserResearchCTRL::class, 'forceDelete'])->name('research.force-delete');
     
     // Preprint Management Routes
+    Route::get('/preprints', [UserPreprintController::class, 'index'])->name('preprints.index');
     Route::get('/preprints/{preprint}', [UserPreprintController::class, 'show'])->name('preprints.show');
     Route::post('/preprints/store', [UserPreprintController::class, 'store'])->name('preprints.store');
     Route::get('/preprints/{preprint}/edit', [UserPreprintController::class, 'edit'])->name('preprints.edit');
@@ -259,6 +260,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::delete('/preprints/{id}/force-delete', [UserPreprintController::class, 'forceDelete'])->name('preprints.force-delete');
     
     // Conference Paper Management Routes
+    Route::get('/conference-papers', [UserConferencePaperController::class, 'index'])->name('conference-papers.index');
     Route::get('/conference-papers/{conference_paper}', [UserConferencePaperController::class, 'show'])->name('conference-papers.show');
     Route::post('/conference-papers/store',[UserConferencePaperController::class, 'store'])->name('conference-papers.store');
     Route::get('/conference-papers/{conference_paper}/edit', [UserConferencePaperController::class, 'edit'])->name('conference-papers.edit');
@@ -269,6 +271,7 @@ Route::namespace('App\Http\Controllers\Users')->prefix('users')->name('users.')-
     Route::delete('/conference-papers/{id}/force-delete', [UserConferencePaperController::class, 'forceDelete'])->name('conference-papers.force-delete');
     
     // Book Management Routes
+    Route::get('/books', [UserBookController::class, 'index'])->name('books.index');
     Route::get('/books/{book}', [UserBookController::class, 'show'])->name('books.show');
     Route::post('/books/store',[UserBookController::class, 'store'])->name('books.store');
     Route::get('/books/{book}/edit', [UserBookController::class, 'edit'])->name('books.edit');

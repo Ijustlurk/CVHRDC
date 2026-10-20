@@ -123,7 +123,7 @@ class PartnerController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+        $validated['is_active'] = $request->boolean('is_active') ? 1 : 0;
 
         $partner = \App\Models\Partner::create($validated);
         return redirect()->back()->with('success', 'Partner added successfully!');
@@ -161,7 +161,7 @@ class PartnerController extends Controller
                 'is_active' => 'nullable|boolean',
             ]);
 
-            $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+            $validated['is_active'] = $request->boolean('is_active') ? 1 : 0;
 
             $partner->update($validated);
 

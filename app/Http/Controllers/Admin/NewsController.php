@@ -147,7 +147,7 @@ class NewsController extends Controller
         // Convert Google Drive URL to direct image URL
         $validated['image'] = $this->convertGoogleDriveUrl($validated['image']);
 
-        $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+        $validated['is_visible'] = $request->boolean('is_visible') ? 1 : 0;
         $validated['added_by'] = auth()->user() ? auth()->user()->name : 'Unknown';
 
         $news = \App\Models\News::create($validated);
@@ -225,7 +225,7 @@ class NewsController extends Controller
             // Convert Google Drive URL to direct image URL
             $validated['image'] = $this->convertGoogleDriveUrl($validated['image']);
 
-            $validated['is_visible'] = $request->has('is_visible') ? 1 : 0;
+            $validated['is_visible'] = $request->boolean('is_visible') ? 1 : 0;
 
             $news->update($validated);
 
